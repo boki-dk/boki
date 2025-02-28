@@ -32,14 +32,6 @@ lerna-debug.log*
 # misc
 .DS_Store
 
-# Nuxt dev/build outputs
-.output
-.data
-.nuxt
-.nitro
-.cache
-dist
-
 # Node dependencies
 node_modules
 
@@ -60,3 +52,7 @@ logs
 # wrangler files
 .wrangler
 .dev.vars
+
+# React
+.react-router
+build
