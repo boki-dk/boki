@@ -4,6 +4,7 @@ import { Hono } from 'hono'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { usersTable } from './db/schema.js'
+import { eq } from 'drizzle-orm'
 
 const db = drizzle(process.env.DATABASE_URL!)
 
@@ -16,6 +17,15 @@ app.get('/', (c) => {
 app.get('/users', async (c) => {
   const users = await db.select().from(usersTable)
   return c.json(users)
+})
+
+app.get('/users/:userId', async (c) => {
+  const userId = c.req.param('userId')
+  const users = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, Number(userId)))
+  return c.json(users?.[0])
 })
 
 app.get('/listings/:listingId', (c) => {
