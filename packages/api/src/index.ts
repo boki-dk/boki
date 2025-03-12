@@ -1,6 +1,11 @@
+import '@dotenvx/dotenvx/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { ofetch } from 'ofetch'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { usersTable } from './db/schema.js'
+
+const db = drizzle(process.env.DATABASE_URL!)
 
 const app = new Hono()
 
@@ -8,8 +13,9 @@ app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 
-app.get('/about', (c) => {
-  return c.text('About page')
+app.get('/users', async (c) => {
+  const users = await db.select().from(usersTable)
+  return c.json(users)
 })
 
 app.get('/listings/:listingId', (c) => {
