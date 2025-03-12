@@ -2,9 +2,11 @@
   "name": "boki",
   "license": "MIT",
   "engines": {
-    "node": ">=22.14.0"
+    "node": "22.x"
   },
-  "scripts": {},
+  "scripts": {
+    "api": "pnpm --filter boki-api"
+  },
   "devDependencies": {
     "prettier": "^3.5.2"
   },
