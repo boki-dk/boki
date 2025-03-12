@@ -1,8 +1,10 @@
-import { integer, pgTable, varchar } from 'drizzle-orm/pg-core'
+import { integer, pgTable, timestamp, jsonb, text } from 'drizzle-orm/pg-core'
 
-export const usersTable = pgTable('users', {
+export const scrapedListingsTable = pgTable('scraped_listings', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull(),
-  age: integer().notNull(),
-  email: varchar({ length: 255 }).notNull().unique(),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+  source: text().notNull(),
+  listingId: text().notNull(),
+  json: jsonb().notNull(),
 })

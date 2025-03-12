@@ -3,7 +3,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "drizzle-kit": "drizzle-kit"
+    "drizzle-kit": "drizzle-kit",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.38.5",
