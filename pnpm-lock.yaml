@@ -45,6 +45,9 @@ importers:
       tsx:
         specifier: ^4.7.1
         version: 4.19.3
+      typescript:
+        specifier: ^5.7.2
+        version: 5.8.2
 
   packages/www:
     dependencies:
