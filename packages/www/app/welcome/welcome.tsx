@@ -5,7 +5,7 @@ export function Welcome() {
         <div className="max-w-[450px] w-full px-4 grid gap-6">
           <div className="text-9xl text-center">🏗️</div>
           <h1 className="text-4xl font-bold text-center">Her bygger vi Boki 🔨</h1>
-          <h2 className="text-lg text-center">Boki samler boliger hele landet og hjælper dig med at finde din næste bolig</h2>
+          <h2 className="text-lg text-center">Boki samler boliger fra hele landet og hjælper dig med at finde din næste bolig</h2>
         </div>
       </div>
     </main>
