@@ -5,7 +5,8 @@
     "node": "22.x"
   },
   "scripts": {
-    "api": "pnpm --filter boki-api"
+    "api": "pnpm --filter api",
+    "www": "pnpm --filter www"
   },
   "devDependencies": {
     "prettier": "^3.5.2"
