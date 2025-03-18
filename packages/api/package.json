@@ -1,6 +1,9 @@
 {
   "name": "api",
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
