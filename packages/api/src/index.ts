@@ -30,7 +30,7 @@ app.get('/', (c) => {
 // })
 
 app.get('/listings', async (c) => {
-  const listings = await db.select().from(scrapedListingsTable)
+  const listings = await db.select().from(scrapedListingsTable).limit(10)
   return c.json(listings)
 })
 
@@ -126,18 +126,20 @@ app.get('/nybolig/listings', async (c) => {
         if (existingListing[0].hash === hash(listing)) {
           return null
         }
-        await db.update(scrapedListingsTable).set({
-          json: listing,
-          hash: hash(listing),
-          updatedAt: new Date()
-        }).where(eq(scrapedListingsTable.listingId, listing.id))
+        await db
+          .update(scrapedListingsTable)
+          .set({
+            json: listing,
+            hash: hash(listing),
+            updatedAt: new Date(),
+          })
+          .where(eq(scrapedListingsTable.listingId, listing.id))
 
         return null
       }),
     )
   ).filter((x) => x !== null)
 
-  
   console.log(`Found ${listings.length} new listings`)
 
   for (const listing of listings) {
@@ -145,7 +147,7 @@ app.get('/nybolig/listings', async (c) => {
       source: 'nybolig',
       listingId: listing.id,
       json: listing,
-      hash: hash(listing)
+      hash: hash(listing),
     })
   }
   return c.json(listings)
