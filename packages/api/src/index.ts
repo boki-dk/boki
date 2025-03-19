@@ -5,6 +5,7 @@ import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { scrapedListingsTable } from './db/schema.js'
 import { eq } from 'drizzle-orm'
+import { hash } from 'ohash'
 
 const db = drizzle(process.env.DATABASE_URL!)
 
@@ -111,24 +112,35 @@ app.get('/nybolig/listings', async (c) => {
   })
 
   // Filter out listings that already exist in the database
-  // const listings = (
-  //   await Promise.all(
-  //     response.cases.map(async (listing: any) => {
-  //       const existingListing = await db.select().from(scrapedListingsTable).where(eq(scrapedListingsTable.listingId, listing.id))
-  //       return existingListing ? null : listing
-  //     }),
-  //   )
-  // ).filter((x) => x !== null)
+  const listings = (
+    await Promise.all(
+      response.cases.map(async (listing: any) => {
+        const existingListing = await db.select().from(scrapedListingsTable).where(eq(scrapedListingsTable.listingId, listing.id))
+        if (existingListing.length == 0) {
+          return listing
+        }
+        if (existingListing.length > 1) {
+          console.error(`Found multiple listings with the same id: ${listing.id}`)
+        }
 
-  // console.log(`Found ${listings.length} new listings`)
+        if (existingListing[0].hash === hash(listing)) {
+          return null
+        }
+        return listing
+      }),
+    )
+  ).filter((x) => x !== null)
 
-  const listings = response.cases
+  
+  console.log(`Found ${listings.length} new listings`)
 
   for (const listing of listings) {
     await db.insert(scrapedListingsTable).values({
+      updatedAt: new Date(),
       source: 'nybolig',
       listingId: listing.id,
       json: listing,
+      hash: hash(listing)
     })
   }
   return c.json(listings)

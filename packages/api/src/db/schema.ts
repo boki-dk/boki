@@ -7,5 +7,5 @@ export const scrapedListingsTable = pgTable('scraped_listings', {
   source: text().notNull(),
   listingId: text().notNull(),
   json: jsonb().notNull(),
-  // TODO: Add hash of json
+  hash: text().notNull(),
 })
