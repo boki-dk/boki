@@ -136,11 +136,17 @@ app.get('/nybolig/listings', async (c) => {
 
   for (const listing of listings) {
     await db.insert(scrapedListingsTable).values({
-      updatedAt: new Date(),
       source: 'nybolig',
       listingId: listing.id,
       json: listing,
       hash: hash(listing)
+    }).onConflictDoUpdate({
+      target: scrapedListingsTable.listingId,
+      set: {
+        updatedAt: new Date(),
+        json: listing,
+        hash: hash(listing)
+      }
     })
   }
   return c.json(listings)
