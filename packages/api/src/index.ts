@@ -126,7 +126,13 @@ app.get('/nybolig/listings', async (c) => {
         if (existingListing[0].hash === hash(listing)) {
           return null
         }
-        return listing
+        await db.update(scrapedListingsTable).set({
+          json: listing,
+          hash: hash(listing),
+          updatedAt: new Date()
+        }).where(eq(scrapedListingsTable.listingId, listing.id))
+
+        return null
       }),
     )
   ).filter((x) => x !== null)
@@ -140,13 +146,6 @@ app.get('/nybolig/listings', async (c) => {
       listingId: listing.id,
       json: listing,
       hash: hash(listing)
-    }).onConflictDoUpdate({
-      target: scrapedListingsTable.listingId,
-      set: {
-        updatedAt: new Date(),
-        json: listing,
-        hash: hash(listing)
-      }
     })
   }
   return c.json(listings)
