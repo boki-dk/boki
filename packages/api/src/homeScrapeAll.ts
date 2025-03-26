@@ -13,12 +13,12 @@ type Response = {
   results: { id: number }[]
 }
 
-const getListings = async (page: number, count?: number) => {
+const getListings = async (page: number, postalCode: string, count?: number) => {
   const response = await ofetch<Response>('https://api.home.dk/search//homedk/cases', {
     method: 'POST',
     body: {
       filters: {
-        singleFilters: {},
+        singleFilters: { 'addressFacetValues.postalCode': { selectedValue: { value: postalCode } } },
         multipleFilters: {},
         bitFilters: {
           isBusinessCase: {
@@ -84,10 +84,23 @@ const getListings = async (page: number, count?: number) => {
   if (response.hasNextPage) {
     console.log('Checking next page...')
     await new Promise((resolve) => setTimeout(resolve, 5000))
-    await getListings(page + 1, count)
+    await getListings(page + 1, postalCode, count)
   }
 }
 
+const getPostalCodes = async () => {
+  const response = await ofetch<{ nr: string; navn: string }[]>('https://api.dataforsyningen.dk/postnumre')
+  return response.filter((x) => Number(x.nr) > 4800).map((x) => x.nr + ' ' + x.navn)
+}
+
 console.log('Scraping all home.dk listings...')
-await getListings(1, 999)
+// await getListings(1, 999)
+const postalCodes = await getPostalCodes()
+
+for (const postalCode of postalCodes) {
+  console.log(`Scraping listings for ${postalCode}...`)
+  await getListings(1, postalCode, 999)
+  await new Promise((resolve) => setTimeout(resolve, 500))
+}
+
 console.log('Done!')
