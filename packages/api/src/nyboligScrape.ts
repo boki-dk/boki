@@ -116,3 +116,4 @@ const getListings = async (count: number, maxRec: number, scrollToken?: string) 
 
 console.log('Scraping nybolig.dk newest listings...')
 await getListings(10, 5)
+console.log('dOne!')
