@@ -90,7 +90,8 @@ const getListings = async (page: number, postalCode: string, count?: number) => 
 
 const getPostalCodes = async () => {
   const response = await ofetch<{ nr: string; navn: string }[]>('https://api.dataforsyningen.dk/postnumre')
-  return response.filter((x) => Number(x.nr) > 4800).map((x) => x.nr + ' ' + x.navn) // CHANGE THIS
+  return response /*.filter((x) => Number(x.nr) > 4800)*/
+    .map((x) => x.nr + ' ' + x.navn) // CHANGE THIS
 }
 
 console.log('Scraping all home.dk listings...')
