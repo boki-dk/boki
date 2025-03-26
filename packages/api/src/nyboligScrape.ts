@@ -2,7 +2,7 @@ import '@dotenvx/dotenvx/config'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { scrapedListingsTable } from './db/schema.js'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { hash } from 'ohash'
 
 const db = drizzle(process.env.DATABASE_URL!)
@@ -72,7 +72,10 @@ const getListings = async (count: number, maxRec: number, scrollToken?: string) 
   const listings = (
     await Promise.all(
       response.cases.map(async (listing: any) => {
-        const existingListing = await db.select().from(scrapedListingsTable).where(eq(scrapedListingsTable.listingId, listing.id))
+        const existingListing = await db
+          .select()
+          .from(scrapedListingsTable)
+          .where(and(eq(scrapedListingsTable.listingId, listing.id), eq(scrapedListingsTable.source, 'nybolig')))
         if (existingListing.length == 0) {
           return listing
         }
@@ -90,7 +93,7 @@ const getListings = async (count: number, maxRec: number, scrollToken?: string) 
             hash: hash(listing),
             updatedAt: new Date(),
           })
-          .where(eq(scrapedListingsTable.listingId, listing.id))
+          .where(and(eq(scrapedListingsTable.listingId, listing.id), eq(scrapedListingsTable.source, 'nybolig')))
         console.log(`Updated listing ${listing.id}`)
         return null
       }),

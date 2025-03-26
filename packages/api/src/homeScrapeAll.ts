@@ -81,13 +81,13 @@ const getListings = async (page: number, count?: number) => {
       hash: hash(listing),
     })
   }
-  if (listings.length > 8 && page <= 5 && response.hasNextPage) {
+  if (response.hasNextPage) {
     console.log('Checking next page...')
     await new Promise((resolve) => setTimeout(resolve, 5000))
     await getListings(page + 1, count)
   }
 }
 
-console.log('Scraping home.dk newest listings...')
-await getListings(1)
+console.log('Scraping all home.dk listings...')
+await getListings(1, 999)
 console.log('Done!')
