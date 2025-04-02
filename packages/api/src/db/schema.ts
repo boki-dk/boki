@@ -1,4 +1,5 @@
-import { integer, pgTable, timestamp, jsonb, text, index } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
+import { integer, pgTable, timestamp, jsonb, text, index, pgEnum, point } from 'drizzle-orm/pg-core'
 
 export const scrapedListingsTable = pgTable(
   'scraped_listings',
@@ -10,20 +11,95 @@ export const scrapedListingsTable = pgTable(
     externalId: text().notNull(),
     json: jsonb().notNull(),
     hash: text().notNull(),
+    listingId: integer(),
   },
-  (table) => [index('source_idx').on(table.externalSource), index('listing_id_idx').on(table.externalId)],
+  (table) => [index('external_source_idx').on(table.externalSource), index('external_id_idx').on(table.externalId)],
 )
 
-// export const listingsTable = pgTable(
-//   'listings',
-//   {
-//     id: integer().primaryKey().generatedAlwaysAsIdentity(),
-//     createdAt: timestamp().notNull().defaultNow(),
-//     updatedAt: timestamp().notNull().defaultNow(),
-//     source: text().notNull(),
-//     listingId: text().notNull(),
-//     json: jsonb().notNull(),
-//     hash: text().notNull(),
+export const scrapedListingsRelations = relations(scrapedListingsTable, ({ one }) => ({
+  listing: one(listingsTable, {
+    fields: [scrapedListingsTable.listingId],
+    references: [listingsTable.id],
+  }),
+}))
 
-//   }
-// )
+export const listingStatusEnum = pgEnum('status', ['active', 'sold', 'reserved', 'unlisted'])
+
+export const energyClassEnum = pgEnum('energyClass', ['A', 'B', 'C', 'D', 'E', 'F', 'G'])
+
+export const listingTypesTable = pgTable('listing_types', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+  name: text().notNull(),
+})
+
+export const listingTypesRelations = relations(listingTypesTable, ({ many }) => ({
+  listings: many(listingsTable),
+}))
+
+export const addressesTable = pgTable('addresses', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+  street: text().notNull(),
+  houseNumber: integer().notNull(),
+  floor: text(),
+  postalCode: integer().notNull(),
+  postalCodeName: text().notNull(),
+  city: text().notNull(),
+  location: point('location', { mode: 'xy' }).notNull(),
+  door: text(),
+  extraCity: text(),
+  slug: text().notNull(),
+  displayName: text().notNull(),
+})
+
+export const listingImageTypeEnum = pgEnum('listing_image_type', ['image', 'blueprint'])
+
+export const listingImagesTable = pgTable('listing_images', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+  listingId: integer().notNull(),
+  url: text().notNull(),
+  order: integer(),
+  alt: text(),
+  type: listingImageTypeEnum(),
+})
+
+export const listingImagesRelations = relations(listingImagesTable, ({ one }) => ({
+  listing: one(listingsTable, { fields: [listingImagesTable.listingId], references: [listingsTable.id] }),
+}))
+
+export const addressesRelations = relations(addressesTable, ({ many }) => ({
+  listings: many(listingsTable),
+}))
+
+export const listingsTable = pgTable('listings', {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp().notNull().defaultNow(),
+  source: text().notNull(),
+  sourceUrl: text().notNull(),
+  addressId: integer().notNull(),
+  typeId: integer().notNull(),
+  status: listingStatusEnum(),
+  areaLand: integer().notNull(),
+  areaFloor: integer().notNull(),
+  price: integer().notNull(),
+  energyClass: energyClassEnum(),
+  rooms: integer(),
+  bathroomCount: integer(),
+  bedroomCount: integer(),
+  mainImgUrl: text(),
+  floors: integer(),
+  yearBuilt: integer(),
+})
+
+export const listingsRelations = relations(listingsTable, ({ one, many }) => ({
+  type: one(listingTypesTable, { fields: [listingsTable.typeId], references: [listingTypesTable.id] }),
+  address: one(addressesTable, { fields: [listingsTable.addressId], references: [addressesTable.id] }),
+  images: many(listingImagesTable),
+  scrapedListings: many(scrapedListingsTable),
+}))
