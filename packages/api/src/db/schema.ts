@@ -6,10 +6,24 @@ export const scrapedListingsTable = pgTable(
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp().notNull().defaultNow(),
-    source: text().notNull(),
-    listingId: text().notNull(),
+    externalSource: text().notNull(),
+    externalId: text().notNull(),
     json: jsonb().notNull(),
     hash: text().notNull(),
   },
-  (table) => [index('source_idx').on(table.source), index('listing_id_idx').on(table.listingId)],
+  (table) => [index('source_idx').on(table.externalSource), index('listing_id_idx').on(table.externalId)],
 )
+
+// export const listingsTable = pgTable(
+//   'listings',
+//   {
+//     id: integer().primaryKey().generatedAlwaysAsIdentity(),
+//     createdAt: timestamp().notNull().defaultNow(),
+//     updatedAt: timestamp().notNull().defaultNow(),
+//     source: text().notNull(),
+//     listingId: text().notNull(),
+//     json: jsonb().notNull(),
+//     hash: text().notNull(),
+
+//   }
+// )

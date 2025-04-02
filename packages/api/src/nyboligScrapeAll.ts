@@ -73,7 +73,7 @@ const getListings = async (count: number, scrollToken?: string) => {
         const existingListing = await db
           .select()
           .from(scrapedListingsTable)
-          .where(and(eq(scrapedListingsTable.listingId, listing.id), eq(scrapedListingsTable.source, 'nybolig')))
+          .where(and(eq(scrapedListingsTable.externalId, listing.id), eq(scrapedListingsTable.externalSource, 'nybolig')))
         if (existingListing.length == 0) {
           return listing
         }
@@ -91,7 +91,7 @@ const getListings = async (count: number, scrollToken?: string) => {
             hash: hash(listing),
             updatedAt: new Date(),
           })
-          .where(and(eq(scrapedListingsTable.listingId, listing.id), eq(scrapedListingsTable.source, 'nybolig')))
+          .where(and(eq(scrapedListingsTable.externalId, listing.id), eq(scrapedListingsTable.externalSource, 'nybolig')))
         return null
       }),
     )
@@ -101,8 +101,8 @@ const getListings = async (count: number, scrollToken?: string) => {
 
   for (const listing of listings) {
     await db.insert(scrapedListingsTable).values({
-      source: 'nybolig',
-      listingId: listing.id,
+      externalSource: 'nybolig',
+      externalId: listing.id,
       json: listing,
       hash: hash(listing),
     })
