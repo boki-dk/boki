@@ -23,9 +23,9 @@ export const scrapedListingsRelations = relations(scrapedListingsTable, ({ one }
   }),
 }))
 
-export const listingStatusEnum = pgEnum('status', ['active', 'sold', 'reserved', 'unlisted'])
+export const listingStatusEnum = pgEnum('listing_status', ['active', 'sold', 'reserved', 'unlisted'])
 
-export const energyClassEnum = pgEnum('energyClass', ['A', 'B', 'C', 'D', 'E', 'F', 'G'])
+export const energyClassEnum = pgEnum('energy_class', ['A', 'B', 'C', 'D', 'E', 'F', 'G'])
 
 export const listingTypesTable = pgTable('listing_types', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
