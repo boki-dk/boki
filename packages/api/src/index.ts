@@ -3,8 +3,8 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { scrapedListingsTable } from './db/schema.js'
-import { eq } from 'drizzle-orm'
+import { addressesTable, listingsTable, scrapedListingsTable } from './db/schema.js'
+import { and, eq, isNull, sql } from 'drizzle-orm'
 import { hash } from 'ohash'
 
 const db = drizzle(process.env.DATABASE_URL!)
@@ -48,6 +48,37 @@ app.get('/listings/:listingId', async (c) => {
   }
 
   return c.json(listing)
+})
+
+app.post('/nybolig/process-listing', async (c) => {
+  const scrapedListing = (
+    await db
+      .select()
+      .from(scrapedListingsTable)
+      .where(
+        and(
+          eq(scrapedListingsTable.externalSource, 'nybolig'),
+          isNull(scrapedListingsTable.listingId),
+          sql`${scrapedListingsTable.json}->>'siteName' = 'nybolig'`,
+        ),
+      )
+      .limit(1)
+  )[0]
+
+  if (!scrapedListing) {
+    return c.json({ error: 'No listings found' }, 404)
+  }
+  const listingJson = scrapedListing.json as { url: string }
+
+  await db.transaction(async (tx) => {
+    const address = await tx.insert(addressesTable).values({}).returning()
+
+    await tx.insert(listingsTable).values({
+      source: 'nybolig',
+      sourceUrl: listingJson.url,
+    })
+  })
+  return c.json(scrapedListing)
 })
 
 app.get('/nicholas', async (c) => {
