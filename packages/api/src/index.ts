@@ -50,6 +50,19 @@ app.get('/listings/:listingId', async (c) => {
   return c.json(listing)
 })
 
+app.get('/nicholas', async (c) => {
+  const pic = await fetch(
+    'https://scontent-arn2-1.xx.fbcdn.net/v/t39.30808-6/475109658_9069525056457562_3129244202056342124_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=KTd2BlukMygQ7kNvwGnTH6a&_nc_oc=AdnPKMiSEl-p_WvbrJjQTiJ5-Qy9vqotyOl-OdgkRoX4Yk8hUgLl58GtVdDfBKml9Ck&_nc_zt=23&_nc_ht=scontent-arn2-1.xx&_nc_gid=7o4dBGi1OX3_h6Wh6eqCzA&oh=00_AfFmeJx5EKOYW0EYRgBV-kcuIILe0QcdBrmm80Ju9cW30A&oe=67FC25AF',
+  )
+
+  const buffer = await pic.arrayBuffer()
+
+  return c.body(buffer, 200, {
+    'Content-Type': 'image/jpeg',
+    'Content-Disposition': 'inline; filename="pic.jpg"',
+  })
+})
+
 serve(
   {
     fetch: app.fetch,
