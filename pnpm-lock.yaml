@@ -63,12 +63,18 @@ importers:
       '@react-router/serve':
         specifier: ^7.3.0
         version: 7.3.0(react-router@7.3.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(typescript@5.8.2)
+      api:
+        specifier: workspace:*
+        version: link:../api
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      hono:
+        specifier: ^4.7.4
+        version: 4.7.4
       isbot:
         specifier: ^5.1.17
         version: 5.1.25

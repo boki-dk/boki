@@ -10,7 +10,7 @@ import * as schema from './db/schema.js'
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 const app = new Hono()
 
-app.get('/', (c) => {
+.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 
@@ -28,7 +28,7 @@ app.get('/', (c) => {
 //   return c.json(users?.[0])
 // })
 
-app.get('/listings', async (c) => {
+.get('/listings', async (c) => {
   // const listings = await db.select().from(listingsTable).limit(100)
   const listings = await db.query.listingsTable.findMany({
     with: {
@@ -39,7 +39,7 @@ app.get('/listings', async (c) => {
   return c.json(listings)
 })
 
-app.get('/listings/:listingId', async (c) => {
+.get('/listings/:listingId', async (c) => {
   const id = c.req.param('listingId')
   const listing = await db.query.listingsTable.findFirst({
     where: eq(listingsTable.id, Number(id)),
@@ -57,7 +57,7 @@ app.get('/listings/:listingId', async (c) => {
   return c.json(listing)
 })
 
-app.post('/nybolig/process-listing', async (c) => {
+.post('/nybolig/process-listing', async (c) => {
   const scrapedListing = (
     await db
       .select()
@@ -177,7 +177,7 @@ app.post('/nybolig/process-listing', async (c) => {
   return c.json(listing)
 })
 
-app.get('/nicholas', async (c) => {
+.get('/nicholas', async (c) => {
   const pic = await fetch('https://nypost.com/wp-content/uploads/sites/2/2021/09/jerry-messing-41b.jpg?quality=75&strip=all')
 
   const buffer = await pic.arrayBuffer()
