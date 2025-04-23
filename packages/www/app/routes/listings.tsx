@@ -26,20 +26,33 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
   const { listings } = loaderData
+  const formatter = new Intl.NumberFormat('da-DK', {
+    style: 'currency',
+    currency: 'DKK',
+  })
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center min-h-screen py-2">
+      <Button> Boki.dk</Button>
       <h1>Boliger</h1>
-      <Button>Flot Knap</Button>
       <ul>
-        {listings.map((listing) => (
-          <li>
-            {listing.address.displayName} - som koster {listing.price}.{' '}
-            <Link to={`/bolig/${listing.id}`} className="text-blue-600">
-              {' '}
-              Læs mere her{' '}
-            </Link>
-          </li>
-        ))}
+        <table>
+          {listings.map((listing) => (
+            <tr>
+              <th>{listing.address.displayName}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+              <th>
+                &nbsp;
+                {formatter.format(listing.price)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              </th>
+              <th>
+                &nbsp;
+                <Link to={`/bolig/${listing.id}`} className="text-blue-600">
+                  {' '}
+                  Link!{' '}
+                </Link>
+              </th>
+            </tr>
+          ))}
+        </table>
       </ul>
     </div>
   )

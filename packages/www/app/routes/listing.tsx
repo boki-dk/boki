@@ -21,7 +21,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <h1>Bolig {listing.address.displayName}</h1>
       {listing.mainImgUrl && listing.mainImgAlt && <img src={listing.mainImgUrl} alt={listing.mainImgAlt} />}
     </div>
