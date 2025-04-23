@@ -25,8 +25,6 @@ export const scrapedListingsRelations = relations(scrapedListingsTable, ({ one }
 
 export const listingStatusEnum = pgEnum('listing_status', ['active', 'sold', 'reserved', 'unlisted'])
 
-export const energyClassEnum = pgEnum('energy_class', ['A', 'B', 'C', 'D', 'E', 'F', 'G'])
-
 export const listingTypesTable = pgTable('listing_types', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   createdAt: timestamp().notNull().defaultNow(),
@@ -43,11 +41,10 @@ export const addressesTable = pgTable('addresses', {
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
   street: text().notNull(),
-  houseNumber: integer().notNull(),
+  houseNumber: text().notNull(),
   floor: text(),
-  postalCode: integer().notNull(),
+  postalCode: text().notNull(),
   postalCodeName: text().notNull(),
-  city: text().notNull(),
   location: point('location', { mode: 'xy' }).notNull(),
   door: text(),
   extraCity: text(),
@@ -88,11 +85,12 @@ export const listingsTable = pgTable('listings', {
   areaLand: integer().notNull(),
   areaFloor: integer().notNull(),
   price: integer().notNull(),
-  energyClass: energyClassEnum(),
+  energyClass: text(),
   rooms: integer(),
   bathroomCount: integer(),
   bedroomCount: integer(),
   mainImgUrl: text(),
+  mainImgAlt: text(),
   floors: integer(),
   yearBuilt: integer(),
 })
