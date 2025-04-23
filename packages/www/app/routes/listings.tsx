@@ -1,6 +1,7 @@
 import { Button } from '~/components/ui/button'
 import type { Route } from './+types/listings'
 import { ofetch } from 'ofetch'
+import { Link } from 'react-router'
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Boliger | Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
@@ -24,10 +25,10 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   return (
     <div>
       <h1>Boliger</h1>
-      <Button>Knap</Button>
+      <Button>Flot Knap</Button>
       <ul>
         {listings.map((listing) => (
-          <li>{listing.address.displayName} - som koster {listing.price}. Læs mere her: </li>
+          <li>{listing.address.displayName} - som koster {listing.price}.  <Link to={`/bolig/${listing.id}`} className='text-blue-600' > Læs mere her </Link></li>
         ))}
       </ul>
     </div>

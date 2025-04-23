@@ -46,7 +46,7 @@ app.get('/listings/:listingId', async (c) => {
     with: {
       address: true,
       type: true,
-      images: true
+      images: true,
     },
   })
 
@@ -197,3 +197,6 @@ serve(
     console.log(`Server is running on http://localhost:${info.port}`)
   },
 )
+
+
+export type AppType = typeof app
