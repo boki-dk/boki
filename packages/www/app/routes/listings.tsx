@@ -27,7 +27,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
       <Button>Knap</Button>
       <ul>
         {listings.map((listing) => (
-          <li>{listing.id} - som koster {listing.price}</li>
+          <li>{listing.address.displayName} - som koster {listing.price}</li>
         ))}
       </ul>
     </div>

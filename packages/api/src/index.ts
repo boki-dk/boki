@@ -5,10 +5,9 @@ import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { addressesTable, listingsTable, listingTypesTable, scrapedListingsTable } from './db/schema.js'
 import { and, eq, isNull, sql } from 'drizzle-orm'
-import { hash } from 'ohash'
+import * as schema from './db/schema.js'
 
-const db = drizzle(process.env.DATABASE_URL!)
-
+const db = drizzle(process.env.DATABASE_URL!, { schema })
 const app = new Hono()
 
 app.get('/', (c) => {
@@ -30,18 +29,26 @@ app.get('/', (c) => {
 // })
 
 app.get('/listings', async (c) => {
-  const listings = await db.select().from(listingsTable).limit(100)
+  // const listings = await db.select().from(listingsTable).limit(100)
+  const listings = await db.query.listingsTable.findMany({
+    with: {
+      address: true,
+      type: true,
+    },
+  })
   return c.json(listings)
 })
 
 app.get('/listings/:listingId', async (c) => {
   const id = c.req.param('listingId')
-  const listing = (
-    await db
-      .select()
-      .from(listingsTable)
-      .where(eq(listingsTable.id, Number(id)))
-  )?.[0]
+  const listing = await db.query.listingsTable.findFirst({
+    where: eq(listingsTable.id, Number(id)),
+    with: {
+      address: true,
+      type: true,
+      images: true
+    },
+  })
 
   if (!listing) {
     return c.json({ error: 'Listing not found' }, 404)
