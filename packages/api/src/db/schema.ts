@@ -77,6 +77,8 @@ export const listingsTable = pgTable('listings', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp().notNull().defaultNow(),
+  title: text(),
+  description: text(),
   source: text().notNull(),
   sourceUrl: text().notNull(),
   addressId: integer().notNull(),
