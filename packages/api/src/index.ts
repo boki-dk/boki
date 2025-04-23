@@ -3,8 +3,8 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { scrapedListingsTable } from './db/schema.js'
-import { eq } from 'drizzle-orm'
+import { addressesTable, listingsTable, listingTypesTable, scrapedListingsTable } from './db/schema.js'
+import { and, eq, isNull, sql } from 'drizzle-orm'
 import { hash } from 'ohash'
 
 const db = drizzle(process.env.DATABASE_URL!)
@@ -47,6 +47,126 @@ app.get('/listings/:listingId', async (c) => {
     return c.json({ error: 'Listing not found' }, 404)
   }
 
+  return c.json(listing)
+})
+
+app.post('/nybolig/process-listing', async (c) => {
+  const scrapedListing = (
+    await db
+      .select()
+      .from(scrapedListingsTable)
+      .where(
+        and(
+          eq(scrapedListingsTable.externalSource, 'nybolig'),
+          isNull(scrapedListingsTable.listingId),
+          sql`${scrapedListingsTable.json}->>'siteName' = 'nybolig'`,
+        ),
+      )
+      .limit(1)
+  )[0]
+
+  if (!scrapedListing) {
+    return c.json({ error: 'No listings found' }, 404)
+  }
+  const listingJson = scrapedListing.json as {
+    url: string
+    addressDisplayName: string
+    type: string
+    hasBeenSold: boolean
+    propertySize: number
+    livingSpace: number
+    cashPrice: number
+    energyClassification: string
+    totalNumberOfRooms: number
+    imageUrl: string
+    imageAlt: string
+  }
+
+  const cleanedAddress = await ofetch<{
+    kategori: string
+    resultater: {
+      adresse: {
+        id: string
+      }
+    }[]
+  }>('https://api.dataforsyningen.dk/datavask/adresser', {
+    query: { betegnelse: listingJson.addressDisplayName },
+  })
+
+  const address = await ofetch<{
+    id: string
+    vejnavn: string
+    husnr: string
+    etage: string | null
+    dør: string | null
+    postnr: string
+    postnrnavn: string
+    supplerendebynavn: string | null
+    x: number
+    y: number
+    betegnelse: string
+  }>(`https://api.dataforsyningen.dk/adresser/${cleanedAddress.resultater[0].adresse.id}`, {
+    query: { struktur: 'mini' },
+  })
+
+  const listing = await db.transaction(async (tx) => {
+    const addressRows = await tx
+      .insert(addressesTable)
+      .values({
+        street: address.vejnavn,
+        houseNumber: address.husnr,
+        floor: address.etage,
+        door: address.dør,
+        postalCode: address.postnr,
+        postalCodeName: address.postnrnavn,
+        extraCity: address.supplerendebynavn,
+        location: sql`point(${address.x}, ${address.y})`,
+        displayName: address.betegnelse,
+        slug: address.betegnelse
+          .toLocaleLowerCase('da-DK')
+          .replace(/[\s,]+/g, '-')
+          .replace('æ', 'ae')
+          .replace('ø', 'oe')
+          .replace('å', 'aa')
+          .replace(/[^\w-]+/g, ''),
+      })
+      .returning()
+
+    const existingType = (await tx.select().from(listingTypesTable).where(eq(listingTypesTable.name, listingJson.type)).limit(1))[0]
+
+    const typeRows = existingType
+      ? [existingType]
+      : await tx
+          .insert(listingTypesTable)
+          .values({
+            name: listingJson.type,
+          })
+          .returning()
+
+    const listingRows = await tx
+      .insert(listingsTable)
+      .values({
+        source: 'nybolig',
+        sourceUrl: `https://nybolig.dk${listingJson.url}`,
+        addressId: addressRows[0].id,
+        typeId: typeRows[0].id,
+        areaLand: listingJson.propertySize,
+        areaFloor: listingJson.livingSpace,
+        price: listingJson.cashPrice,
+        energyClass: listingJson.energyClassification,
+        rooms: listingJson.totalNumberOfRooms,
+        mainImgUrl: listingJson.imageUrl,
+        mainImgAlt: listingJson.imageAlt,
+      })
+      .returning()
+    return listingRows[0]
+  })
+  await db
+    .update(scrapedListingsTable)
+    .set({
+      listingId: listing.id,
+    })
+    .where(eq(scrapedListingsTable.id, scrapedListing.id))
   return c.json(listing)
 })
 
