@@ -30,7 +30,7 @@ app.get('/', (c) => {
 // })
 
 app.get('/listings', async (c) => {
-  const listings = await db.select().from(scrapedListingsTable).limit(10)
+  const listings = await db.select().from(listingsTable).limit(100)
   return c.json(listings)
 })
 
@@ -39,8 +39,8 @@ app.get('/listings/:listingId', async (c) => {
   const listing = (
     await db
       .select()
-      .from(scrapedListingsTable)
-      .where(eq(scrapedListingsTable.id, Number(id)))
+      .from(listingsTable)
+      .where(eq(listingsTable.id, Number(id)))
   )?.[0]
 
   if (!listing) {
