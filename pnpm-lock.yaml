@@ -26,6 +26,9 @@ importers:
       hono:
         specifier: ^4.7.4
         version: 4.7.4
+      htmlrewriter:
+        specifier: ^0.0.12
+        version: 0.0.12
       ofetch:
         specifier: ^1.4.1
         version: 1.4.1
@@ -2158,6 +2161,9 @@ packages:
   html@1.0.0:
     resolution: {integrity: sha512-lw/7YsdKiP3kk5PnR1INY17iJuzdAtJewxr14ozKJWbbR97znovZ0mh+WEMZ8rjc3lgTK+ID/htTjuyGKB52Kw==}
     hasBin: true
+
+  htmlrewriter@0.0.12:
+    resolution: {integrity: sha512-Tw+wORUlNL9+JQCIo7J4SuX/T3M1xRAC/0XaifnRPLHCX95jbZy/0CI06n7BhuFQJhSdNA7ZoxnStJmF31FZRw==}
 
   http-errors@2.0.0:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
@@ -4961,6 +4967,8 @@ snapshots:
   html@1.0.0:
     dependencies:
       concat-stream: 1.6.2
+
+  htmlrewriter@0.0.12: {}
 
   http-errors@2.0.0:
     dependencies:

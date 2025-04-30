@@ -6,6 +6,7 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { addressesTable, listingsTable, listingTypesTable, scrapedListingsTable } from './db/schema.js'
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import * as schema from './db/schema.js'
+import { scrapeListing } from './nyboligHtmlScraper.js'
 
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 const app = new Hono()
@@ -186,6 +187,16 @@ const app = new Hono()
       'Content-Type': 'image/jpeg',
       'Content-Disposition': 'inline; filename="pic.jpg"',
     })
+  })
+
+  .get('/nybolig/scrape-listing', async (c) => {
+    const url = c.req.query('url')
+
+    if (!url) {
+      return c.json({ error: 'No URL provided' }, 400)
+    }
+
+    return c.json(await scrapeListing(url))
   })
 
 serve(
