@@ -161,12 +161,12 @@ const app = new Hono()
           typeId: typeRows[0].id,
           areaLand: listingJson.propertySize,
           areaFloor: listingJson.livingSpace,
+          areaBasement: listingJson.basementSize,
           price: listingJson.cashPrice,
           energyClass: listingJson.energyClassification,
           rooms: listingJson.totalNumberOfRooms,
           mainImgUrl: listingJson.imageUrl,
           mainImgAlt: listingJson.imageAlt,
-          areaBasement: listingJson.basementSize,
         })
         .returning()
       return listingRows[0]
