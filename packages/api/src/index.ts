@@ -77,6 +77,7 @@ const app = new Hono()
       return c.json({ error: 'No listings found' }, 404)
     }
     const listingJson = scrapedListing.json as {
+      basementSize: number
       url: string
       addressDisplayName: string
       type: string
@@ -165,6 +166,7 @@ const app = new Hono()
           rooms: listingJson.totalNumberOfRooms,
           mainImgUrl: listingJson.imageUrl,
           mainImgAlt: listingJson.imageAlt,
+          areaBasement: listingJson.basementSize,
         })
         .returning()
       return listingRows[0]
