@@ -86,6 +86,7 @@ export const listingsTable = pgTable('listings', {
   status: listingStatusEnum(),
   areaLand: integer().notNull(),
   areaFloor: integer().notNull(),
+  areaBasement: integer().notNull(),
   price: integer().notNull(),
   energyClass: text(),
   rooms: integer(),
@@ -95,6 +96,7 @@ export const listingsTable = pgTable('listings', {
   mainImgAlt: text(),
   floors: integer(),
   yearBuilt: integer(),
+  yearRenovated: integer(),
 })
 
 export const listingsRelations = relations(listingsTable, ({ one, many }) => ({
