@@ -1,39 +1,33 @@
 import '@dotenvx/dotenvx/config'
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
-import { ofetch } from 'ofetch'
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { addressesTable, listingsTable, listingTypesTable, scrapedListingsTable } from './db/schema.js'
-import { and, eq, isNull, sql, sum } from 'drizzle-orm'
-import * as schema from './db/schema.js'
 import { HTMLRewriter } from 'htmlrewriter'
-import { year } from 'drizzle-orm/mysql-core'
 
 export async function scrapeListing(url: string) {
   const rewriter = new HTMLRewriter()
 
   const response = await fetch(url)
 
-  const images: string[] = []
+  const images: { src: string; alt: string | null }[] = []
 
   rewriter.on('#hero-slider-photo img', {
     element: (el) => {
-      //   console.log('src', el.getAttribute('src'))
-
       const src = el.getAttribute('src')
+      const alt = el.getAttribute('alt')
+
       if (src) {
-        images.push(src)
+        images.push({ src, alt })
       }
     },
   })
 
-  const floorplanImages: string[] = []
+  const floorplanImages: { src: string; alt: string | null }[] = []
 
   rewriter.on('#hero-slider-floorplan img', {
     element: (el) => {
       const src = el.getAttribute('src')
+      const alt = el.getAttribute('alt')
+
       if (src) {
-        floorplanImages.push(src)
+        floorplanImages.push({ src, alt })
       }
     },
   })
@@ -55,7 +49,7 @@ export async function scrapeListing(url: string) {
   })
 
   rewriter.on('div.wysiwyg.foldable-spot__container p br', {
-    element: (el) => {
+    element: () => {
       description += '<br>'
     },
   })
@@ -81,26 +75,17 @@ export async function scrapeListing(url: string) {
   let caseFactsValue = ''
 
   rewriter.on('.case-facts__box-inner-wrap span:first-child ', {
-    element: (el) => {
+    element: () => {
       caseFactsTitle = ''
     },
 
-    text: ({ text, lastInTextNode }) => {
+    text: ({ text }) => {
       caseFactsTitle += text
-      // if (lastInTextNode) {
-      //   caseFactsTitle = caseFactsTitle.replace(/&#230;/g, 'æ')
-      //   caseFactsTitle = caseFactsTitle.replace(/&#248;/g, 'ø')
-      //   caseFactsTitle = caseFactsTitle.replace(/&#229;/g, 'å')
-      //   caseFactsTitle = caseFactsTitle.replace(/&#198;/g, 'Æ')
-      //   caseFactsTitle = caseFactsTitle.replace(/&#216;/g, 'Ø')
-      //   caseFactsTitle = caseFactsTitle.replace(/&#197;/g, 'Å')
-      //   caseFactsTitle = caseFactsTitle.replace/&sup2;/g, '²')
-      // }
     },
   })
 
   rewriter.on('.case-facts__box-inner-wrap :nth-child(2) ', {
-    element: (el) => {
+    element: () => {
       caseFactsValue = ''
     },
 
