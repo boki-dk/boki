@@ -52,7 +52,7 @@ export const addressesTable = pgTable('addresses', {
   displayName: text().notNull(),
 })
 
-export const listingImageTypeEnum = pgEnum('listing_image_type', ['image', 'blueprint'])
+export const listingImageTypeEnum = pgEnum('listing_image_type', ['image', 'floorplan'])
 
 export const listingImagesTable = pgTable('listing_images', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
