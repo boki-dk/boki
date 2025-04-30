@@ -7,6 +7,7 @@ import { addressesTable, listingsTable, listingTypesTable, scrapedListingsTable 
 import { and, eq, isNull, sql, sum } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { HTMLRewriter } from 'htmlrewriter'
+import { year } from 'drizzle-orm/mysql-core'
 
 export async function scrapeListing(url: string) {
   const rewriter = new HTMLRewriter()
@@ -111,26 +112,44 @@ export async function scrapeListing(url: string) {
     },
   })
 
+  let energyClass: string | null = null
+  rewriter.on('.case-facts__box-inner-wrap .tile__rating', {
+    element: (el) => {
+      const className = el.getAttribute('class')
+      if (className) {
+        energyClass = className.replace('tile__rating -rated-', '')
+      }
+    },
+  })
+
   const _text = await rewriter.transform(response).text()
 
   const areaFloor = caseFacts?.['Boligareal: '] ?? null
+  const bedrooms = Number(caseFacts?.['Stue/V&#230;relser: ']?.split('/')[1] ?? 0)
   const rooms =
     caseFacts?.['Stue/V&#230;relser: ']
       ?.split('/')
       .map(Number)
       .reduce((acc, val) => acc + val, 0) ?? 0
-  
-  const yearBuilt = caseFacts?.['Bygge&#229;r: '] ?? null
+
+  const yearBuilt = caseFacts?.['Bygget/Ombygget: ']?.split('/')[0] ?? null
+  const yearRenovated = caseFacts?.['Bygget/Ombygget: ']?.split('/')?.[1] ?? null
+
+  const areaLand = caseFacts?.['Grundst&#248;rrelse: '] ?? null
 
   return {
-    //images,
+    images,
     title,
     description,
-    //floorplanImages,
+    floorplanImages,
     type,
     price: Number(price.replace(/\D/g, '')),
-    caseFacts,
     areaFloor: Number(areaFloor?.split(' ')[0].replace(/\D/g, '') ?? 0),
     rooms,
+    bedrooms,
+    yearBuilt: yearBuilt ? Number(yearBuilt) : null,
+    yearRenovated: yearRenovated ? Number(yearRenovated) : null,
+    areaLand: Number(areaLand?.split(' ')[0].replace(/\D/g, '') ?? 0),
+    energyClass,
   }
 }
