@@ -90,6 +90,9 @@ const app = new Hono()
       imageUrl: string
       imageAlt: string
     }
+    const url = `https://nybolig.dk${listingJson.url}`
+
+    const updatedListing = await scrapeListing(url)
 
     const cleanedAddress = await ofetch<{
       kategori: string
@@ -141,32 +144,46 @@ const app = new Hono()
         })
         .returning()
 
-      const existingType = (await tx.select().from(listingTypesTable).where(eq(listingTypesTable.name, listingJson.type)).limit(1))[0]
+      const existingType = (
+        await tx
+          .select()
+          .from(listingTypesTable)
+          .where(eq(listingTypesTable.name, updatedListing.type ?? listingJson.type))
+          .limit(1)
+      )[0]
 
       const typeRows = existingType
         ? [existingType]
         : await tx
             .insert(listingTypesTable)
             .values({
-              name: listingJson.type,
+              name: updatedListing.type ?? listingJson.type,
             })
             .returning()
 
       const listingRows = await tx
         .insert(listingsTable)
         .values({
+          // ...(updatedListing.status !== 'unlisted' && {
+          //   title: updatedListing.title,
+          //   description: updatedListing.description,
+            
+          // }),
+          title: updatedListing.title,
+          description: updatedListing.description,
           source: 'nybolig',
-          sourceUrl: `https://nybolig.dk${listingJson.url}`,
+          sourceUrl: url,
           addressId: addressRows[0].id,
           typeId: typeRows[0].id,
-          areaLand: listingJson.propertySize,
-          areaFloor: listingJson.livingSpace,
-          areaBasement: listingJson.basementSize,
-          price: listingJson.cashPrice,
-          energyClass: listingJson.energyClassification,
-          rooms: listingJson.totalNumberOfRooms,
-          mainImgUrl: listingJson.imageUrl,
-          mainImgAlt: listingJson.imageAlt,
+          areaLand: updatedListing.areaLand ?? listingJson.propertySize,
+          areaFloor: updatedListing.areaFloor ?? listingJson.livingSpace,
+          areaBasement: updatedListing.areaBasement ?? listingJson.basementSize,
+          price: updatedListing.price ?? listingJson.cashPrice,
+          energyClass: updatedListing.energyClass ?? listingJson.energyClassification,
+          rooms: updatedListing.rooms ?? listingJson.totalNumberOfRooms,
+          mainImgUrl: updatedListing.images?.[0].src ?? listingJson.imageUrl,
+          mainImgAlt: updatedListing.images?.[0].alt ?? listingJson.imageAlt,
+          floors: updatedListing.floors
         })
         .returning()
       return listingRows[0]

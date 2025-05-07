@@ -1,5 +1,6 @@
 import '@dotenvx/dotenvx/config'
 import { HTMLRewriter } from 'htmlrewriter'
+import { listingStatusEnum } from './db/schema'
 
 export async function scrapeListing(url: string) {
   const rewriter = new HTMLRewriter()
@@ -48,9 +49,15 @@ export async function scrapeListing(url: string) {
     },
   })
 
-  rewriter.on('div.wysiwyg.foldable-spot__container p br', {
-    element: () => {
-      description += '<br>'
+  rewriter.on('div.wysiwyg.foldable-spot__container p *', {
+    element: (el) => {
+      const maybeAttrs = [...el.attributes].map(([k, v]) => ` ${k}="${v}"`).join('')
+      description += `<${el.tagName}${maybeAttrs}>`
+      if (["br", "img"].includes(el.tagName)) return
+
+      el.onEndTag((endTag) => {
+        description += `</${endTag.name}>`
+      })
     },
   })
 
@@ -62,6 +69,13 @@ export async function scrapeListing(url: string) {
     },
   })
 
+  let statusText = ''
+  rewriter.on('.case-splash__info--desktop .case-splash__info__text ', {
+    text: ({ text }) => {
+      statusText += text
+    },
+  })
+
   let price = ''
 
   rewriter.on('.case-facts__box-title__price', {
@@ -69,6 +83,7 @@ export async function scrapeListing(url: string) {
       price += text
     },
   })
+
 
   const caseFacts: Record<string, string | null> = {}
   let caseFactsTitle = ''
@@ -109,7 +124,12 @@ export async function scrapeListing(url: string) {
 
   const _text = await rewriter.transform(response).text()
 
+  if (!(title || description || type || statusText || price)) {
+    return {status: listingStatusEnum.enumValues[3]}
+  }
+    
   const areaFloor = caseFacts?.['Boligareal: '] ?? null
+  const areaBasement = caseFacts?.['K&#230;lderst&#248;rrelse: '] ?? null
   const bedrooms = Number(caseFacts?.['Stue/V&#230;relser: ']?.split('/')[1] ?? 0)
   const rooms =
     caseFacts?.['Stue/V&#230;relser: ']
@@ -119,9 +139,11 @@ export async function scrapeListing(url: string) {
 
   const yearBuilt = caseFacts?.['Bygget/Ombygget: ']?.split('/')[0] ?? null
   const yearRenovated = caseFacts?.['Bygget/Ombygget: ']?.split('/')?.[1] ?? null
-
+  const floors = caseFacts?.['Plan: ']?.split(' ')?.[0] || 1
   const areaLand = caseFacts?.['Grundst&#248;rrelse: '] ?? null
-
+  const status = statusText.trim() == 'Solgt' ? listingStatusEnum.enumValues[1] : listingStatusEnum.enumValues[0]
+  
+  const areaFloorNum = Number(areaFloor?.split(' ')[0].replace(/\D/g, '') ?? 0)
   return {
     images,
     title,
@@ -129,12 +151,15 @@ export async function scrapeListing(url: string) {
     floorplanImages,
     type,
     price: Number(price.replace(/\D/g, '')),
-    areaFloor: Number(areaFloor?.split(' ')[0].replace(/\D/g, '') ?? 0),
+    areaFloor: areaFloorNum,
     rooms,
     bedrooms,
     yearBuilt: yearBuilt ? Number(yearBuilt) : null,
     yearRenovated: yearRenovated ? Number(yearRenovated) : null,
     areaLand: Number(areaLand?.split(' ')[0].replace(/\D/g, '') ?? 0),
+    areaBasement: Number(areaBasement?.split(' ')[0].replace(/\D/g, '') ?? 0),
     energyClass,
+    status,
+    floors: areaFloorNum ? Number(floors) : null
   }
 }
