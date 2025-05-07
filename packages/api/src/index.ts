@@ -3,7 +3,14 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { addressesTable, listingsTable, listingTypesTable, scrapedListingsTable } from './db/schema.js'
+import {
+  addressesTable,
+  listingImagesTable,
+  listingImageTypeEnum,
+  listingsTable,
+  listingTypesTable,
+  scrapedListingsTable,
+} from './db/schema.js'
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeListing } from './nyboligHtmlScraper.js'
@@ -181,6 +188,25 @@ const app = new Hono()
           floors: updatedListing.floors,
         })
         .returning()
+      if (updatedListing.status !== 'unlisted') {
+        await tx.insert(listingImagesTable).values([
+          ...updatedListing.images.map((img, i) => ({
+            listingId: listingRows[0].id,
+            url: img.src,
+            order: i,
+            alt: img.alt,
+            type: listingImageTypeEnum.enumValues[0],
+          })),
+          ...updatedListing.floorplanImages.map((img, i) => ({
+            listingId: listingRows[0].id,
+            url: img.src,
+            order: i,
+            alt: img.alt,
+            type: listingImageTypeEnum.enumValues[1],
+          })),
+        ])
+      }
+
       return listingRows[0]
     })
     await db
