@@ -1,6 +1,6 @@
 import '@dotenvx/dotenvx/config'
 import { HTMLRewriter } from 'htmlrewriter'
-import { listingStatusEnum } from './db/schema'
+import { listingStatusEnum } from './db/schema.js'
 
 export async function scrapeListing(url: string) {
   const rewriter = new HTMLRewriter()
@@ -53,7 +53,7 @@ export async function scrapeListing(url: string) {
     element: (el) => {
       const maybeAttrs = [...el.attributes].map(([k, v]) => ` ${k}="${v}"`).join('')
       description += `<${el.tagName}${maybeAttrs}>`
-      if (["br", "img"].includes(el.tagName)) return
+      if (['br', 'img'].includes(el.tagName)) return
 
       el.onEndTag((endTag) => {
         description += `</${endTag.name}>`
@@ -83,7 +83,6 @@ export async function scrapeListing(url: string) {
       price += text
     },
   })
-
 
   const caseFacts: Record<string, string | null> = {}
   let caseFactsTitle = ''
@@ -125,9 +124,9 @@ export async function scrapeListing(url: string) {
   const _text = await rewriter.transform(response).text()
 
   if (!(title || description || type || statusText || price)) {
-    return {status: listingStatusEnum.enumValues[3]}
+    return { status: listingStatusEnum.enumValues[3] }
   }
-    
+
   const areaFloor = caseFacts?.['Boligareal: '] ?? null
   const areaBasement = caseFacts?.['K&#230;lderst&#248;rrelse: '] ?? null
   const bedrooms = Number(caseFacts?.['Stue/V&#230;relser: ']?.split('/')[1] ?? 0)
@@ -142,7 +141,7 @@ export async function scrapeListing(url: string) {
   const floors = caseFacts?.['Plan: ']?.split(' ')?.[0] || 1
   const areaLand = caseFacts?.['Grundst&#248;rrelse: '] ?? null
   const status = statusText.trim() == 'Solgt' ? listingStatusEnum.enumValues[1] : listingStatusEnum.enumValues[0]
-  
+
   const areaFloorNum = Number(areaFloor?.split(' ')[0].replace(/\D/g, '') ?? 0)
   return {
     images,
@@ -160,6 +159,6 @@ export async function scrapeListing(url: string) {
     areaBasement: Number(areaBasement?.split(' ')[0].replace(/\D/g, '') ?? 0),
     energyClass,
     status,
-    floors: areaFloorNum ? Number(floors) : null
+    floors: areaFloorNum ? Number(floors) : null,
   }
 }
