@@ -1,9 +1,9 @@
 import { Button } from '~/components/ui/button'
 import type { Route } from './+types/listings'
 import { ofetch } from 'ofetch'
-import { Link } from 'react-router'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
+import { ListingTeaser } from '~/components/ListingTeaser'
 
 type Listings = ExtractSchema<AppType>['/listings']['$get']['output']
 
@@ -26,34 +26,16 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
   const { listings } = loaderData
-  const formatter = new Intl.NumberFormat('da-DK', {
-    style: 'currency',
-    currency: 'DKK',
-  })
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Button> Boki.dk</Button>
-      <h1>Boliger</h1>
-      <ul>
-        <table>
-          {listings.map((listing) => (
-            <tr>
-              <th>{listing.address.displayName}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-              <th>
-                &nbsp;
-                {formatter.format(listing.price)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              </th>
-              <th>
-                &nbsp;
-                <Link to={`/bolig/${listing.id}`} className="text-blue-600">
-                  {' '}
-                  Link!{' '}
-                </Link>
-              </th>
-            </tr>
-          ))}
-        </table>
-      </ul>
+    <div className="flex flex-col min-h-screen py-12 max-w-6xl mx-auto">
+      <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
+      <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {listings.map((listing) => (
+          <ListingTeaser key={listing.id} listing={listing} />
+        ))}
+      </div>
     </div>
   )
 }
