@@ -114,6 +114,16 @@ const app = new Hono()
     })
 
     const listing = await db.transaction(async (tx) => {
+      const existingScrapedListing = (
+        await tx
+          .select()
+          .from(scrapedListingsTable)
+          .where(and(eq(scrapedListingsTable.id, scrapedListing.id)))
+          .limit(1)
+      )[0]
+
+      if (!existingScrapedListing || existingScrapedListing.listingId !== null) return
+
       const addressRows = await tx
         .insert(addressesTable)
         .values({
@@ -196,14 +206,20 @@ const app = new Hono()
         ])
       }
 
+      await tx
+        .update(scrapedListingsTable)
+        .set({
+          listingId: listingRows[0].id,
+        })
+        .where(eq(scrapedListingsTable.id, scrapedListing.id))
+
       return listingRows[0]
     })
-    await db
-      .update(scrapedListingsTable)
-      .set({
-        listingId: listing.id,
-      })
-      .where(eq(scrapedListingsTable.id, scrapedListing.id))
+
+    if (!listing) {
+      return c.json({ error: 'Scraped listing was already processed by another request' }, 500)
+    }
+
     return c.json(listing)
   })
 
