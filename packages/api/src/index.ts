@@ -177,15 +177,19 @@ const app = new Hono()
           sourceUrl: url,
           addressId: addressRows[0].id,
           typeId: typeRows[0].id,
+          status: updatedListing.status,
           areaLand: updatedListing.areaLand ?? listingJson.propertySize,
           areaFloor: updatedListing.areaFloor ?? listingJson.livingSpace,
           areaBasement: updatedListing.areaBasement ?? listingJson.basementSize,
           price: updatedListing.price ?? listingJson.cashPrice,
           energyClass: updatedListing.energyClass ?? listingJson.energyClassification,
           rooms: updatedListing.rooms ?? listingJson.totalNumberOfRooms,
+          bedroomCount: updatedListing.bedrooms,
           mainImgUrl: updatedListing.images?.[0].src ?? listingJson.imageUrl,
           mainImgAlt: updatedListing.images?.[0].alt ?? listingJson.imageAlt,
           floors: updatedListing.floors,
+          yearBuilt: updatedListing.yearBuilt,
+          yearRenovated: updatedListing.yearRenovated,
         })
         .returning()
       if (updatedListing.status !== 'unlisted') {
