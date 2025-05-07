@@ -164,11 +164,6 @@ const app = new Hono()
       const listingRows = await tx
         .insert(listingsTable)
         .values({
-          // ...(updatedListing.status !== 'unlisted' && {
-          //   title: updatedListing.title,
-          //   description: updatedListing.description,
-            
-          // }),
           title: updatedListing.title,
           description: updatedListing.description,
           source: 'nybolig',
@@ -183,7 +178,7 @@ const app = new Hono()
           rooms: updatedListing.rooms ?? listingJson.totalNumberOfRooms,
           mainImgUrl: updatedListing.images?.[0].src ?? listingJson.imageUrl,
           mainImgAlt: updatedListing.images?.[0].alt ?? listingJson.imageAlt,
-          floors: updatedListing.floors
+          floors: updatedListing.floors,
         })
         .returning()
       return listingRows[0]
