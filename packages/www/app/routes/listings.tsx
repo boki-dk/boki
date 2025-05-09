@@ -4,6 +4,8 @@ import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
+import InfiniteScroll from 'react-infinite-scroller' 
+import { useEffect, useState } from 'react'
 
 type Listings = ExtractSchema<AppType>['/listings']['$get']['output']
 
@@ -24,18 +26,76 @@ export async function loader({ params }: Route.LoaderArgs) {
 //   if (serverData)
 // }
 
+
+
 export default function Listings({ loaderData }: Route.ComponentProps) {
-  const { listings } = loaderData
+  
+  const initialListings = loaderData.listings
+  const [listings, setListings] = useState<Listings>(initialListings)
+  const [page, setPage] = useState(1) // Start at 1 since initial listings are page 0
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    console.log('💧 Listings component hydrated')
+  }, [])
+
+  const loadFunc = async () => {
+    console.log('Loading page:', page)
+    if (isLoading) return
+  
+    setIsLoading(true)
+    try {
+      const data = await ofetch<Listings>(`https://api.boki.dk/listings?offset=${page}`)
+      
+      if (data && data.length > 0) {
+        // Append new listings to existing ones
+        setListings(prevListings => [...prevListings, ...data])
+        setPage(prevPage => prevPage + 1)
+      } else {
+        // No more listings to load
+        setHasMore(false)
+      }
+    } catch (error) {
+      console.error('Error loading more listings:', error)
+      setHasMore(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const forceLoadMore = () => {
+    console.log('Force loading more listings')
+    loadFunc();
+  }
 
   return (
     <div className="flex flex-col min-h-screen py-12 max-w-6xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {listings.map((listing) => (
-          <ListingTeaser key={listing.id} listing={listing} />
-        ))}
+
+      <Button onClick={forceLoadMore} className="mb-4">
+      Load More (Debug)
+      </Button>
+
+      
+      <InfiniteScroll
+        pageStart={0}
+        loadMore={loadFunc}
+        hasMore={true}
+        threshold={100}
+        useWindow={true}
+        loader={<div className='loader' key={0}>Henter nye boliger...</div>}>
+          
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {listings.map((listing) => (
+            <ListingTeaser key={listing.id} listing={listing} />
+          ))}
+
+        
+
       </div>
+      </InfiniteScroll>
     </div>
   )
 }
