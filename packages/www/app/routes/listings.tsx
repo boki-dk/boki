@@ -13,10 +13,18 @@ export function meta({}: Route.MetaArgs) {
   return [{ title: 'Boliger | Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
-  return { listings: await ofetch<Listings>('https://api.boki.dk/listings') }
-}
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url)
+  const offset = url.searchParams.get('offset') ?? '0'
 
+  // fetch the real API on the server
+  const listings = await ofetch<Listings>(
+    'https://api.boki.dk/listings',
+    { params: { offset } }
+  )
+
+  return { listings }
+}
 // export async function clientLoader({
 //   serverLoader,
 //   params,
@@ -46,7 +54,9 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   
     setIsLoading(true)
     try {
-      const data = await ofetch<Listings>(`https://api.boki.dk/listings?offset=${page}`)
+      const { listings: data } = await ofetch<{ listings: Listings }>(
+  `/listings?offset=${page}`
+  )  
       
       if (data && data.length > 0) {
         // Append new listings to existing ones
