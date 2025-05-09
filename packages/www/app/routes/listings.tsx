@@ -54,9 +54,8 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   
     setIsLoading(true)
     try {
-      const { listings: data } = await ofetch<{ listings: Listings }>(
-  `/listings?offset=${page}`
-  )  
+      const { listings: data } = await ofetch<{ listings: Listings }>(`https://api.boki.dk/listings?offset=${page}`)
+
       
       if (data && data.length > 0) {
         // Append new listings to existing ones
