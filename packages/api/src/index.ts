@@ -24,7 +24,7 @@ const app = new Hono()
 
   .get('/listings', async (c) => {
     const listings = await db.query.listingsTable.findMany({
-      limit: 9,
+      limit: 15,
       with: {
         address: true,
         type: true,
