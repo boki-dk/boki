@@ -23,8 +23,12 @@ const app = new Hono()
   })
 
   .get('/listings', async (c) => {
+    const limit = parseInt(c.req.query('limit') || '9', 10)
+    const offset = parseInt(c.req.query('offset') || '0', 10)
+
     const listings = await db.query.listingsTable.findMany({
-      limit: 15,
+      limit,
+      offset,
       with: {
         address: true,
         type: true,
