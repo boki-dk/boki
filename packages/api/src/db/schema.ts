@@ -41,21 +41,25 @@ export const listingTypesRelations = relations(listingTypesTable, ({ many }) => 
   listings: many(listingsTable),
 }))
 
-export const addressesTable = pgTable('addresses', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp().notNull().defaultNow(),
-  street: text().notNull(),
-  houseNumber: text().notNull(),
-  floor: text(),
-  postalCode: text().notNull(),
-  postalCodeName: text().notNull(),
-  location: point('location', { mode: 'xy' }).notNull(),
-  door: text(),
-  extraCity: text(),
-  slug: text().notNull(),
-  displayName: text().notNull(),
-})
+export const addressesTable = pgTable(
+  'addresses',
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow(),
+    street: text().notNull(),
+    houseNumber: text().notNull(),
+    floor: text(),
+    postalCode: text().notNull(),
+    postalCodeName: text().notNull(),
+    location: point('location', { mode: 'xy' }).notNull(),
+    door: text(),
+    extraCity: text(),
+    slug: text().notNull(),
+    displayName: text().notNull(),
+  },
+  (table) => [index('addresses_slug_idx').on(table.slug), index('addresses_display_name_idx').on(table.displayName)],
+)
 
 export const listingImageTypeEnum = pgEnum('listing_image_type', ['image', 'floorplan'])
 

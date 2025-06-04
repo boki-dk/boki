@@ -11,7 +11,7 @@ import {
   listingTypesTable,
   scrapedListingsTable,
 } from './db/schema.js'
-import { and, eq, isNull, sql } from 'drizzle-orm'
+import { and, eq, ilike, isNull, or, sql } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeListing } from './nyboligHtmlScraper.js'
 
@@ -36,6 +36,40 @@ const app = new Hono()
     })
     const returnListings = listings.slice(0, limit)
     return c.json({ count: returnListings.length, listings: returnListings, hasMore: listings.length > limit })
+  })
+
+  .get('/search', async (c) => {
+    const q = c.req.query('q') || ''
+    if (q.length < 3) {
+      return c.json([])
+    }
+
+    const addresses = (
+      await db.query.addressesTable.findMany({
+        limit: 25,
+        where: ilike(addressesTable.displayName, `%${q}%`),
+        columns: {
+          id: true,
+          displayName: true,
+        },
+        with: {
+          listings: {
+            where: or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
+            orderBy: (listing, { desc }) => [desc(listing.createdAt)],
+            limit: 1,
+          },
+        },
+      })
+    ).filter((address) => address.listings?.length > 0)
+
+    return c.json(
+      addresses.map((address) => ({
+        type: 'address',
+        id: address.listings[0].id,
+        displayName: address.displayName,
+        url: `/listings/${address.listings[0].id}`,
+      })),
+    )
   })
 
   .get('/listings/:listingId', async (c) => {
