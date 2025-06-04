@@ -21,9 +21,55 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <h1>Bolig {listing.address.displayName}</h1>
-      {listing.mainImgUrl && listing.mainImgAlt && <img src={listing.mainImgUrl} alt={listing.mainImgAlt} />}
+    <div className="grid grid-cols-3 gap-4 p-10">
+      <div className="col-span-2">
+        {listing.mainImgUrl && listing.mainImgAlt && <img src={listing.mainImgUrl} alt={listing.mainImgAlt} />}
+        <h1>Bolig {listing.address.displayName}</h1>
+      </div>
+      <div className="bg-gray-100 p-4 rounded-lg space-y-3">
+        <h2 className="font-bold text-4xl mb-6">Detaljer</h2>
+        <ul className="space-y-3">
+          <li className="flex">
+            <span className="font-extrabold">Adresse:</span> <span className="ml-auto">{listing.address.displayName}</span>
+          </li>
+          {listing.status !== 'sold' && (
+            <li className="flex">
+              <span className="font-extrabold">Pris:</span>
+              <span className="ml-auto">{listing.price} kr.</span>
+            </li>
+          )}
+          {listing.areaFloor !== 0 && (
+            <li className="flex">
+              <span className="font-extrabold">Størrelse:</span> <span className="ml-auto">{listing.areaFloor} m²</span>
+            </li>
+          )}
+          {listing.areaBasement !== 0 && (
+            <li className="flex">
+              <span className="font-extrabold">Kælderareal:</span> <span className="ml-auto">{listing.areaBasement} m²</span>
+            </li>
+          )}
+          {listing.areaLand !== 0 && (
+            <li className="flex">
+              <span className="font-extrabold">Grundareal:</span> <span className="ml-auto">{listing.areaLand} m²</span>
+            </li>
+          )}
+          <li className="flex">
+            <span className="font-extrabold">Badeværelser:</span> <span className="ml-auto">{listing.rooms}</span>
+          </li>
+          {listing.yearBuilt && (
+            <li className="flex">
+              <span className="font-extrabold"> {listing.yearRenovated ? 'Opført / Renoveret' : 'Opført'} </span>
+              <span className="ml-auto">
+                {listing.yearRenovated ? `${listing.yearBuilt} / ${listing.yearRenovated}` : listing.yearBuilt}
+              </span>
+            </li>
+          )}
+          <li className="flex">
+            <span className="font-extrabold">Oprettet:</span>{' '}
+            <span className="ml-auto">{new Date(listing.createdAt).toLocaleDateString()}</span>
+          </li>
+        </ul>
+      </div>
     </div>
   )
 }
