@@ -3,7 +3,7 @@ import type { ExtractSchema } from 'hono/types'
 import { Link } from 'react-router'
 import { currencyFormatter } from '~/lib/utils'
 
-type Listing = ExtractSchema<AppType>['/listings']['$get']['output'][number]
+type Listing = ExtractSchema<AppType>['/listings']['$get']['output']["listings"][number]
 
 export function ListingTeaser({ listing }: { listing: Listing }) {
   return (
