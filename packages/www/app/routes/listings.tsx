@@ -4,8 +4,6 @@ import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
-import InfiniteScroll from 'react-infinite-scroller'
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 
 type ListingsResponse = ExtractSchema<AppType>['/listings']['$get']['output']
@@ -52,17 +50,17 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
         <div>
           {page != 1 && (
             <Link to={`/boliger?page=${page - 1}&pageSize=${pageSize}`}>
-              <Button>Page {page - 1}</Button>
+              <Button>Side {page - 1}</Button>
             </Link>
           )}
         </div>
 
-        <p>Page {page}</p>
+        <p>Side {page}</p>
 
         <div>
           {hasMore && (
             <Link to={`/boliger?page=${page + 1}&pageSize=${pageSize}`}>
-              <Button> Page {page + 1}</Button>
+              <Button>Side {page + 1}</Button>
             </Link>
           )}
         </div>
