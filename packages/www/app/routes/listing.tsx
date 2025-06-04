@@ -23,14 +23,23 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   return (
     <div className="grid grid-cols-3 gap-4 p-10">
       <div className="col-span-2">
-        {listing.mainImgUrl && listing.mainImgAlt && <img src={listing.mainImgUrl} alt={listing.mainImgAlt} />}
+        <div className="relative">
+          {listing.status !== 'active' &&
+            (listing.status === 'sold' ? (
+              <span className="absolute bottom-6 right-6 bg-red-500 text-white font-bold text-3xl px-3 py-2 rounded">SOLGT</span>
+            ) : (
+              <span className="absolute bottom-6 right-6 bg-yellow-500 text-white font-bold text-3xl px-3 py-2 rounded">RESERVERET</span>
+            ))}
+          {listing.mainImgUrl && listing.mainImgAlt && <img src={listing.mainImgUrl} alt={listing.mainImgAlt} />}
+        </div>
         <h1>Bolig {listing.address.displayName}</h1>
       </div>
       <div className="bg-gray-100 p-4 rounded-lg space-y-3">
         <h2 className="font-bold text-4xl mb-6">Detaljer</h2>
         <ul className="space-y-3">
           <li className="flex">
-            <span className="font-extrabold">Adresse:</span> <span className="ml-auto">{listing.address.displayName}</span>
+            <span className="font-extrabold mr-2 shrink-0">Adresse:</span>{' '}
+            <span className="ml-auto flex-1 text-right break-words">{listing.address.displayName}</span>
           </li>
           {listing.status !== 'sold' && (
             <li className="flex">
