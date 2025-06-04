@@ -44,10 +44,6 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    console.log('💧 Listings component hydrated')
-  }, [])
-
   const loadFunc = async () => {
     console.log('Loading page:', page)
     if (isLoading) return
@@ -82,10 +78,6 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col min-h-screen py-12 max-w-6xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
-
-      <Button onClick={forceLoadMore} className="mb-4">
-      Load More (Debug)
-      </Button>
 
       
       <InfiniteScroll

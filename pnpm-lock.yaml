@@ -7,14 +7,7 @@ settings:
 importers:
 
   .:
-    dependencies:
-      react-infinite-scroller:
-        specifier: ^1.2.6
-        version: 1.2.6(react@19.0.0)
     devDependencies:
-      '@types/react-infinite-scroller':
-        specifier: ^1.2.5
-        version: 1.2.5
       prettier:
         specifier: ^3.5.2
         version: 3.5.2
