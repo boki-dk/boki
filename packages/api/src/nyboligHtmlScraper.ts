@@ -12,7 +12,7 @@ export async function scrapeListing(url: string) {
   rewriter.on('#hero-slider-photo img', {
     element: (el) => {
       const src = el.getAttribute('src')
-      const alt = el.getAttribute('alt')
+      const alt = decodeHtmlEntities(el.getAttribute('alt')?.trim()) ?? null
 
       if (src) {
         images.push({ src, alt })
@@ -25,7 +25,7 @@ export async function scrapeListing(url: string) {
   rewriter.on('#hero-slider-floorplan img', {
     element: (el) => {
       const src = el.getAttribute('src')
-      const alt = el.getAttribute('alt')
+      const alt = decodeHtmlEntities(el.getAttribute('alt')?.trim()) ?? null
 
       if (src) {
         floorplanImages.push({ src, alt })
@@ -148,7 +148,7 @@ export async function scrapeListing(url: string) {
     title,
     description,
     floorplanImages,
-    type,
+    type: decodeHtmlEntities(type.trim()),
     price: Number(price.replace(/\D/g, '')),
     areaFloor: areaFloorNum,
     rooms,
@@ -166,4 +166,25 @@ export async function scrapeListing(url: string) {
           : listingStatusEnum.enumValues[0],
     floors: areaFloorNum ? Number(floors) : null,
   }
+}
+
+function decodeHtmlEntities(encodedString: string | null | undefined) {
+  if (!encodedString) return encodedString
+
+  let decodedString = encodedString
+  decodedString = decodedString.replace(/&#198;/g, 'Æ')
+  decodedString = decodedString.replace(/&#216;/g, 'Ø')
+  decodedString = decodedString.replace(/&#197;/g, 'Å')
+  decodedString = decodedString.replace(/&#230;/g, 'æ')
+  decodedString = decodedString.replace(/&#248;/g, 'ø')
+  decodedString = decodedString.replace(/&#229;/g, 'å')
+
+  decodedString = decodedString.replace(/&AElig;/g, 'Æ')
+  decodedString = decodedString.replace(/&Oslash;/g, 'Ø')
+  decodedString = decodedString.replace(/&Aring;/g, 'Å')
+  decodedString = decodedString.replace(/&aelig;/g, 'æ')
+  decodedString = decodedString.replace(/&oslash;/g, 'ø')
+  decodedString = decodedString.replace(/&aring;/g, 'å')
+
+  return decodedString
 }
