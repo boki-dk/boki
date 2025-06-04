@@ -12,6 +12,11 @@ export const scrapedListingsTable = pgTable(
     json: jsonb().notNull(),
     hash: text().notNull(),
     listingId: integer(),
+    /**
+     * When the listing was processed and linked to a listing.
+     * If this is not null but listingId is null, it means the listing was processed but something went wrong.
+     */
+    processedAt: timestamp(),
   },
   (table) => [index('external_source_idx').on(table.externalSource), index('external_id_idx').on(table.externalId)],
 )
