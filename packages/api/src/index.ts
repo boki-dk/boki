@@ -65,6 +65,7 @@ const app = new Hono()
           and(
             eq(scrapedListingsTable.externalSource, 'nybolig'),
             isNull(scrapedListingsTable.listingId),
+            isNull(scrapedListingsTable.processedAt),
             sql`${scrapedListingsTable.json}->>'siteName' = 'nybolig'`,
           ),
         )
@@ -92,16 +93,28 @@ const app = new Hono()
 
     const updatedListing = await scrapeListing(url)
 
-    const cleanedAddress = await ofetch<{
+    const cleanedAddressResult = await ofetch<{
       kategori: string
       resultater: {
         adresse: {
           id: string
+          status: 1 | 2 | 3 | 4
         }
       }[]
     }>('https://api.dataforsyningen.dk/datavask/adresser', {
       query: { betegnelse: listingJson.addressDisplayName },
     })
+
+    const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
+
+    if (!cleanedAddress || cleanedAddress.status !== 1) {
+      db.update(scrapedListingsTable)
+        .set({
+          listingId: null,
+          processedAt: new Date(),
+        })
+        .where(eq(scrapedListingsTable.id, scrapedListing.id))
+    }
 
     const address = await ofetch<{
       id: string
@@ -115,7 +128,7 @@ const app = new Hono()
       x: number
       y: number
       betegnelse: string
-    }>(`https://api.dataforsyningen.dk/adresser/${cleanedAddress.resultater[0].adresse.id}`, {
+    }>(`https://api.dataforsyningen.dk/adresser/${cleanedAddress.id}`, {
       query: { struktur: 'mini' },
     })
 
@@ -216,6 +229,7 @@ const app = new Hono()
         .update(scrapedListingsTable)
         .set({
           listingId: listingRows[0].id,
+          processedAt: new Date(),
         })
         .where(eq(scrapedListingsTable.id, scrapedListing.id))
 
