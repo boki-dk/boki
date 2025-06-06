@@ -106,7 +106,7 @@ const app = new Hono()
         type: 'address',
         id: address.listings[0].id,
         displayName: address.displayName,
-        url: `/boliger/${address.listings[0].id}`,
+        url: `/bolig/${address.listings[0].id}`,
       })),
     )
   })
