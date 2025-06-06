@@ -66,7 +66,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
           </button>
           {listing.images.some((image) => image.type === 'floorplan') && (
             <Button
-              className="bottom-6 left-6  text-white bg-gradient-to-r from-pink-500 to-red-500 rounded-2xl"
+              className="bottom-6 left-6  text-white bg-gradient-to-r from-pink-500 to-red-500 rounded-2xl cursor-pointer"
               onClick={scrollToFloorPlan}
             >
               Hop til plantegning
