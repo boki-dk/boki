@@ -1,6 +1,7 @@
 import '@dotenvx/dotenvx/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import {
@@ -11,24 +12,62 @@ import {
   listingTypesTable,
   scrapedListingsTable,
 } from './db/schema.js'
-import { and, eq, ilike, isNull, or, sql } from 'drizzle-orm'
+import { and, eq, ilike, isNull, or, sql, gte, lte, inArray } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeListing } from './nyboligHtmlScraper.js'
 
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 
 const app = new Hono()
+  .use(
+    '/*',
+    cors({
+      origin: ['http://localhost:3000', 'https://www.boki.dk', 'https://boki.dk'],
+    }),
+  )
   .get('/', (c) => {
     return c.text('Hello Hono!')
   })
 
   .get('/listings', async (c) => {
-    const limit = parseInt(c.req.query('limit') || '15', 10)
-    const offset = parseInt(c.req.query('offset') || '0', 10)
+    const limit = Number(c.req.query('limit') || '15')
+    const offset = Number(c.req.query('offset') || '0')
+    const priceMin = c.req.query('price-min')
+    const priceMax = c.req.query('price-max')
+    const areaLandMin = c.req.query('area-land-min')
+    const areaLandMax = c.req.query('area-land-max')
+    const areaFloorMin = c.req.query('area-floor-min')
+    const areaFloorMax = c.req.query('area-floor-max')
+    const roomsMin = c.req.query('rooms-min')
+    const roomsMax = c.req.query('rooms-max')
+    const type = c.req.query('type')
+    const types = type?.split(',').map((t) => t.trim())
+
+    const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price'
+    const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
 
     const listings = await db.query.listingsTable.findMany({
+      where: and(
+        or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
+        types && types.length > 0 ? inArray(listingsTable.typeId, types.map(Number)) : undefined,
+        priceMin ? gte(listingsTable.price, Number(priceMin)) : undefined,
+        priceMax ? lte(listingsTable.price, Number(priceMax)) : undefined,
+        areaLandMin ? gte(listingsTable.areaLand, Number(areaLandMin)) : undefined,
+        areaLandMax ? lte(listingsTable.areaLand, Number(areaLandMax)) : undefined,
+        areaFloorMin ? gte(listingsTable.areaFloor, Number(areaFloorMin)) : undefined,
+        areaFloorMax ? lte(listingsTable.areaFloor, Number(areaFloorMax)) : undefined,
+        roomsMin ? gte(listingsTable.rooms, Number(roomsMin)) : undefined,
+        roomsMax ? lte(listingsTable.rooms, Number(roomsMax)) : undefined,
+      ),
       limit: limit + 1,
       offset,
+      orderBy: (listing, { desc, asc }) => {
+        if (sortBy === 'price') {
+          return sortOrder === 'desc' ? [desc(listing.price)] : [asc(listing.price)]
+        } else {
+          return sortOrder === 'desc' ? [desc(listing.createdAt)] : [asc(listing.createdAt)]
+        }
+      },
       with: {
         address: true,
         type: true,
@@ -67,7 +106,7 @@ const app = new Hono()
         type: 'address',
         id: address.listings[0].id,
         displayName: address.displayName,
-        url: `/listings/${address.listings[0].id}`,
+        url: `/bolig/${address.listings[0].id}`,
       })),
     )
   })
@@ -109,6 +148,9 @@ const app = new Hono()
     if (!scrapedListing) {
       return c.json({ error: 'No listings found' }, 404)
     }
+
+    console.log(`Processing listing: ${scrapedListing.id}`)
+
     const listingJson = scrapedListing.json as {
       basementSize: number
       url: string
@@ -142,12 +184,15 @@ const app = new Hono()
     const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
 
     if (!cleanedAddress || cleanedAddress.status !== 1) {
-      db.update(scrapedListingsTable)
+      await db
+        .update(scrapedListingsTable)
         .set({
           listingId: null,
           processedAt: new Date(),
         })
         .where(eq(scrapedListingsTable.id, scrapedListing.id))
+
+      return c.json({ error: 'No valid address found for the listing' }, 400)
     }
 
     const address = await ofetch<{
