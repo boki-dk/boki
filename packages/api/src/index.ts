@@ -12,7 +12,7 @@ import {
   listingTypesTable,
   scrapedListingsTable,
 } from './db/schema.js'
-import { and, eq, ilike, isNull, or, sql } from 'drizzle-orm'
+import { and, eq, ilike, isNull, or, sql, gte, lte } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeListing } from './nyboligHtmlScraper.js'
 
@@ -30,10 +30,27 @@ const app = new Hono()
   })
 
   .get('/listings', async (c) => {
-    const limit = parseInt(c.req.query('limit') || '15', 10)
-    const offset = parseInt(c.req.query('offset') || '0', 10)
+    const limit = Number(c.req.query('limit') || '15')
+    const offset = Number(c.req.query('offset') || '0')
+    const type = c.req.query('type')
+    const priceMin = c.req.query('priceMin')
+    const priceMax = c.req.query('priceMax')
+    const areaLandMin = c.req.query('areaLandMin')
+    const areaLandMax = c.req.query('areaLandMax')
+    const areaFloorMin = c.req.query('areaFloorMin')
+    const areaFloorMax = c.req.query('areaFloorMax')
 
     const listings = await db.query.listingsTable.findMany({
+      where: and(
+        or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
+        type ? eq(listingsTable.typeId, Number(type)) : undefined,
+        priceMin ? gte(listingsTable.price, Number(priceMin)) : undefined,
+        priceMax ? lte(listingsTable.price, Number(priceMax)) : undefined,
+        areaLandMin ? gte(listingsTable.areaLand, Number(areaLandMin)) : undefined,
+        areaLandMax ? lte(listingsTable.areaLand, Number(areaLandMax)) : undefined,
+        areaFloorMin ? gte(listingsTable.areaFloor, Number(areaFloorMin)) : undefined,
+        areaFloorMax ? lte(listingsTable.areaFloor, Number(areaFloorMax)) : undefined,
+      ),
       limit: limit + 1,
       offset,
       with: {
