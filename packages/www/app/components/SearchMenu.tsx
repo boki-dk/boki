@@ -14,6 +14,9 @@ import { Button } from './ui/button'
 import { DualRangeSlider } from './ui/dualrangeslider'
 import { useState } from 'react'
 import { currencyFormatter } from '~/lib/utils'
+import { Check } from 'lucide-react'
+import { Checkbox } from './ui/checkbox'
+import { Label } from './ui/label'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
@@ -36,7 +39,8 @@ export function SearchMenu() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 pb-4" align="center">
             <DropdownMenuLabel className="text-center align-top">Prisinterval</DropdownMenuLabel>
-            <DualRangeSlider className='mt-8 mb-4'
+            <DualRangeSlider
+              className="mt-8 mb-4"
               label={(value) => <span className="text-xs">{currencyFormatter.format(value ?? 0)}</span>}
               value={priceRange}
               onValueChange={setPriceRange}
@@ -46,7 +50,8 @@ export function SearchMenu() {
             />
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="text-center align-top">Areal</DropdownMenuLabel>
-            <DualRangeSlider className='mt-8 mb-4'
+            <DualRangeSlider
+              className="mt-8 mb-4"
               label={(value) => <span className="text-xs">{value}</span>}
               value={areaRange}
               onValueChange={setAreaRange}
@@ -62,21 +67,28 @@ export function SearchMenu() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full">
-              Areal
+              Parametre
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="center">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>GitHub</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuItem disabled>API</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              Log out
-              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-            </DropdownMenuItem>
+            <DropdownMenuLabel>Boligtype</DropdownMenuLabel>
+            <div className="flex items-center gap-3 mb-2">
+              <Checkbox id="house-check-box" />
+              <Label htmlFor="terms">Hus</Label>
+            </div>
+            <div className="flex items-center gap-3  mb-2">
+              <Checkbox id="apartment-check-box" />
+              <Label htmlFor="terms">Lejlighed</Label>
+            </div>
+            <DropdownMenuSeparator className="mt-2 mb-2" />
+            <div className="flex items-center gap-3 mb-2">
+              <Checkbox id="basement-check-box" />
+              <Label htmlFor="terms">Kælder</Label>
+            </div>
+            <div className="flex items-center gap-3  mb-2">
+              <Checkbox id="pet-friendly-check-box" />
+              <Label htmlFor="terms">Dyre-venlig</Label>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -84,16 +96,15 @@ export function SearchMenu() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full">
-              Rum
+              Account
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="center">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuSeparator />
-            <DropdownMenuItem>GitHub</DropdownMenuItem>
+            <DropdownMenuItem>Personal info</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuItem disabled>API</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               Log out
