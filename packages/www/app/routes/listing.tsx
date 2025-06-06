@@ -2,13 +2,12 @@ import type { Route } from './+types/listing'
 import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
-import { listingsRelations } from 'api/src/db/schema'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { Link } from 'react-router'
 import { Button } from '~/components/ui/button'
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { Map } from '~/components/Map.client'
 
@@ -52,7 +51,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   })
 
   return (
-    <div className="p-10 flex flex-col gap-10">
+    <div className="px-12 py-10 max-w-8xl mx-auto flex flex-col gap-10">
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-2 bg-gray-100 rounded-lg">
           <Card>

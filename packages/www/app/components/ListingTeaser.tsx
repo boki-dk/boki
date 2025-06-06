@@ -1,13 +1,13 @@
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
-import { Link } from 'react-router'
+import { NavLink } from 'react-router'
 import { currencyFormatter } from '~/lib/utils'
 
 type Listing = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]
 
 export function ListingTeaser({ listing }: { listing: Listing }) {
   return (
-    <Link to={`/bolig/${listing.id}`}>
+    <NavLink to={`/bolig/${listing.id}`}>
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border pb-6 shadow-sm">
         <div className="relative">
           {listing.status != 'active' && (
@@ -35,6 +35,6 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
           </div>
         </div>
       </div>
-    </Link>
+    </NavLink>
   )
 }

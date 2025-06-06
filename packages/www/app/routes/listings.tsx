@@ -4,8 +4,7 @@ import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
-import { Link } from 'react-router'
-import { SearchInput } from '~/components/SearchInput'
+import { NavLink } from 'react-router'
 import { SearchMenu } from '~/components/SearchMenu'
 
 type ListingsResponse = ExtractSchema<AppType>['/listings']['$get']['output']
@@ -39,18 +38,17 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   const { count, listings, hasMore, page, pageSize } = loaderData
 
   return (
-    <div className="flex flex-col min-h-screen py-12 max-w-6xl mx-auto">
+    <div className="flex flex-col min-h-screen py-8 px-12 max-w-8xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
+      <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
-      <div>
+      <div className="mb-8">
         <SearchMenu />
       </div>
 
-      <p className="text-muted-foreground mb-4">
+      <p className="text-muted-foreground mb-2">
         Fandt {count} {count === 1 ? 'bolig' : 'boliger'}
       </p>
-
-      <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {listings.map((listing) => (
@@ -60,9 +58,9 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
       <div className="flex items-center justify-between mt-8">
         <div>
           {page != 1 && (
-            <Link to={`/boliger?page=${page - 1}&pageSize=${pageSize}`}>
+            <NavLink to={`/boliger?page=${page - 1}&pageSize=${pageSize}`}>
               <Button>Side {page - 1}</Button>
-            </Link>
+            </NavLink>
           )}
         </div>
 
@@ -70,9 +68,9 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
 
         <div>
           {hasMore && (
-            <Link to={`/boliger?page=${page + 1}&pageSize=${pageSize}`}>
+            <NavLink to={`/boliger?page=${page + 1}&pageSize=${pageSize}`}>
               <Button>Side {page + 1}</Button>
-            </Link>
+            </NavLink>
           )}
         </div>
       </div>
