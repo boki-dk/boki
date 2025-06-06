@@ -116,6 +116,9 @@ const app = new Hono()
     if (!scrapedListing) {
       return c.json({ error: 'No listings found' }, 404)
     }
+
+    console.log(`Processing listing: ${scrapedListing.id}`)
+
     const listingJson = scrapedListing.json as {
       basementSize: number
       url: string
@@ -149,12 +152,15 @@ const app = new Hono()
     const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
 
     if (!cleanedAddress || cleanedAddress.status !== 1) {
-      db.update(scrapedListingsTable)
+      await db
+        .update(scrapedListingsTable)
         .set({
           listingId: null,
           processedAt: new Date(),
         })
         .where(eq(scrapedListingsTable.id, scrapedListing.id))
+
+      return c.json({ error: 'No valid address found for the listing' }, 400)
     }
 
     const address = await ofetch<{
