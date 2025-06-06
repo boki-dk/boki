@@ -12,7 +12,7 @@ import {
   listingTypesTable,
   scrapedListingsTable,
 } from './db/schema.js'
-import { and, eq, ilike, isNull, or, sql } from 'drizzle-orm'
+import { and, eq, ilike, isNull, or, sql, gte, lte, inArray } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeListing } from './nyboligHtmlScraper.js'
 
@@ -30,12 +30,44 @@ const app = new Hono()
   })
 
   .get('/listings', async (c) => {
-    const limit = parseInt(c.req.query('limit') || '15', 10)
-    const offset = parseInt(c.req.query('offset') || '0', 10)
+    const limit = Number(c.req.query('limit') || '15')
+    const offset = Number(c.req.query('offset') || '0')
+    const priceMin = c.req.query('price-min')
+    const priceMax = c.req.query('price-max')
+    const areaLandMin = c.req.query('area-land-min')
+    const areaLandMax = c.req.query('area-land-max')
+    const areaFloorMin = c.req.query('area-floor-min')
+    const areaFloorMax = c.req.query('area-floor-max')
+    const roomsMin = c.req.query('rooms-min')
+    const roomsMax = c.req.query('rooms-max')
+    const type = c.req.query('type')
+    const types = type?.split(',').map((t) => t.trim())
+
+    const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price'
+    const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
 
     const listings = await db.query.listingsTable.findMany({
+      where: and(
+        or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
+        types && types.length > 0 ? inArray(listingsTable.typeId, types.map(Number)) : undefined,
+        priceMin ? gte(listingsTable.price, Number(priceMin)) : undefined,
+        priceMax ? lte(listingsTable.price, Number(priceMax)) : undefined,
+        areaLandMin ? gte(listingsTable.areaLand, Number(areaLandMin)) : undefined,
+        areaLandMax ? lte(listingsTable.areaLand, Number(areaLandMax)) : undefined,
+        areaFloorMin ? gte(listingsTable.areaFloor, Number(areaFloorMin)) : undefined,
+        areaFloorMax ? lte(listingsTable.areaFloor, Number(areaFloorMax)) : undefined,
+        roomsMin ? gte(listingsTable.rooms, Number(roomsMin)) : undefined,
+        roomsMax ? lte(listingsTable.rooms, Number(roomsMax)) : undefined,
+      ),
       limit: limit + 1,
       offset,
+      orderBy: (listing, { desc, asc }) => {
+        if (sortBy === 'price') {
+          return sortOrder === 'desc' ? [desc(listing.price)] : [asc(listing.price)]
+        } else {
+          return sortOrder === 'desc' ? [desc(listing.createdAt)] : [asc(listing.createdAt)]
+        }
+      },
       with: {
         address: true,
         type: true,
