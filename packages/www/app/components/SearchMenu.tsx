@@ -18,12 +18,13 @@ import { Check } from 'lucide-react'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 import { Link } from 'react-router'
+import { PrimarySearchFilters } from './PrimarySearchFilters'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
 export function SearchMenu() {
-  const [priceRange, setPriceRange] = useState([1895000, 7000000])
-  const [areaRange, setAreaRange] = useState([0, 5000])
+  const [priceRange, setPriceRange] = useState<[number, number]>([1895000, 7000000])
+  const [areaRange, setAreaRange] = useState<[number, number]>([0, 5000])
 
   return (
     <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
@@ -31,38 +32,11 @@ export function SearchMenu() {
         <SearchInput />
       </div>
 
-      <div className="flex-1 flex justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full bg-gray-200">
-              Pris
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 pb-4" align="center">
-            <DropdownMenuLabel className="text-center align-top">Prisinterval</DropdownMenuLabel>
-            <DualRangeSlider
-              className="mt-8 mb-4"
-              label={(value) => <span className="text-xs">{currencyFormatter.format(value ?? 0)}</span>}
-              value={priceRange}
-              onValueChange={setPriceRange}
-              min={0}
-              max={10000000}
-              step={1000}
-            />
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-center align-top">Areal</DropdownMenuLabel>
-            <DualRangeSlider
-              className="mt-8 mb-4"
-              label={(value) => <span className="text-xs">{value}</span>}
-              value={areaRange}
-              onValueChange={setAreaRange}
-              min={0}
-              max={10000}
-              step={1}
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <PrimarySearchFilters 
+      priceRange={priceRange}
+       setPriceRange={setPriceRange}
+        areaRange={areaRange}
+         setAreaRange={setAreaRange} />
 
       <div className="flex-1 flex justify-center">
         <DropdownMenu>
