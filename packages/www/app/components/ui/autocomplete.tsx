@@ -38,16 +38,9 @@ export function AutoComplete<T extends string>({
     [items],
   )
 
-  const reset = () => {
-    onSearchValueChange('')
-  }
-
-
- 
-
   return (
     <div className="flex items-center">
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open && searchValue.length >= 3} onOpenChange={setOpen}>
         <Command shouldFilter={false}>
           <PopoverAnchor asChild>
             <CommandPrimitive.Input
@@ -64,6 +57,7 @@ export function AutoComplete<T extends string>({
           {!open && <CommandList aria-hidden="true" className="hidden" />}
           <PopoverContent
             asChild
+            align="start"
             onOpenAutoFocus={(e) => e.preventDefault()}
             onInteractOutside={(e) => {
               if (e.target instanceof Element && e.target.hasAttribute('cmdk-input')) {
@@ -83,9 +77,14 @@ export function AutoComplete<T extends string>({
               {items.length > 0 && !isLoading ? (
                 <CommandGroup>
                   {items.map((option) => (
-                    <CommandItem key={option.value} value={option.value} onMouseDown={(e) => e.preventDefault()} onSelect={() => {
-                   window.location.href = option.value
-                 }}>
+                    <CommandItem
+                      key={option.value}
+                      value={option.value}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onSelect={() => {
+                        window.location.href = option.value
+                      }}
+                    >
                       {option.label}
                     </CommandItem>
                   ))}

@@ -1,38 +1,32 @@
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
-import { Search } from 'lucide-react'
 import { SearchInput } from './SearchInput'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
 import { Button } from './ui/button'
+
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
 export function SearchMenu() {
   return (
     <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
-      <div className="flex-3">
+      <div className="flex-2">
         <SearchInput />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">Pris</Button>
+            <Button variant="outline" className="w-full">Pris</Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
+          <DropdownMenuContent className="w-56" align="center">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuSeparator />
@@ -47,12 +41,12 @@ export function SearchMenu() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">Areal</Button>
+            <Button variant="outline" className="w-full">Areal</Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
+          <DropdownMenuContent className="w-56" align="center">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuSeparator />
@@ -67,12 +61,12 @@ export function SearchMenu() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">Rum</Button>
+            <Button variant="outline" className="w-full">Rum</Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="start">
+          <DropdownMenuContent className="w-56" align="center">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuSeparator />
