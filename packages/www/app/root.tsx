@@ -35,19 +35,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-
-export default function App() {
-  return <Outlet />
-
 const queryClient = new QueryClient()
 
-export default function App() {  
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
     </QueryClientProvider>
   )
-
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
