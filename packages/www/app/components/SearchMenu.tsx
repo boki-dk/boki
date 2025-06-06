@@ -17,6 +17,7 @@ import { currencyFormatter } from '~/lib/utils'
 import { Check } from 'lucide-react'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
+import { Link } from 'react-router'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
@@ -33,7 +34,7 @@ export function SearchMenu() {
       <div className="flex-1 flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full bg-gray-200">
               Pris
             </Button>
           </DropdownMenuTrigger>
@@ -66,7 +67,7 @@ export function SearchMenu() {
       <div className="flex-1 flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full bg-gray-200">
               Parametre
             </Button>
           </DropdownMenuTrigger>
@@ -93,25 +94,14 @@ export function SearchMenu() {
         </DropdownMenu>
       </div>
       <div className="flex-1 flex justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full">
-              Account
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="center">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Personal info</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              Log out
-              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Link to="/boliger" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white"
+          >
+            Søg
+          </Button>
+        </Link>
       </div>
     </div>
   )
