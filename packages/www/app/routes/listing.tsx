@@ -65,7 +65,10 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
             <Icon icon="material-symbols:arrow-circle-right-outline" className="w-8 h-8" />
           </button>
           {listing.images.some((image) => image.type === 'floorplan') && (
-            <Button className="bottom-6 left-6" onClick={scrollToFloorPlan}>
+            <Button
+              className="bottom-6 left-6  text-white bg-gradient-to-r from-pink-500 to-red-500 rounded-2xl"
+              onClick={scrollToFloorPlan}
+            >
               Hop til plantegning
             </Button>
           )}
