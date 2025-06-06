@@ -9,6 +9,7 @@ import { Icon } from '@iconify/react'
 import { Link } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
 
@@ -45,7 +46,6 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   }, [emblaApi, listing.images])
 
   return (
-    // TODO: Add carousel for images
     <div className="grid grid-cols-3 gap-4 p-10">
       <div className="col-span-2 bg-gray-100 rounded-lg px-2 py-2">
         <div className="embla relative">
@@ -149,6 +149,19 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
         {/* trust me bro it's fine */}
         {listing.description && <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: listing.description }} />}
         {/* really bro trust me it's fine, don't even worry about it */}
+      </div>
+      <div className="colspan-3 bg-gray-100 rounded-lg px-2 py-2">
+        <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker position={[51.505, -0.09]}>
+            <Popup>
+              A pretty CSS3 popup. <br /> Easily customizable.
+            </Popup>
+          </Marker>
+        </MapContainer>
       </div>
     </div>
   )
