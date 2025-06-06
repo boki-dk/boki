@@ -6,6 +6,7 @@ import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
 import { Link } from 'react-router'
 import { SearchInput } from '~/components/SearchInput'
+import { SearchMenu } from '~/components/SearchMenu'
 
 type ListingsResponse = ExtractSchema<AppType>['/listings']['$get']['output']
 type Listings = ListingsResponse['listings']
@@ -42,7 +43,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
 
       <div>
-        <SearchInput />
+        <SearchMenu />
       </div>
 
       <p className="text-muted-foreground mb-4">
