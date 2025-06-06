@@ -10,7 +10,6 @@ import { useQuery } from '@tanstack/react-query'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
-
 export function SearchInput() {
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -52,43 +51,7 @@ export function SearchInput() {
     <AutoComplete
       searchValue={searchQuery}
       onSearchValueChange={setSearchQuery}
-      selectedValue={selectedValue}
-      onSelectedValueChange={setSelectedValue}
       items={searchResults.map((searchResult) => ({ value: searchResult.url, label: searchResult.displayName }))}
     />
-    // <Popover>
-    //   <PopoverTrigger asChild>
-    //     <Button
-
-    //     >
-    //       gamer
-    //     </Button>
-    //   </PopoverTrigger>
-    // <PopoverContent className="w-[200px] p-0">
-    // <Command>
-    //   <CommandInput placeholder="Søg efter boliger" value={searchQuery} onValueChange={setSearchQuery} />
-    //   <CommandList>
-    //     {searchResults.length > 0 && (
-    //       <CommandGroup heading="Boliger">
-    //         {searchResults.map((searchResult) => (
-    //           <CommandItem
-    //             key={searchResult.id} // sorting key. ID is not really the best way.
-    //             onSelect={() => {
-    //               window.location.href = searchResult.url
-    //             }}
-    //           >
-    //             {searchResult.displayName}
-    //           </CommandItem>
-    //         ))}
-    //       </CommandGroup>
-    //     )}
-    //     {/*
-    //     <CommandGroup heading="Veje">
-    //       searchResults.map(( <commandiem>{searchResult.road.displayName}</commandItem>))
-    //     </CommandGroup> */}
-    //   </CommandList>
-    // </Command>
-    // </PopoverContent>
-    // </Popover>
   )
 }

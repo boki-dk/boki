@@ -8,8 +8,6 @@ import { Popover, PopoverAnchor, PopoverContent } from './popover'
 import { Skeleton } from './skeleton'
 
 type Props<T extends string> = {
-  selectedValue: T
-  onSelectedValueChange: (value: T) => void
   searchValue: string
   onSearchValueChange: (value: string) => void
   items: { value: T; label: string }[]
@@ -19,8 +17,6 @@ type Props<T extends string> = {
 }
 
 export function AutoComplete<T extends string>({
-  selectedValue,
-  onSelectedValueChange,
   searchValue,
   onSearchValueChange,
   items,
@@ -43,25 +39,11 @@ export function AutoComplete<T extends string>({
   )
 
   const reset = () => {
-    onSelectedValueChange('' as T)
     onSearchValueChange('')
   }
 
-  const onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (!e.relatedTarget?.hasAttribute('cmdk-list') && labels[selectedValue] !== searchValue) {
-      reset()
-    }
-  }
 
-  const onSelectItem = (inputValue: string) => {
-    if (inputValue === selectedValue) {
-      reset()
-    } else {
-      onSelectedValueChange(inputValue as T)
-      onSearchValueChange(labels[inputValue] ?? '')
-    }
-    setOpen(false)
-  }
+ 
 
   return (
     <div className="flex items-center">
@@ -75,7 +57,6 @@ export function AutoComplete<T extends string>({
               onKeyDown={(e) => setOpen(e.key !== 'Escape')}
               onMouseDown={() => setOpen((open) => !!searchValue || !open)}
               onFocus={() => setOpen(true)}
-              onBlur={onInputBlur}
             >
               <Input placeholder={placeholder} />
             </CommandPrimitive.Input>
@@ -102,8 +83,9 @@ export function AutoComplete<T extends string>({
               {items.length > 0 && !isLoading ? (
                 <CommandGroup>
                   {items.map((option) => (
-                    <CommandItem key={option.value} value={option.value} onMouseDown={(e) => e.preventDefault()} onSelect={onSelectItem}>
-                      <Check className={cn('mr-2 h-4 w-4', selectedValue === option.value ? 'opacity-100' : 'opacity-0')} />
+                    <CommandItem key={option.value} value={option.value} onMouseDown={(e) => e.preventDefault()} onSelect={() => {
+                   window.location.href = option.value
+                 }}>
                       {option.label}
                     </CommandItem>
                   ))}
