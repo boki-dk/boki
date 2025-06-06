@@ -11,7 +11,7 @@ import {
   listingTypesTable,
   scrapedListingsTable,
 } from './db/schema.js'
-import { and, eq, isNull, sql } from 'drizzle-orm'
+import { and, eq, ilike, isNull, or, sql } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeListing } from './nyboligHtmlScraper.js'
 
@@ -36,6 +36,40 @@ const app = new Hono()
     })
     const returnListings = listings.slice(0, limit)
     return c.json({ count: returnListings.length, listings: returnListings, hasMore: listings.length > limit })
+  })
+
+  .get('/search', async (c) => {
+    const q = c.req.query('q') || ''
+    if (q.length < 3) {
+      return c.json([])
+    }
+
+    const addresses = (
+      await db.query.addressesTable.findMany({
+        limit: 25,
+        where: ilike(addressesTable.displayName, `%${q}%`),
+        columns: {
+          id: true,
+          displayName: true,
+        },
+        with: {
+          listings: {
+            where: or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
+            orderBy: (listing, { desc }) => [desc(listing.createdAt)],
+            limit: 1,
+          },
+        },
+      })
+    ).filter((address) => address.listings?.length > 0)
+
+    return c.json(
+      addresses.map((address) => ({
+        type: 'address',
+        id: address.listings[0].id,
+        displayName: address.displayName,
+        url: `/listings/${address.listings[0].id}`,
+      })),
+    )
   })
 
   .get('/listings/:listingId', async (c) => {
@@ -65,6 +99,7 @@ const app = new Hono()
           and(
             eq(scrapedListingsTable.externalSource, 'nybolig'),
             isNull(scrapedListingsTable.listingId),
+            isNull(scrapedListingsTable.processedAt),
             sql`${scrapedListingsTable.json}->>'siteName' = 'nybolig'`,
           ),
         )
@@ -92,16 +127,28 @@ const app = new Hono()
 
     const updatedListing = await scrapeListing(url)
 
-    const cleanedAddress = await ofetch<{
+    const cleanedAddressResult = await ofetch<{
       kategori: string
       resultater: {
         adresse: {
           id: string
+          status: 1 | 2 | 3 | 4
         }
       }[]
     }>('https://api.dataforsyningen.dk/datavask/adresser', {
       query: { betegnelse: listingJson.addressDisplayName },
     })
+
+    const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
+
+    if (!cleanedAddress || cleanedAddress.status !== 1) {
+      db.update(scrapedListingsTable)
+        .set({
+          listingId: null,
+          processedAt: new Date(),
+        })
+        .where(eq(scrapedListingsTable.id, scrapedListing.id))
+    }
 
     const address = await ofetch<{
       id: string
@@ -115,7 +162,7 @@ const app = new Hono()
       x: number
       y: number
       betegnelse: string
-    }>(`https://api.dataforsyningen.dk/adresser/${cleanedAddress.resultater[0].adresse.id}`, {
+    }>(`https://api.dataforsyningen.dk/adresser/${cleanedAddress.id}`, {
       query: { struktur: 'mini' },
     })
 
@@ -216,6 +263,7 @@ const app = new Hono()
         .update(scrapedListingsTable)
         .set({
           listingId: listingRows[0].id,
+          processedAt: new Date(),
         })
         .where(eq(scrapedListingsTable.id, scrapedListing.id))
 

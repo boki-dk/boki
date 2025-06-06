@@ -4,10 +4,11 @@ import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
-import InfiniteScroll from 'react-infinite-scroller' 
-import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
+import { SearchInput } from '~/components/SearchInput'
 
-type Listings = ExtractSchema<AppType>['/listings']['$get']['output']
+type ListingsResponse = ExtractSchema<AppType>['/listings']['$get']['output']
+type Listings = ListingsResponse['listings']
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Boliger | Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
@@ -15,15 +16,14 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url)
-  const offset = url.searchParams.get('offset') ?? '0'
+  const page = Number(url.searchParams.get('page') ?? '1')
+  const pageSize = Number(url.searchParams.get('pageSize') ?? '15')
+  const offset = (page - 1) * pageSize
 
   // fetch the real API on the server
-  const listings = await ofetch<Listings>(
-    'https://api.boki.dk/listings',
-    { params: { offset } }
-  )
+  const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', { params: { offset } })
 
-  return { listings }
+  return { ...listingsResponse, page, pageSize }
 }
 // export async function clientLoader({
 //   serverLoader,
@@ -34,69 +34,47 @@ export async function loader({ request }: Route.LoaderArgs) {
 //   if (serverData)
 // }
 
-
-
 export default function Listings({ loaderData }: Route.ComponentProps) {
-  
-  const initialListings = loaderData.listings
-  const [listings, setListings] = useState<Listings>(initialListings)
-  const [page, setPage] = useState(1) // Start at 1 since initial listings are page 0
-  const [hasMore, setHasMore] = useState(true)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const loadFunc = async () => {
-    console.log('Loading page:', page)
-    if (isLoading) return
-  
-    setIsLoading(true)
-    try {
-      const { listings: data } = await ofetch<{ listings: Listings }>(`https://api.boki.dk/listings?offset=${page}`)
-
-      
-      if (data && data.length > 0) {
-        // Append new listings to existing ones
-        setListings(prevListings => [...prevListings, ...data])
-        setPage(prevPage => prevPage + 1)
-      } else {
-        // No more listings to load
-        setHasMore(false)
-      }
-    } catch (error) {
-      console.error('Error loading more listings:', error)
-      setHasMore(false)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const forceLoadMore = () => {
-    console.log('Force loading more listings')
-    loadFunc();
-  }
+  const { count, listings, hasMore, page, pageSize } = loaderData
 
   return (
     <div className="flex flex-col min-h-screen py-12 max-w-6xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
+
+      <div>
+        <SearchInput />
+      </div>
+
+      <p className="text-muted-foreground mb-4">
+        Fandt {count} {count === 1 ? 'bolig' : 'boliger'}
+      </p>
+
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
-      
-      <InfiniteScroll
-        pageStart={0}
-        loadMore={loadFunc}
-        hasMore={true}
-        threshold={100}
-        useWindow={true}
-        loader={<div className='loader' key={0}>Henter nye boliger...</div>}>
-          
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {listings.map((listing) => (
-            <ListingTeaser key={listing.id} listing={listing} />
-          ))}
-
-        
-
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {listings.map((listing) => (
+          <ListingTeaser key={listing.id} listing={listing} />
+        ))}
       </div>
-      </InfiniteScroll>
+      <div className="flex items-center justify-between mt-8">
+        <div>
+          {page != 1 && (
+            <Link to={`/boliger?page=${page - 1}&pageSize=${pageSize}`}>
+              <Button>Side {page - 1}</Button>
+            </Link>
+          )}
+        </div>
+
+        <p>Side {page}</p>
+
+        <div>
+          {hasMore && (
+            <Link to={`/boliger?page=${page + 1}&pageSize=${pageSize}`}>
+              <Button>Side {page + 1}</Button>
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
