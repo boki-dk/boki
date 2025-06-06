@@ -22,6 +22,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
+    "embla-carousel-wheel-gestures": "^8.0.2",
     "hono": "^4.7.4",
     "isbot": "^5.1.17",
     "lucide-react": "^0.483.0",

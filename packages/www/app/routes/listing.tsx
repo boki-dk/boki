@@ -8,6 +8,7 @@ import { useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { Link } from 'react-router'
 import { Button } from '~/components/ui/button'
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
 
@@ -26,7 +27,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     return <div>Listing not found</div>
   }
 
-  const [emblaRef, emblaApi] = useEmblaCarousel()
+  const [emblaRef, emblaApi] = useEmblaCarousel({}, [WheelGesturesPlugin()])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
