@@ -129,6 +129,14 @@ const app = new Hono()
     return c.json(listing)
   })
 
+  .get('/listing-types', async (c) => {
+    const types = await db.query.listingTypesTable.findMany({
+      orderBy: (type, { asc }) => [asc(type.name)],
+    })
+
+    return c.json(types)
+  })
+
   .post('/nybolig/process-listing', async (c) => {
     const scrapedListing = (
       await db
