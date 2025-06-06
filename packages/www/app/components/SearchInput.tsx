@@ -34,16 +34,23 @@ export function SearchInput() {
     <Command>
       <CommandInput placeholder="Søg efter boliger" value={searchQuery} onValueChange={setSearchQuery} />
       <CommandList>
-        <CommandGroup>
-          {searchResults.map((searchResult) => (
-            <CommandItem>{searchResult.displayName}</CommandItem>
-          ))}
-        </CommandGroup>
-        {/* <CommandSeparator />
-        <CommandGroup heading="Settings">
-          <CommandItem>Profile</CommandItem>
-          <CommandItem>Billing</CommandItem>
-          <CommandItem>Settings</CommandItem>
+        {searchResults.length > 0 && (
+          <CommandGroup heading="Boliger">
+            {searchResults.map((searchResult) => (
+              <CommandItem
+                key={searchResult.id} // sorting key. ID is not really the best way.
+                onSelect={() => {
+                  window.location.href = searchResult.url
+                }}
+              >
+                {searchResult.displayName}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+        {/*
+        <CommandGroup heading="Veje">
+          searchResults.map(( <commandiem>{searchResult.road.displayName}</commandItem>))
         </CommandGroup> */}
       </CommandList>
     </Command>
