@@ -3,7 +3,7 @@ import { Button } from '~/components/ui/button'
 
 export function Welcome() {
   return (
-    <main className="flex items-center justify-center pt-32 pb-4">
+    <main className="flex items-center justify-center pt-32 pb-16">
       <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
         <div className="max-w-[450px] w-full px-4 grid gap-6">
           <div className="text-9xl text-center">🏗️</div>
