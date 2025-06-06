@@ -23,7 +23,7 @@ type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
 export function SearchMenu() {
   return (
-    <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg">
+    <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
       <div className="flex-3">
         <SearchInput />
       </div>

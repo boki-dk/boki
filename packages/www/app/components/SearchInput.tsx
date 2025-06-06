@@ -3,6 +3,8 @@ import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { use, useEffect, useState } from 'react'
 import { ofetch } from 'ofetch'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { Button } from './ui/button'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
@@ -31,6 +33,15 @@ export function SearchInput() {
   }, [debouncedSearch])
 
   return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          
+        >
+          gamer
+        </Button>
+      </PopoverTrigger>
+    <PopoverContent className="w-[200px] p-0">
     <Command>
       <CommandInput placeholder="Søg efter boliger" value={searchQuery} onValueChange={setSearchQuery} />
       <CommandList>
@@ -54,5 +65,7 @@ export function SearchInput() {
         </CommandGroup> */}
       </CommandList>
     </Command>
+    </PopoverContent>
+    </Popover>
   )
 }
