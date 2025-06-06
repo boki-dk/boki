@@ -63,9 +63,11 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
           <button className="embla__next absolute bottom-2 left-[calc(50%+2rem)] cursor-pointer" onClick={scrollNext}>
             <Icon icon="material-symbols:arrow-circle-right-outline" className="w-8 h-8" />
           </button>
-          <Button className="bottom-6 left-6" onClick={scrollToFloorPlan}>
-            Hop til plantegning
-          </Button>
+          {listing.images.some((image) => image.type === 'floorplan') && (
+            <Button className="bottom-6 left-6" onClick={scrollToFloorPlan}>
+              Hop til plantegning
+            </Button>
+          )}
           {listing.status !== 'active' &&
             (listing.status === 'sold' ? (
               <span className="absolute bottom-6 right-6 bg-red-500 text-white font-bold text-3xl px-3 py-2 rounded">SOLGT</span>
