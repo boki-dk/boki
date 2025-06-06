@@ -9,7 +9,7 @@ export function Map({ listing }: { listing: Listing }) {
   return (
     <MapContainer className="w-full h-142 rounded-xl" center={[location.y, location.x]} zoom={15} scrollWheelZoom={false}>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | yeet min dreng'
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={[location.y, location.x]}>
