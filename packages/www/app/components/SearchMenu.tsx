@@ -25,6 +25,7 @@ type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 export function SearchMenu() {
   const [priceRange, setPriceRange] = useState<[number, number]>([1895000, 7000000])
   const [areaRange, setAreaRange] = useState<[number, number]>([0, 5000])
+  const [types, setTypes] = useState<number[]>([])
 
   return (
     <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
@@ -32,11 +33,14 @@ export function SearchMenu() {
         <SearchInput />
       </div>
 
-      <PrimarySearchFilters 
-      priceRange={priceRange}
-       setPriceRange={setPriceRange}
+      <PrimarySearchFilters
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
         areaRange={areaRange}
-         setAreaRange={setAreaRange} />
+        setAreaRange={setAreaRange}
+        types={[1, 2, 3]}
+        setTypes={setTypes}
+      />
 
       <div className="flex-1 flex justify-center">
         <DropdownMenu>

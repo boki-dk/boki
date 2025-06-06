@@ -5,6 +5,8 @@ import { currencyFormatter } from '~/lib/utils'
 import { Button } from './ui/button'
 import { DualRangeSlider } from './ui/dualrangeslider'
 import type { Dispatch, SetStateAction } from 'react'
+import { Checkbox } from './ui/checkbox'
+import { Label } from './ui/label'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
@@ -13,18 +15,19 @@ type PrimarySearchFiltersProps = {
   setPriceRange: Dispatch<SetStateAction<[number, number]>>
   areaRange: [number, number]
   setAreaRange: Dispatch<SetStateAction<[number, number]>>
+  types: number[]
+  setTypes: Dispatch<SetStateAction<number[]>>
 }
 
-export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, setAreaRange }: PrimarySearchFiltersProps) {
-    
-    function handlePriceRangeChange(value: [number, number]) {
-        setPriceRange(value)
-    }
-    function handleAreaRangeChange(value: [number, number]) {
-        setAreaRange(value)
-    }
+export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, setAreaRange, types, setTypes }: PrimarySearchFiltersProps) {
+  function handlePriceRangeChange(value: [number, number]) {
+    setPriceRange(value)
+  }
+  function handleAreaRangeChange(value: [number, number]) {
+    setAreaRange(value)
+  }
 
-    return (
+  return (
     <div className="flex-1 flex justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -54,6 +57,13 @@ export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, set
             max={10000}
             step={1}
           />
+          <DropdownMenuSeparator />
+          {types.map((type) => (
+            <div className="flex items-center gap-3 mb-2">
+              <Checkbox id="house-check-box" />
+              <Label htmlFor="terms">Hus</Label>
+            </div>
+          ))}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
