@@ -1,6 +1,7 @@
 import '@dotenvx/dotenvx/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import {
@@ -18,6 +19,12 @@ import { scrapeListing } from './nyboligHtmlScraper.js'
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 
 const app = new Hono()
+  .use(
+    '/*',
+    cors({
+      origin: ['http://localhost:3000', 'https://www.boki.dk', 'https://boki.dk'],
+    }),
+  )
   .get('/', (c) => {
     return c.text('Hello Hono!')
   })
