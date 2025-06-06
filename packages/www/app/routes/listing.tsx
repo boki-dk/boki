@@ -4,6 +4,7 @@ import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { listingsRelations } from 'api/src/db/schema'
 import useEmblaCarousel from 'embla-carousel-react'
+import { useCallback } from 'react'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
 
@@ -22,18 +23,37 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     return <div>Listing not found</div>
   }
 
+  const [emblaRef, emblaApi] = useEmblaCarousel()
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
+
   return (
     // TODO: Add carousel for images
     <div className="grid grid-cols-3 gap-4 p-10">
       <div className="col-span-2 bg-gray-100 rounded-lg px-2 py-2">
-        <div className="embla">
-          <div className="embla__container">
-            <div className="embla__slide">Slide 1</div>
-            <div className="embla__slide">Slide 2</div>
-            <div className="embla__slide">Slide 3</div>
+        <div className="embla overflow-hidden">
+          <div className="embla__viewport" ref={emblaRef}>
+            <div className="embla__container flex">
+              {listing.images.map((image) => (
+                <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
+                  <img src={image.url} alt={image.alt ?? undefined} />
+                </div>
+              ))}
+            </div>
           </div>
+          <button className="embla__prev" onClick={scrollPrev}>
+            Prev
+          </button>
+          <button className="embla__next" onClick={scrollNext}>
+            Next
+          </button>
         </div>
-
         <div className="relative">
           {listing.status !== 'active' &&
             (listing.status === 'sold' ? (
