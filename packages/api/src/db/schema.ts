@@ -116,6 +116,7 @@ export const listingsTable = pgTable(
     index('listings_price_idx').on(table.price),
     index('listings_area_land_idx').on(table.areaLand),
     index('listings_area_floor_idx').on(table.areaFloor),
+    index('listings_rooms_idx').on(table.rooms),
   ],
 )
 
