@@ -1,16 +1,21 @@
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import type { ExtractSchema } from 'hono/types'
+import type { AppType } from 'api/src/index'
 
-export function Map() {
+type Listing = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]
+export function Map({ listing }: { listing: Listing }) {
+  const location = listing.address.location
   return (
-    <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
+    <MapContainer className="w-full h-142 rounded-xl" center={[location.y, location.x]} zoom={15} scrollWheelZoom={false}>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | yeet min dreng'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Marker position={[51.505, -0.09]}>
-        <Popup>
+      <Marker position={[location.y, location.x]}>
+        {/* <Popup>
           A pretty CSS3 popup. <br /> Easily customizable.
-        </Popup>
+        </Popup> */}
       </Marker>
     </MapContainer>
   )
