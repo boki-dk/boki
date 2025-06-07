@@ -32,21 +32,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price'
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
 
-  //  const limit = Number(c.req.query('limit') || '15')
-  //   const priceMin = c.req.query('price-min')
-  //   const priceMax = c.req.query('price-max')
-  //   const areaLandMin = c.req.query('area-land-min')
-  //   const areaLandMax = c.req.query('area-land-max')
-  //   const areaFloorMin = c.req.query('area-floor-min')
-  //   const areaFloorMax = c.req.query('area-floor-max')
-  //   const roomsMin = c.req.query('rooms-min')
-  //   const roomsMax = c.req.query('rooms-max')
-  //   const type = c.req.query('type')
-  //   const types = type?.split(',').map((t) => t.trim())
-
-  //   const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price'
-  //   const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
-
+  
   // fetch the real API on the server
   const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', {
     query: {
