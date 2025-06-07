@@ -46,19 +46,21 @@ const app = new Hono()
     const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price'
     const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
 
+    const where = and(
+      or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
+      types && types.length > 0 ? inArray(listingsTable.typeId, types.map(Number)) : undefined,
+      priceMin ? gte(listingsTable.price, Number(priceMin)) : undefined,
+      priceMax ? lte(listingsTable.price, Number(priceMax)) : undefined,
+      areaLandMin ? gte(listingsTable.areaLand, Number(areaLandMin)) : undefined,
+      areaLandMax ? lte(listingsTable.areaLand, Number(areaLandMax)) : undefined,
+      areaFloorMin ? gte(listingsTable.areaFloor, Number(areaFloorMin)) : undefined,
+      areaFloorMax ? lte(listingsTable.areaFloor, Number(areaFloorMax)) : undefined,
+      roomsMin ? gte(listingsTable.rooms, Number(roomsMin)) : undefined,
+      roomsMax ? lte(listingsTable.rooms, Number(roomsMax)) : undefined,
+    )
+
     const listings = await db.query.listingsTable.findMany({
-      where: and(
-        or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
-        types && types.length > 0 ? inArray(listingsTable.typeId, types.map(Number)) : undefined,
-        priceMin ? gte(listingsTable.price, Number(priceMin)) : undefined,
-        priceMax ? lte(listingsTable.price, Number(priceMax)) : undefined,
-        areaLandMin ? gte(listingsTable.areaLand, Number(areaLandMin)) : undefined,
-        areaLandMax ? lte(listingsTable.areaLand, Number(areaLandMax)) : undefined,
-        areaFloorMin ? gte(listingsTable.areaFloor, Number(areaFloorMin)) : undefined,
-        areaFloorMax ? lte(listingsTable.areaFloor, Number(areaFloorMax)) : undefined,
-        roomsMin ? gte(listingsTable.rooms, Number(roomsMin)) : undefined,
-        roomsMax ? lte(listingsTable.rooms, Number(roomsMax)) : undefined,
-      ),
+      where,
       limit: limit + 1,
       offset,
       orderBy: (listing, { desc, asc }) => {
@@ -73,8 +75,10 @@ const app = new Hono()
         type: true,
       },
     })
-    const returnListings = listings.slice(0, limit)
-    return c.json({ count: returnListings.length, listings: returnListings, hasMore: listings.length > limit })
+
+    const count: number = await db.$count(listingsTable, where)
+
+    return c.json({ count, listings: listings.slice(0, limit), hasMore: listings.length > limit })
   })
 
   .get('/search', async (c) => {
