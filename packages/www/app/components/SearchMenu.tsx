@@ -46,7 +46,6 @@ export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
   const [Sorting, setSorting] = useState<string>("default")
   const [Status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
   
-  
 
 
   return (
@@ -80,6 +79,8 @@ export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
         setToiletRange={setToiletRange}
         Sorting={Sorting}
         setSorting={setSorting}
+        Status ={Status}
+        setStatus={setStatus}
       />
       
       <div className="flex-1 flex justify-center">

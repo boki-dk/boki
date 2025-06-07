@@ -8,6 +8,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 import type { types } from 'util'
+import { listingStatusEnum } from 'api/src/db/schema'
 
 type ListingStatus = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]['status']
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
@@ -36,6 +37,9 @@ type AdvancedSearchFiltersProps = {
 
   Sorting: string
   setSorting: Dispatch<SetStateAction<string>>
+
+  Status: ListingStatus[]
+    setStatus: Dispatch<SetStateAction<ListingStatus[]>>
 }
 
 export function AdvancedSearchFilters({
@@ -44,7 +48,9 @@ export function AdvancedSearchFilters({
   floorRange, setFloorRange, maxFloorRange = 10,
   yearBuiltRange, setYearBuiltRange, minYearBuiltRange = 1900,
   toiletRange, setToiletRange, maxToiletRange = 5,
-  Sorting, setSorting
+  Sorting, setSorting,
+  Status,
+    setStatus
 }: AdvancedSearchFiltersProps)  {
 
     function handleAreaLandRangeChange(value: [number, number]) {
@@ -63,7 +69,7 @@ function handleToiletRangeChange(value: [number, number]) {
   setToiletRange(value)
 }
 
-
+const allStatuses = Object.values(listingStatusEnum).filter(status => status != null)[1] as ListingStatus[]; // Exclude 'deleted' status
 
   return (
     <div className="flex-1 flex justify-center">
@@ -147,6 +153,32 @@ function handleToiletRangeChange(value: [number, number]) {
     max={maxToiletRange}
     step={1}
   />
+
+  {/* Status buttons */}
+  <DropdownMenuLabel className="text-center align-top">Status</DropdownMenuLabel>
+<div className="grid grid-cols-2 gap-2 mb-4">
+  {allStatuses.map((status) => {
+    const isActive = Status?.includes(status);
+    return (
+      <Button
+        key={status}
+        type="button"
+        className={`flex items-center justify-center px-3 py-1 rounded-xl transition-colors text-xs
+          ${isActive ? "bg-gradient-to-r from-pink-500 to-red-500 text-white" : "bg-gray-200 text-gray-800"}
+          border border-gray-300 hover:bg-gray-300`}
+        onClick={() => {
+          setStatus((prev) =>
+            prev?.includes(status)
+              ? prev.filter((s) => s !== status)
+              : [...(prev || []), status]
+          );
+        }}
+      >
+        {status}
+      </Button>
+    );
+  })}
+</div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

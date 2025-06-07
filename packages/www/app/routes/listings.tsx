@@ -32,7 +32,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price'
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
 
-  console.log(priceMin)
   //  const limit = Number(c.req.query('limit') || '15')
   //   const priceMin = c.req.query('price-min')
   //   const priceMax = c.req.query('price-max')
