@@ -24,6 +24,9 @@ import { AdvancedSearchFilters } from './AdvancedSearchFilters'
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][number]
 
+type ListingStatus = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]['status']
+
+
 export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
 
   //primary search filters
@@ -41,6 +44,7 @@ export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
   const [yearBuiltRange, setYearBuiltRange] = useState<[number, number]>([1900, new Date().getFullYear()])
   const [toiletRange, setToiletRange] = useState<[number, number]>([1, 5])
   const [Sorting, setSorting] = useState<string>("default")
+  const [Status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
   
   
 

@@ -9,6 +9,7 @@ import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 import type { types } from 'util'
 
+type ListingStatus = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]['status']
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][number]
 
