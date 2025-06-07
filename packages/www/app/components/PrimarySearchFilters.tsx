@@ -25,6 +25,7 @@ type PrimarySearchFiltersProps = {
 export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, setAreaRange, typesResponse, types, setTypes }: PrimarySearchFiltersProps) {
   // Becaue the we want input in form of ([number, number] => Void) not (number[] => void).
   // From what i can tell, the weird typing comes from react primitive slider?
+  
   function handlePriceRangeChange(value: [number, number]) {
     setPriceRange(value)
   }
@@ -63,26 +64,29 @@ export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, set
             step={1}
           />
           <DropdownMenuSeparator />
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {typesResponse.map((typeResponse) => (
-            <div className="flex items-center gap-3 mb-2" key={typeResponse.id}>
-
-              <Checkbox id={`${typeResponse.name}-check-box`} 
-              
-              checked={types.includes(typeResponse.id)}
-              
-              onCheckedChange={(checked) => {
-        setTypes((prev) =>
-          checked
-            ? [...prev, typeResponse.id]
-            : prev.filter((id) => id !== typeResponse.id)
-        );
-      }}
-              />
-              <Label htmlFor={`${typeResponse.name}-check-box-label`}>{typeResponse.name}</Label>
-            </div>
-          ))}
-          </div>
+          <div className="grid grid-cols-1 mt-5 gap-3 md:grid-cols-2 lg:grid-cols-2">
+  {typesResponse.map((typeResponse) => {
+    const isActive = types.includes(typeResponse.id);
+    return (
+      <Button
+        key={typeResponse.id}
+        type="button"
+        className={`flex items-center gap-3 mb-2 px-4 py-2 rounded-xl transition-colors
+          ${isActive ? "bg-gradient-to-r from-pink-500 to-red-500" : "bg-gray-200 text-gray-800"}
+          border border-gray-300 hover:bg-gray-300`} 
+        onClick={() => {
+          setTypes((prev) =>
+            isActive
+              ? prev.filter((id) => id !== typeResponse.id)
+              : [...prev, typeResponse.id]
+          );
+        }}
+      >
+        {typeResponse.name}
+      </Button>
+    );
+  })}
+</div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
