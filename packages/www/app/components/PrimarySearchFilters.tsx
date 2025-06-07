@@ -7,19 +7,24 @@ import { DualRangeSlider } from './ui/dualrangeslider'
 import type { Dispatch, SetStateAction } from 'react'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
+import type { types } from 'util'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
+type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][number]
 
 type PrimarySearchFiltersProps = {
   priceRange: [number, number]
   setPriceRange: Dispatch<SetStateAction<[number, number]>>
   areaRange: [number, number]
   setAreaRange: Dispatch<SetStateAction<[number, number]>>
+  typesResponse: TypesResult[]
   types: number[]
   setTypes: Dispatch<SetStateAction<number[]>>
 }
 
-export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, setAreaRange, types, setTypes }: PrimarySearchFiltersProps) {
+export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, setAreaRange, typesResponse, types, setTypes }: PrimarySearchFiltersProps) {
+  // Becaue the we want input in form of ([number, number] => Void) not (number[] => void).
+  // From what i can tell, the weird typing comes from react primitive slider?
   function handlePriceRangeChange(value: [number, number]) {
     setPriceRange(value)
   }
@@ -58,12 +63,26 @@ export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, set
             step={1}
           />
           <DropdownMenuSeparator />
-          {types.map((type) => (
-            <div className="flex items-center gap-3 mb-2">
-              <Checkbox id="house-check-box" />
-              <Label htmlFor="terms">Hus</Label>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {typesResponse.map((typeResponse) => (
+            <div className="flex items-center gap-3 mb-2" key={typeResponse.id}>
+
+              <Checkbox id={`${typeResponse.name}-check-box`} 
+              
+              checked={types.includes(typeResponse.id)}
+              
+              onCheckedChange={(checked) => {
+        setTypes((prev) =>
+          checked
+            ? [...prev, typeResponse.id]
+            : prev.filter((id) => id !== typeResponse.id)
+        );
+      }}
+              />
+              <Label htmlFor={`${typeResponse.name}-check-box-label`}>{typeResponse.name}</Label>
             </div>
           ))}
+          </div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

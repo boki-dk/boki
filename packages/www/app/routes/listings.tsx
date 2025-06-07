@@ -67,7 +67,9 @@ export async function loader({ request }: Route.LoaderArgs) {
     },
   })
 
-  return { ...listingsResponse, page, pageSize }
+  const typesResponse = await ofetch<ExtractSchema<AppType>['/listing-types']['$get']['output']>('https://api.boki.dk/listing-types')
+
+  return { ...listingsResponse, page, pageSize, typesResponse }
 }
 // export async function clientLoader({
 //   serverLoader,
@@ -79,14 +81,14 @@ export async function loader({ request }: Route.LoaderArgs) {
 // }
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
-  const { count, listings, hasMore, page, pageSize } = loaderData
+  const { count, listings, hasMore, page, pageSize, typesResponse } = loaderData
 
   return (
     <div className="flex flex-col min-h-screen py-12 max-w-6xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
 
       <div>
-        <SearchMenu />
+        <SearchMenu typesResponse={typesResponse}/>
       </div>
 
       <p className="text-muted-foreground mb-4">

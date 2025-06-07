@@ -21,11 +21,17 @@ import { Link } from 'react-router'
 import { PrimarySearchFilters } from './PrimarySearchFilters'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
+type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][number]
 
-export function SearchMenu() {
+export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
+
+
   const [priceRange, setPriceRange] = useState<[number, number]>([1895000, 7000000])
   const [areaRange, setAreaRange] = useState<[number, number]>([0, 5000])
-  const [types, setTypes] = useState<number[]>([])
+  
+  //id of type
+  const [types, setTypes] = useState<number[]>(typesResponse.map((type) => type.id))
+
 
   return (
     <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
@@ -38,7 +44,8 @@ export function SearchMenu() {
         setPriceRange={setPriceRange}
         areaRange={areaRange}
         setAreaRange={setAreaRange}
-        types={[1, 2, 3]}
+        typesResponse={typesResponse}
+        types={types}
         setTypes={setTypes}
       />
 
