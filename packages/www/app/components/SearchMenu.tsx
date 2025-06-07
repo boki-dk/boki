@@ -12,17 +12,83 @@ import {
 } from '~/components/ui/dropdown-menu'
 import { Button } from './ui/button'
 import { DualRangeSlider } from './ui/dualrangeslider'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { currencyFormatter } from '~/lib/utils'
 import { Check } from 'lucide-react'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
+import { Link } from 'react-router'
+import { PrimarySearchFilters } from './PrimarySearchFilters'
+import { AdvancedSearchFilters } from './AdvancedSearchFilters'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
+type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][number]
 
-export function SearchMenu() {
-  const [priceRange, setPriceRange] = useState([1895000, 7000000])
-  const [areaRange, setAreaRange] = useState([0, 5000])
+type ListingStatus = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]['status']
+
+
+export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
+
+  //primary search filters
+  const maxPriceInRange = 10000000 
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, maxPriceInRange])
+  const maxAreaInRange = 300
+  const [areaRange, setAreaRange] = useState<[number, number]>([0, maxAreaInRange])
+  //id of type
+  const [types, setTypes] = useState<number[]>(typesResponse.map((type) => type.id))
+
+  //advanced search filters
+  const maxAreaLandRange = 10000
+  const [areaLandRange, setAreaLandRange] = useState<[number, number]>([0, maxAreaLandRange])
+  
+  const maxRoomRange = 10
+  const [roomRange, setRoomRange] = useState<[number, number]>([0, maxRoomRange])
+  
+  const maxFloorRange = 10
+  const [floorRange, setFloorRange] = useState<[number, number]>([0, maxFloorRange])
+
+  const minYearBuiltRange = 1800
+  const [yearBuiltRange, setYearBuiltRange] = useState<[number, number]>([minYearBuiltRange, new Date().getFullYear()])
+
+  const maxToiletRange = 5
+  const [toiletRange, setToiletRange] = useState<[number, number]>([1, maxToiletRange])
+
+  const [sorting, setSorting] = useState<string>("default") // TODO: sorting options
+  const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
+  
+  const searchParams = useMemo(() => {
+    const params = new URLSearchParams();
+
+    params.set('limit', '15');
+    params.set('offset', '0');
+
+    params.set('price-min', priceRange[0].toString());
+    if (priceRange[1] != maxPriceInRange) {
+      params.set('price-max', priceRange[1].toString());
+    }
+
+    params.set('area-floor-min', areaRange[0].toString());
+    if (areaRange[1] != maxAreaInRange){
+      params.set('area-floor-max', areaRange[1].toString());
+    }
+  
+    params.set('area-land-min', areaLandRange[0].toString());
+    if (areaLandRange[1] != maxAreaInRange) {
+      params.set('area-land-max', areaLandRange[1].toString());
+    }
+    
+    params.set('rooms-min', roomRange[0].toString());
+    if (roomRange[1] != maxRoomRange) {
+      params.set('rooms-max', roomRange[1].toString());
+    }
+
+    if (types.length > 0) params.set('type', types.join(','));
+    if (status.length > 0) params.set('status', status.join(','));
+
+    return params.toString();
+  }, [
+    priceRange, areaLandRange, areaRange, roomRange, types, status
+  ]);
 
   return (
     <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
@@ -30,88 +96,45 @@ export function SearchMenu() {
         <SearchInput />
       </div>
 
-      <div className="flex-1 flex justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full">
-              Pris
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 pb-4" align="center">
-            <DropdownMenuLabel className="text-center align-top">Prisinterval</DropdownMenuLabel>
-            <DualRangeSlider
-              className="mt-8 mb-4"
-              label={(value) => <span className="text-xs">{currencyFormatter.format(value ?? 0)}</span>}
-              value={priceRange}
-              onValueChange={setPriceRange}
-              min={0}
-              max={10000000}
-              step={1000}
-            />
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-center align-top">Areal</DropdownMenuLabel>
-            <DualRangeSlider
-              className="mt-8 mb-4"
-              label={(value) => <span className="text-xs">{value}</span>}
-              value={areaRange}
-              onValueChange={setAreaRange}
-              min={0}
-              max={10000}
-              step={1}
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <PrimarySearchFilters
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+        maxPriceInRange={maxPriceInRange}
+        areaRange={areaRange}
+        setAreaRange={setAreaRange}
+        maxAreaInRange={maxAreaInRange}
+        typesResponse={typesResponse}
+        types={types}
+        setTypes={setTypes}
+      />
 
+      <AdvancedSearchFilters
+        areaLandRange={areaLandRange}
+        setAreaLandRange={setAreaLandRange}
+        roomRange={roomRange}
+        setRoomRange={setRoomRange}
+        floorRange={floorRange}
+        setFloorRange={setFloorRange}
+        yearBuiltRange={yearBuiltRange}
+        setYearBuiltRange={setYearBuiltRange}
+        minYearBuiltRange={minYearBuiltRange}
+        toiletRange={toiletRange}
+        setToiletRange={setToiletRange}
+        sorting={sorting}
+        setSorting={setSorting}
+        status ={status}
+        setStatus={setStatus}
+      />
+      
       <div className="flex-1 flex justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full">
-              Parametre
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="center">
-            <DropdownMenuLabel>Boligtype</DropdownMenuLabel>
-            <div className="flex items-center gap-3 mb-2">
-              <Checkbox id="house-check-box" />
-              <Label htmlFor="terms">Hus</Label>
-            </div>
-            <div className="flex items-center gap-3  mb-2">
-              <Checkbox id="apartment-check-box" />
-              <Label htmlFor="terms">Lejlighed</Label>
-            </div>
-            <DropdownMenuSeparator className="mt-2 mb-2" />
-            <div className="flex items-center gap-3 mb-2">
-              <Checkbox id="basement-check-box" />
-              <Label htmlFor="terms">Kælder</Label>
-            </div>
-            <div className="flex items-center gap-3  mb-2">
-              <Checkbox id="pet-friendly-check-box" />
-              <Label htmlFor="terms">Dyre-venlig</Label>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="flex-1 flex justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full">
-              Account
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="center">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Personal info</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              Log out
-              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Link to={`/boliger?${searchParams}`} className="w-full">
+          <Button
+            variant="outline"
+            className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white"
+          >
+            Søg
+          </Button>
+        </Link>
       </div>
     </div>
   )

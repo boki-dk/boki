@@ -19,11 +19,41 @@ export async function loader({ request }: Route.LoaderArgs) {
   const page = Number(url.searchParams.get('page') ?? '1')
   const pageSize = Number(url.searchParams.get('pageSize') ?? '15')
   const offset = (page - 1) * pageSize
+  const priceMin = url.searchParams.get('price-min')
+  const priceMax = url.searchParams.get('price-max')
+  const areaLandMin = url.searchParams.get('area-land-min')
+  const areaLandMax = url.searchParams.get('area-land-max')
+  const areaFloorMin = url.searchParams.get('area-floor-min')
+  const areaFloorMax = url.searchParams.get('area-floor-max')
+  const roomsMin = url.searchParams.get('rooms-min')
+  const roomsMax = url.searchParams.get('rooms-max')
+  const type = url.searchParams.get('type')
+  const types = type?.split(',').map((t) => t.trim())
+  const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price'
+  const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
 
+  
   // fetch the real API on the server
-  const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', { params: { offset } })
+  const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', {
+    query: {
+      offset,
+      'price-min': priceMin,
+      'price-max': priceMax,
+      'area-land-min': areaLandMin,
+      'area-land-max': areaLandMax,
+      'area-floor-min': areaFloorMin,
+      'area-floor-max': areaFloorMax,
+      'rooms-min': roomsMin,
+      'rooms-max': roomsMax,
+      type: type ?? undefined,
+      'sort-by': sortBy,
+      'sort-order': sortOrder,
+    },
+  })
 
-  return { ...listingsResponse, page, pageSize }
+  const typesResponse = await ofetch<ExtractSchema<AppType>['/listing-types']['$get']['output']>('https://api.boki.dk/listing-types')
+
+  return { ...listingsResponse, page, pageSize, typesResponse }
 }
 // export async function clientLoader({
 //   serverLoader,
@@ -35,15 +65,15 @@ export async function loader({ request }: Route.LoaderArgs) {
 // }
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
-  const { count, listings, hasMore, page, pageSize } = loaderData
+  const { count, listings, hasMore, page, pageSize, typesResponse } = loaderData
 
   return (
     <div className="flex flex-col min-h-screen py-8 px-12 max-w-8xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
-      <div className="mb-8">
-        <SearchMenu />
+      <div>
+        <SearchMenu typesResponse={typesResponse}/>
       </div>
 
       <p className="text-muted-foreground mb-2">
