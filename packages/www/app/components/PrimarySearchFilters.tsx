@@ -15,14 +15,16 @@ type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][nu
 type PrimarySearchFiltersProps = {
   priceRange: [number, number]
   setPriceRange: Dispatch<SetStateAction<[number, number]>>
+  maxPriceInRange?: number
   areaRange: [number, number]
   setAreaRange: Dispatch<SetStateAction<[number, number]>>
+  maxAreaInRange?: number
   typesResponse: TypesResult[]
   types: number[]
   setTypes: Dispatch<SetStateAction<number[]>>
 }
 
-export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, setAreaRange, typesResponse, types, setTypes }: PrimarySearchFiltersProps) {
+export function PrimarySearchFilters({ priceRange, setPriceRange, maxPriceInRange = 10000000, areaRange, setAreaRange, maxAreaInRange = 300, typesResponse, types, setTypes }: PrimarySearchFiltersProps) {
   // Becaue the we want input in form of ([number, number] => Void) not (number[] => void).
   // From what i can tell, the weird typing comes from react primitive slider?
   
@@ -41,26 +43,30 @@ export function PrimarySearchFilters({ priceRange, setPriceRange, areaRange, set
             Søgefiltre
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-90 pb-4" align="center">
+        <DropdownMenuContent className="w-90 pb-1" align="center">
           <DropdownMenuLabel className="text-center align-top">Prisinterval</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-xs text-muted-foreground text-center">
+            Mellem <span className='text-base text-red-500'>{currencyFormatter.format(priceRange[0])}</span> og <span className='text-base text-red-500'>{currencyFormatter.format(priceRange[1])} {priceRange[1] == maxPriceInRange && '+'}</span>
+            </DropdownMenuLabel>
           <DualRangeSlider
-            className="mt-8 mb-4"
-            label={(value) => <span className="text-xs">{currencyFormatter.format(value ?? 0)}</span>}
+            className="mt-2 mb-4"
             value={priceRange}
             onValueChange={handlePriceRangeChange}
             min={0}
-            max={10000000}
+            max={maxPriceInRange}
             step={1000}
           />
           <DropdownMenuSeparator />
-          <DropdownMenuLabel className="text-center align-top">Areal</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-center align-top">Boligstørrelse</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-xs text-muted-foreground text-center">
+            Mellem <span className='text-base text-red-500'>{areaRange[0]} m<sup>2</sup></span> og <span className='text-base text-red-500'>{areaRange[1]} m<sup>2</sup> {areaRange[1] == maxAreaInRange && '+'}</span>
+            </DropdownMenuLabel>
           <DualRangeSlider
-            className="mt-8 mb-4"
-            label={(value) => <span className="text-xs">{value}</span>}
+            className="mt-2 mb-4"
             value={areaRange}
             onValueChange={handleAreaRangeChange}
             min={0}
-            max={10000}
+            max={maxAreaInRange}
             step={1}
           />
           <DropdownMenuSeparator />

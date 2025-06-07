@@ -19,18 +19,30 @@ import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
 import { Link } from 'react-router'
 import { PrimarySearchFilters } from './PrimarySearchFilters'
+import { AdvancedSearchFilters } from './AdvancedSearchFilters'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][number]
 
 export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
 
-
-  const [priceRange, setPriceRange] = useState<[number, number]>([1895000, 7000000])
+  //primary search filters
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 7000000])
+  const maxPriceInRange = 10000000 // This should be the maximum price in the range, can be fetched from the API if needed.
   const [areaRange, setAreaRange] = useState<[number, number]>([0, 5000])
-  
+  const maxAreaInRange = 300
   //id of type
   const [types, setTypes] = useState<number[]>(typesResponse.map((type) => type.id))
+
+  //advanced search filters
+   const [areaLandRange, setAreaLandRange] = useState<[number, number]>([0, 5000])
+  const [roomRange, setRoomRange] = useState<[number, number]>([1, 10])
+  const [floorRange, setFloorRange] = useState<[number, number]>([0, 10])
+  const [yearBuiltRange, setYearBuiltRange] = useState<[number, number]>([1900, new Date().getFullYear()])
+  const [toiletRange, setToiletRange] = useState<[number, number]>([1, 5])
+  const [Sorting, setSorting] = useState<string>("default")
+  
+  
 
 
   return (
@@ -42,42 +54,30 @@ export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
       <PrimarySearchFilters
         priceRange={priceRange}
         setPriceRange={setPriceRange}
+        maxPriceInRange={maxPriceInRange}
         areaRange={areaRange}
         setAreaRange={setAreaRange}
+        maxAreaInRange={maxAreaInRange}
         typesResponse={typesResponse}
         types={types}
         setTypes={setTypes}
       />
 
-      <div className="flex-1 flex justify-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full bg-gray-200">
-              Parametre
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="center">
-            <DropdownMenuLabel>Boligtype</DropdownMenuLabel>
-            <div className="flex items-center gap-3 mb-2">
-              <Checkbox id="house-check-box" />
-              <Label htmlFor="terms">Hus</Label>
-            </div>
-            <div className="flex items-center gap-3  mb-2">
-              <Checkbox id="apartment-check-box" />
-              <Label htmlFor="terms">Lejlighed</Label>
-            </div>
-            <DropdownMenuSeparator className="mt-2 mb-2" />
-            <div className="flex items-center gap-3 mb-2">
-              <Checkbox id="basement-check-box" />
-              <Label htmlFor="terms">Kælder</Label>
-            </div>
-            <div className="flex items-center gap-3  mb-2">
-              <Checkbox id="pet-friendly-check-box" />
-              <Label htmlFor="terms">Dyre-venlig</Label>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <AdvancedSearchFilters
+        areaLandRange={areaLandRange}
+        setAreaLandRange={setAreaLandRange}
+        roomRange={roomRange}
+        setRoomRange={setRoomRange}
+        floorRange={floorRange}
+        setFloorRange={setFloorRange}
+        yearBuiltRange={yearBuiltRange}
+        setYearBuiltRange={setYearBuiltRange}
+        toiletRange={toiletRange}
+        setToiletRange={setToiletRange}
+        Sorting={Sorting}
+        setSorting={setSorting}
+      />
+      
       <div className="flex-1 flex justify-center">
         <Link to="/boliger" className="w-full">
           <Button
