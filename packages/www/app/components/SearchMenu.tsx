@@ -42,19 +42,19 @@ export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
   const [areaLandRange, setAreaLandRange] = useState<[number, number]>([0, maxAreaLandRange])
   
   const maxRoomRange = 10
-  const [roomRange, setRoomRange] = useState<[number, number]>([1, maxRoomRange])
+  const [roomRange, setRoomRange] = useState<[number, number]>([0, maxRoomRange])
   
   const maxFloorRange = 10
   const [floorRange, setFloorRange] = useState<[number, number]>([0, maxFloorRange])
 
-  const minYearBuiltRange = 1900
+  const minYearBuiltRange = 1800
   const [yearBuiltRange, setYearBuiltRange] = useState<[number, number]>([minYearBuiltRange, new Date().getFullYear()])
 
   const maxToiletRange = 5
   const [toiletRange, setToiletRange] = useState<[number, number]>([1, maxToiletRange])
 
-  const [Sorting, setSorting] = useState<string>("default") // TODO: sorting options
-  const [Status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
+  const [sorting, setSorting] = useState<string>("default") // TODO: sorting options
+  const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
   
   const searchParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -83,13 +83,12 @@ export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
     }
 
     if (types.length > 0) params.set('type', types.join(','));
-    if (Status.length > 0) params.set('status', Status.join(','));
+    if (status.length > 0) params.set('status', status.join(','));
 
     return params.toString();
   }, [
-    priceRange, areaLandRange, areaRange, roomRange, types, Status
+    priceRange, areaLandRange, areaRange, roomRange, types, status
   ]);
-
 
   return (
     <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
@@ -118,11 +117,12 @@ export function SearchMenu({typesResponse}: { typesResponse: TypesResult[] }) {
         setFloorRange={setFloorRange}
         yearBuiltRange={yearBuiltRange}
         setYearBuiltRange={setYearBuiltRange}
+        minYearBuiltRange={minYearBuiltRange}
         toiletRange={toiletRange}
         setToiletRange={setToiletRange}
-        Sorting={Sorting}
+        sorting={sorting}
         setSorting={setSorting}
-        Status ={Status}
+        status ={status}
         setStatus={setStatus}
       />
       

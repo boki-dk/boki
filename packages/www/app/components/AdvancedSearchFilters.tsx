@@ -35,10 +35,10 @@ type AdvancedSearchFiltersProps = {
   setToiletRange: Dispatch<SetStateAction<[number, number]>>
   maxToiletRange?: number
 
-  Sorting: string
+  sorting: string
   setSorting: Dispatch<SetStateAction<string>>
 
-  Status: ListingStatus[]
+  status: ListingStatus[]
     setStatus: Dispatch<SetStateAction<ListingStatus[]>>
 }
 
@@ -48,8 +48,8 @@ export function AdvancedSearchFilters({
   floorRange, setFloorRange, maxFloorRange = 10,
   yearBuiltRange, setYearBuiltRange, minYearBuiltRange = 1900,
   toiletRange, setToiletRange, maxToiletRange = 5,
-  Sorting, setSorting,
-  Status,
+  sorting, setSorting,
+  status,
     setStatus
 }: AdvancedSearchFiltersProps)  {
 
@@ -69,7 +69,7 @@ function handleToiletRangeChange(value: [number, number]) {
   setToiletRange(value)
 }
 
-const allStatuses = Object.values(listingStatusEnum).filter(status => status != null)[1] as ListingStatus[]; // Exclude 'deleted' status
+const allStatuses = Object.values(listingStatusEnum).filter(s => s != null)[1] as ListingStatus[]; // Exclude 'deleted' status
 
   return (
     <div className="flex-1 flex justify-center">
@@ -157,24 +157,25 @@ const allStatuses = Object.values(listingStatusEnum).filter(status => status != 
   {/* Status buttons */}
   <DropdownMenuLabel className="text-center align-top">Status</DropdownMenuLabel>
 <div className="grid grid-cols-2 gap-2 mb-4">
-  {allStatuses.map((status) => {
-    const isActive = Status?.includes(status);
+  {allStatuses.map((selectedStatus) => {
+    const isActive = status?.includes(selectedStatus);
     return (
       <Button
-        key={status}
+        key={selectedStatus}
         type="button"
         className={`flex items-center justify-center px-3 py-1 rounded-xl transition-colors text-xs
           ${isActive ? "bg-gradient-to-r from-pink-500 to-red-500 text-white" : "bg-gray-200 text-gray-800"}
           border border-gray-300 hover:bg-gray-300`}
         onClick={() => {
+           
           setStatus((prev) =>
-            prev?.includes(status)
-              ? prev.filter((s) => s !== status)
-              : [...(prev || []), status]
+            prev?.includes(selectedStatus)
+              ? prev.filter((s) => s !== selectedStatus)
+              : [...(prev || []), selectedStatus]
           );
         }}
       >
-        {status}
+        {selectedStatus}
       </Button>
     );
   })}
