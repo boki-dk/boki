@@ -2,7 +2,7 @@ import '@dotenvx/dotenvx/config'
 import { HTMLRewriter } from 'htmlrewriter'
 import { listingStatusEnum } from './db/schema.js'
 
-export async function scrapeListing(url: string) {
+export async function scrapeNyboligListing(url: string) {
   const rewriter = new HTMLRewriter()
 
   const response = await fetch(url)

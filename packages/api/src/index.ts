@@ -14,7 +14,20 @@ import {
 } from './db/schema.js'
 import { and, eq, ilike, isNull, or, sql, gte, lte, inArray } from 'drizzle-orm'
 import * as schema from './db/schema.js'
-import { scrapeListing } from './nyboligHtmlScraper.js'
+import { scrapeNyboligListing } from './nyboligHtmlScraper.js'
+import { scrapeHomeListing } from './homeHtmlScraper.js'
+
+const HOME_TYPE_MAP = {
+  AllYearRoundPlot: 'Helårsgrund',
+  AllotmentHut: 'Fritidsbolig',
+  AllotmentPlot: 'Fritidsgrund',
+  Condo: 'Ejerlejlighed',
+  FormerFarm: 'Landejendom',
+  HousingCooperative: 'Andelsbolig',
+  TerracedHouse: 'Rækkehus',
+  Villa: 'Villa',
+  VillaApartment: 'Villalejlighed',
+} as const
 
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 
@@ -90,13 +103,10 @@ const app = new Hono()
     const postalCodes =
       municipality && !postalCode
         ? await (async () => {
-            const response = await ofetch<{  nr: string; navn: string  }[]>(
-              'https://api.dataforsyningen.dk/postnumre',
-              {
-                query: { kommunekode: municipality },
-              },
-            )
-            
+            const response = await ofetch<{ nr: string; navn: string }[]>('https://api.dataforsyningen.dk/postnumre', {
+              query: { kommunekode: municipality },
+            })
+
             return response.map((pc) => pc.nr)
           })()
         : postalCode
@@ -270,7 +280,7 @@ const app = new Hono()
       return c.json({ error: 'No listings found' }, 404)
     }
 
-    console.log(`Processing listing: ${scrapedListing.id}`)
+    console.log(`Processing listing: ${scrapedListing.id} from Nybolig`)
 
     const listingJson = scrapedListing.json as {
       basementSize: number
@@ -288,7 +298,7 @@ const app = new Hono()
     }
     const url = `https://nybolig.dk${listingJson.url}`
 
-    const updatedListing = await scrapeListing(url)
+    const updatedListing = await scrapeNyboligListing(url)
 
     const cleanedAddressResult = await ofetch<{
       kategori: string
@@ -450,7 +460,232 @@ const app = new Hono()
       return c.json({ error: 'No URL provided' }, 400)
     }
 
-    return c.json(await scrapeListing(url))
+    return c.json(await scrapeNyboligListing(url))
+  })
+
+  .post('/home/process-listing', async (c) => {
+    const scrapedListing = (
+      await db
+        .select()
+        .from(scrapedListingsTable)
+        .where(
+          and(
+            eq(scrapedListingsTable.externalSource, 'home'),
+            isNull(scrapedListingsTable.listingId),
+            isNull(scrapedListingsTable.processedAt),
+            sql`${scrapedListingsTable.json}->>'isExternal' = 'false'`,
+            sql`${scrapedListingsTable.json}->>'isRentalCase' = 'false'`,
+          ),
+        )
+        .limit(1)
+    )[0]
+
+    if (!scrapedListing) {
+      return c.json({ error: 'No listings found' }, 404)
+    }
+
+    console.log(`Processing listing: ${scrapedListing.id} from Home`)
+
+    const listingJson = scrapedListing.json as {
+      url: string
+      type: keyof typeof HOME_TYPE_MAP
+      address: {
+        full: string
+      }
+      offer: {
+        price: { amount: number }
+      }
+      stats: {
+        plotArea: number
+        floorArea: number
+        floorAreaTotal?: number
+        totalSquareMeters: number
+      }
+      presentationMedia: {
+        url: string
+        type: 'Billede'
+        altText: string
+        priority: string
+      }[]
+      floorPlanMedia: {
+        url: string
+        type: 'Plantegning'
+        altText: string
+        priority: string
+      }[]
+      headline: string
+      // basementSize: number
+
+      // hasBeenSold: boolean
+
+      // energyClassification: string
+      // totalNumberOfRooms: number
+    }
+    const url = `https://home.dk/${listingJson.url}`
+
+    const updatedListing = await scrapeHomeListing(url)
+
+    const cleanedAddressResult = await ofetch<{
+      kategori: string
+      resultater: {
+        adresse: {
+          id: string
+          status: 1 | 2 | 3 | 4
+        }
+      }[]
+    }>('https://api.dataforsyningen.dk/datavask/adresser', {
+      query: { betegnelse: listingJson.address.full },
+    })
+
+    const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
+
+    if (!cleanedAddress || cleanedAddress.status !== 1) {
+      await db
+        .update(scrapedListingsTable)
+        .set({
+          listingId: null,
+          processedAt: new Date(),
+        })
+        .where(eq(scrapedListingsTable.id, scrapedListing.id))
+
+      return c.json({ error: 'No valid address found for the listing' }, 400)
+    }
+
+    const address = await ofetch<{
+      id: string
+      vejnavn: string
+      husnr: string
+      etage: string | null
+      dør: string | null
+      postnr: string
+      postnrnavn: string
+      supplerendebynavn: string | null
+      x: number
+      y: number
+      betegnelse: string
+    }>(`https://api.dataforsyningen.dk/adresser/${cleanedAddress.id}`, {
+      query: { struktur: 'mini' },
+    })
+
+    const listing = await db.transaction(async (tx) => {
+      const existingScrapedListing = (
+        await tx
+          .select()
+          .from(scrapedListingsTable)
+          .where(and(eq(scrapedListingsTable.id, scrapedListing.id)))
+          .limit(1)
+      )[0]
+
+      if (!existingScrapedListing || existingScrapedListing.listingId !== null) return
+
+      const addressRows = await tx
+        .insert(addressesTable)
+        .values({
+          street: address.vejnavn,
+          houseNumber: address.husnr,
+          floor: address.etage,
+          door: address.dør,
+          postalCode: address.postnr,
+          postalCodeName: address.postnrnavn,
+          extraCity: address.supplerendebynavn,
+          location: sql`point(${address.x}, ${address.y})`,
+          displayName: address.betegnelse,
+          slug: address.betegnelse
+            .toLocaleLowerCase('da-DK')
+            .replace(/[\s,]+/g, '-')
+            .replace('æ', 'ae')
+            .replace('ø', 'oe')
+            .replace('å', 'aa')
+            .replace(/[^\w-]+/g, ''),
+        })
+        .returning()
+
+      const existingType = (
+        await tx
+          .select()
+          .from(listingTypesTable)
+          .where(eq(listingTypesTable.name, updatedListing.type ?? listingJson.type))
+          .limit(1)
+      )[0]
+
+      const typeRows = existingType
+        ? [existingType]
+        : await tx
+            .insert(listingTypesTable)
+            .values({
+              name: updatedListing.type ?? listingJson.type,
+            })
+            .returning()
+
+      const listingRows = await tx
+        .insert(listingsTable)
+        .values({
+          title: updatedListing.title,
+          description: updatedListing.description,
+          source: 'home',
+          sourceUrl: url,
+          addressId: addressRows[0].id,
+          typeId: typeRows[0].id,
+          status: updatedListing.status,
+          areaLand: updatedListing.areaLand ?? listingJson.stats.plotArea,
+          areaFloor: updatedListing.areaFloor ?? listingJson.stats.floorArea,
+          areaBasement: updatedListing.areaBasement ?? 0,
+          price: updatedListing.price ?? listingJson.offer.price.amount,
+          energyClass: updatedListing.energyClass,
+          rooms: updatedListing.rooms,
+          bathroomCount: updatedListing.bathrooms,
+          mainImgUrl: updatedListing.images?.[0]?.url ?? listingJson.presentationMedia?.[0]?.url,
+          mainImgAlt: updatedListing.images?.[0]?.description ?? listingJson.presentationMedia?.[0]?.altText,
+          floors: updatedListing.floors,
+          yearBuilt: updatedListing.yearBuilt,
+          yearRenovated: updatedListing.yearRenovated,
+        })
+        .returning()
+      if (updatedListing.status !== 'unlisted' && (updatedListing.images.length > 0 || updatedListing.floorplanImages.length > 0)) {
+        await tx.insert(listingImagesTable).values([
+          ...updatedListing.images.map((img, i) => ({
+            listingId: listingRows[0].id,
+            url: img.url,
+            order: i,
+            alt: img.description,
+            type: listingImageTypeEnum.enumValues[0],
+          })),
+          ...updatedListing.floorplanImages.map((img, i) => ({
+            listingId: listingRows[0].id,
+            url: img.url,
+            order: i,
+            alt: img.description,
+            type: listingImageTypeEnum.enumValues[1],
+          })),
+        ])
+      }
+
+      await tx
+        .update(scrapedListingsTable)
+        .set({
+          listingId: listingRows[0].id,
+          processedAt: new Date(),
+        })
+        .where(eq(scrapedListingsTable.id, scrapedListing.id))
+
+      return listingRows[0]
+    })
+
+    if (!listing) {
+      return c.json({ error: 'Scraped listing was already processed by another request' }, 500)
+    }
+
+    return c.json(listing)
+  })
+
+  .get('/home/scrape-listing', async (c) => {
+    const url = c.req.query('url')
+
+    if (!url) {
+      return c.json({ error: 'No URL provided' }, 400)
+    }
+
+    return c.json(await scrapeHomeListing(url))
   })
 
 serve(
