@@ -567,6 +567,8 @@ const app = new Hono()
       query: { struktur: 'mini' },
     })
 
+    const type = HOME_TYPE_MAP[(updatedListing.type ?? listingJson.type) as keyof typeof HOME_TYPE_MAP]
+
     const listing = await db.transaction(async (tx) => {
       const existingScrapedListing = (
         await tx
@@ -600,20 +602,14 @@ const app = new Hono()
         })
         .returning()
 
-      const existingType = (
-        await tx
-          .select()
-          .from(listingTypesTable)
-          .where(eq(listingTypesTable.name, updatedListing.type ?? listingJson.type))
-          .limit(1)
-      )[0]
+      const existingType = (await tx.select().from(listingTypesTable).where(eq(listingTypesTable.name, type)).limit(1))[0]
 
       const typeRows = existingType
         ? [existingType]
         : await tx
             .insert(listingTypesTable)
             .values({
-              name: updatedListing.type ?? listingJson.type,
+              name: type,
             })
             .returning()
 
