@@ -32,7 +32,7 @@ export function AutoComplete<T extends string>({
 
   return (
     <div className={cn('flex items-center', className)}>
-      <Popover open={open && searchValue.length >= 3} onOpenChange={setOpen}>
+      <Popover open={open && searchValue.length >= 3 && !isLoading} onOpenChange={setOpen}>
         <Command shouldFilter={false}>
           <PopoverAnchor asChild>
             <CommandPrimitive.Input
@@ -90,7 +90,7 @@ export function AutoComplete<T extends string>({
                   ))}
                 </CommandGroup>
               ) : null}
-              {!isLoading ? <CommandEmpty>{emptyMessage ?? 'No items.'}</CommandEmpty> : null}
+              {!isLoading ? <CommandEmpty className='py-3 text-center text-sm mx-3'>{emptyMessage ?? 'No items.'}</CommandEmpty> : null}
             </CommandList>
           </PopoverContent>
         </Command>
