@@ -81,13 +81,6 @@ const app = new Hono()
 
     const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor'
     const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
-    console.log(
-      await db
-        .select({ id: listingsTable.id })
-        .from(listingsTable)
-        .innerJoin(addressesTable, eq(listingsTable.addressId, addressesTable.id))
-        .where(inArray(addressesTable.postalCode, postalCodes)),
-    )
 
     const where = and(
       inArray(listingsTable.status, statusList),
