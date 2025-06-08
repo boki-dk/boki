@@ -29,6 +29,40 @@ const app = new Hono()
     return c.text('Hello Hono!')
   })
 
+  .get('/listings/map', async (c) => {
+    const southWestLat = c.req.query('swlat')
+    const southWestLong = c.req.query('swlong')
+    const northEastLat = c.req.query('nelat')
+    const northEastLong = c.req.query('nelong')
+
+    if (!southWestLat || !southWestLong || !northEastLat || !northEastLong) {
+      return c.json([])
+    }
+
+    const addresses = (
+      await db.query.addressesTable.findMany({
+        limit: 100,
+        where: sql`${addressesTable.location} <@ box(point(${southWestLong}, ${southWestLat}), point(${northEastLong}, ${northEastLat}))`,
+        with: {
+          listings: {
+            where: or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
+            orderBy: (listing, { desc }) => [desc(listing.createdAt)],
+            limit: 1,
+          },
+        },
+      })
+    ).filter((address) => address.listings?.length > 0)
+    return c.json(
+      addresses.map((address) => ({
+        type: 'address',
+        id: address.listings[0].id,
+        displayName: address.displayName,
+        url: `/bolig/${address.listings[0].id}`,
+        location: { long: address.location.x, lat: address.location.y },
+      })),
+    )
+  })
+
   .get('/listings', async (c) => {
     const limit = Number(c.req.query('limit') || '15')
     const offset = Number(c.req.query('offset') || '0')
@@ -373,7 +407,7 @@ const app = new Hono()
 serve(
   {
     fetch: app.fetch,
-    port: 3000,
+    port: 3001,
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`)

@@ -21,6 +21,10 @@ export function SearchInput() {
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ['searchResults', debouncedSearch],
     queryFn: async () => {
+      if (!debouncedSearch) {
+        return []
+      }
+
       const results = await ofetch<SearchResult>(`https://api.boki.dk/search`, { query: { q: debouncedSearch } })
 
       return results

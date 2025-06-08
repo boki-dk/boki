@@ -3,7 +3,7 @@ import type { Route } from './+types/home'
 import HeroVideo from '~/components/HeroVideo'
 import { SearchInput } from '~/components/SearchInput'
 import { Button } from '~/components/ui/button'
-import { Map } from '~/components/MapBoundsAware.client'
+import { MapListings } from '~/components/MapListings.client'
 import { useEffect, useState } from 'react'
 import type { LatLngBounds } from 'leaflet'
 
@@ -64,7 +64,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="">{mounted && <Map onBoundsChange={setBounds}></Map>}</div>
+      <div className="">{mounted && <MapListings onBoundsChange={setBounds}></MapListings>}</div>
       {bounds && (
         <div className="max-w-7xl mx-auto px-4 py-4 text-s">
           <strong>Current map bounds:</strong>
