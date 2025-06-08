@@ -35,9 +35,6 @@ type AdvancedSearchFiltersProps = {
   setToiletRange: Dispatch<SetStateAction<[number, number]>>
   maxToiletRange?: number
 
-  sorting: string
-  setSorting: Dispatch<SetStateAction<string>>
-
   status: ListingStatus[]
   setStatus: Dispatch<SetStateAction<ListingStatus[]>>
 }
@@ -58,8 +55,6 @@ export function AdvancedSearchFilters({
   toiletRange,
   setToiletRange,
   maxToiletRange = 5,
-  sorting,
-  setSorting,
   status,
   setStatus,
 }: AdvancedSearchFiltersProps) {

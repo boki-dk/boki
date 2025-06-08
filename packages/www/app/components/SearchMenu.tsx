@@ -57,40 +57,44 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
   const searchParams = useMemo(() => {
     const params = new URLSearchParams()
 
-    params.set('limit', '15')
-    params.set('offset', '0')
-
-    params.set('price-min', priceRange[0].toString())
+    if (priceRange[0] !== 0) {
+      params.set('price-min', priceRange[0].toString())
+    }
     if (priceRange[1] != maxPriceInRange) {
       params.set('price-max', priceRange[1].toString())
     }
 
-    params.set('area-floor-min', areaRange[0].toString())
+    if (areaRange[0] !== 0) {
+      params.set('area-floor-min', areaRange[0].toString())
+    }
     if (areaRange[1] != maxAreaInRange) {
       params.set('area-floor-max', areaRange[1].toString())
     }
 
-    params.set('area-land-min', areaLandRange[0].toString())
-    if (areaLandRange[1] != maxAreaInRange) {
+    if (areaLandRange[0] !== 0) {
+      params.set('area-land-min', areaLandRange[0].toString())
+    }
+    if (areaLandRange[1] != maxAreaLandRange) {
       params.set('area-land-max', areaLandRange[1].toString())
     }
 
-    params.set('rooms-min', roomRange[0].toString())
+    if (roomRange[0] !== 0) {
+      params.set('rooms-min', roomRange[0].toString())
+    }
     if (roomRange[1] != maxRoomRange) {
       params.set('rooms-max', roomRange[1].toString())
     }
-
+  
     if (types.length > 0) params.set('type', types.join(','))
-    if (status.length > 0) params.set('status', status.join(','))
+
+    if (status.length > 0 && JSON.stringify(status) != JSON.stringify(['active', 'reserved'])) params.set('status', status.join(','))
 
     return params.toString()
   }, [priceRange, areaLandRange, areaRange, roomRange, types, status])
 
   return (
-    <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
-      <div className="flex-4">
-        <SearchInput />
-      </div>
+    <div className="flex items-center gap-2">
+      <SearchInput className="flex-4" />
 
       <PrimarySearchFilters
         priceRange={priceRange}
@@ -120,8 +124,6 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
         toiletRange={toiletRange} //toilet
         setToiletRange={setToiletRange}
         maxToiletRange={maxToiletRange}
-        sorting={sorting} //sorting
-        setSorting={setSorting}
         status={status} //status
         setStatus={setStatus}
       />
