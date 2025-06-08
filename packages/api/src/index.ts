@@ -121,7 +121,7 @@ const app = new Hono()
   .get('/search', async (c) => {
     const q = c.req.query('q') || ''
     if (q.length < 3) {
-      return c.json({postalCodes: [], addresses: []}, 400)
+      return c.json({ postalCodes: [], addresses: [] }, 400)
     }
 
     const addresses = (
@@ -153,8 +153,11 @@ const app = new Hono()
         displayName: address.displayName,
         url: `/bolig/${address.listings[0].id}`,
       })),
-      postalCodes: postalCodes.map((pc) => ({id: pc.postnummer.nr, displayName: pc.tekst, url: `/bolig?postal-code=${pc.postnummer.nr}`})),
-
+      postalCodes: postalCodes.map((pc) => ({
+        id: pc.postnummer.nr,
+        displayName: pc.tekst,
+        url: `/boliger?postal-code=${pc.postnummer.nr}`,
+      })),
     })
   })
 
