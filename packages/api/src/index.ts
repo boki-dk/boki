@@ -51,6 +51,24 @@ const app = new Hono()
 
     const postalCode = c.req.query('postal-code')
 
+    const municipality = c.req.query('municipality')
+
+    const postalCodes =
+      municipality && !postalCode
+        ? await (async () => {
+            const response = await ofetch<{  nr: string; navn: string  }[]>(
+              'https://api.dataforsyningen.dk/postnumre',
+              {
+                query: { kommunekode: municipality },
+              },
+            )
+            
+            return response.map((pc) => pc.nr)
+          })()
+        : postalCode
+          ? [postalCode]
+          : []
+
     type ListingStatus = (typeof listingsTable)['status']['enumValues'][number] //hmmm
 
     const status = c.req.query('status')
@@ -81,15 +99,15 @@ const app = new Hono()
       floorsMax ? lte(listingsTable.floors, Number(floorsMax)) : undefined,
       yearBuiltMin ? gte(listingsTable.yearBuilt, Number(yearBuiltMin)) : undefined,
       yearBuiltMax ? lte(listingsTable.yearBuilt, Number(yearBuiltMax)) : undefined,
-      postalCode
-        ? // Use a subquery approach
-          inArray(
+
+      postalCodes.length > 0
+        ? inArray(
             listingsTable.id,
             db
               .select({ id: listingsTable.id })
               .from(listingsTable)
               .innerJoin(addressesTable, eq(listingsTable.addressId, addressesTable.id))
-              .where(eq(addressesTable.postalCode, postalCode)),
+              .where(inArray(addressesTable.postalCode, postalCodes)),
           )
         : undefined,
     )

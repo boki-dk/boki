@@ -58,7 +58,11 @@ export const addressesTable = pgTable(
     slug: text().notNull(),
     displayName: text().notNull(),
   },
-  (table) => [index('addresses_slug_idx').on(table.slug), index('addresses_display_name_idx').on(table.displayName)],
+  (table) => [
+    index('addresses_slug_idx').on(table.slug),
+    index('addresses_display_name_idx').on(table.displayName),
+    index('addresses_postal_code_idx').on(table.postalCode),
+  ],
 )
 
 export const listingImageTypeEnum = pgEnum('listing_image_type', ['image', 'floorplan'])
