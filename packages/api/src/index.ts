@@ -147,6 +147,11 @@ const app = new Hono()
       { query: { q } },
     )
 
+    const municipalities = await ofetch<{ tekst: string; kommune: { kode: string; navn: string } }[]>(
+      'https://api.dataforsyningen.dk/kommuner/autocomplete',
+      { query: { q } },
+    )
+
     return c.json({
       addresses: addresses.map((address) => ({
         id: address.listings[0].id,
@@ -157,6 +162,12 @@ const app = new Hono()
         id: pc.postnummer.nr,
         displayName: pc.tekst,
         url: `/boliger?postal-code=${pc.postnummer.nr}`,
+      })),
+      municipalities: municipalities.map((m) => ({
+        id: m.kommune.kode,
+        displayName: m.tekst,
+        navn: m.kommune.navn,
+        url: `/boliger?municipality=${m.kommune.kode}`,
       })),
     })
   })
