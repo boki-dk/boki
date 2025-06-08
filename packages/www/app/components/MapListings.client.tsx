@@ -62,7 +62,7 @@ export function MapListings({ onBoundsChange }: { onBoundsChange?: (bounds: LatL
   const { data: mapListings } = useQuery({
     queryKey: ['mapListings', debouncedBounds],
     queryFn: async () => {
-      const results = await ofetch<MapListings>(`http://localhost:3000/listings/map`, {
+      const results = await ofetch<MapListings>(`https://api.boki.dk/listings/map`, {
         query: {
           swlat: debouncedBounds?.getSouthWest().lat,
           swlong: debouncedBounds?.getSouthWest().lng,
