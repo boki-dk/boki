@@ -124,8 +124,6 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
         toiletRange={toiletRange} //toilet
         setToiletRange={setToiletRange}
         maxToiletRange={maxToiletRange}
-        sorting={sorting} //sorting
-        setSorting={setSorting}
         status={status} //status
         setStatus={setStatus}
       />
