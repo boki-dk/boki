@@ -10,7 +10,7 @@ import { Skeleton } from './skeleton'
 type Props<T extends string> = {
   searchValue: string
   onSearchValueChange: (value: string) => void
-  items: { value: T; label: string }[]
+  items: { value: T; label: string; group: string }[]
   isLoading?: boolean
   emptyMessage?: string
   placeholder?: string
@@ -26,17 +26,7 @@ export function AutoComplete<T extends string>({
 }: Props<T>) {
   const [open, setOpen] = useState(false)
 
-  const labels = useMemo(
-    () =>
-      items.reduce(
-        (acc, item) => {
-          acc[item.value] = item.label
-          return acc
-        },
-        {} as Record<string, string>,
-      ),
-    [items],
-  )
+  const groupedItems = Object.groupBy(items, (item) => item.group)
 
   return (
     <div className="flex items-center">
@@ -76,17 +66,25 @@ export function AutoComplete<T extends string>({
               )}
               {items.length > 0 && !isLoading ? (
                 <CommandGroup>
-                  {items.map((option) => (
-                    <CommandItem
-                      key={option.value}
-                      value={option.value}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onSelect={() => {
-                        window.location.href = option.value
-                      }}
-                    >
-                      {option.label}
-                    </CommandItem>
+                  {Object.entries(groupedItems).map(([group, items]) => (
+                    <CommandGroup key={group} heading={group}>
+                      {items &&
+                        items.map((option) => (
+                          <CommandItem
+                            key={option.value}
+                            value={option.value}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onSelect={() => {
+                              window.location.href = option.value
+                            }}
+                          >
+                            <span className="flex items-center">
+                              {option.label}
+                              {searchValue === option.value && <Check className="ml-2 h-4 w-4" />}
+                            </span>
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
                   ))}
                 </CommandGroup>
               ) : null}

@@ -31,9 +31,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const types = type?.split(',').map((t) => t.trim())
   const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price'
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
+  const postalCode = url.searchParams.get('postal-code') ?? undefined
   const status = url.searchParams.get('status') 
 
-  
   // fetch the real API on the server
   const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', {
     query: {
@@ -49,6 +49,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       type: type ?? undefined,
       'sort-by': sortBy,
       'sort-order': sortOrder,
+      'postal-code': postalCode,
       status: status ? status.split(',').map((s) => s.trim()) : undefined,
 
     },
@@ -76,7 +77,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
       <div>
-        <SearchMenu typesResponse={typesResponse}/>
+        <SearchMenu typesResponse={typesResponse} />
       </div>
 
       <p className="text-muted-foreground mb-2">

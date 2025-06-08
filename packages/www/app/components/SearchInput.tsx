@@ -31,7 +31,18 @@ export function SearchInput() {
     <AutoComplete
       searchValue={searchQuery}
       onSearchValueChange={setSearchQuery}
-      items={searchResults?.map((searchResult) => ({ value: searchResult.url, label: searchResult.displayName })) ?? []}
+      items={[
+        ...(searchResults?.postalCodes?.map((searchResult) => ({
+          value: searchResult.url,
+          label: searchResult.displayName,
+          group: 'Postnummer',
+        })) ?? []),
+        ...(searchResults?.addresses?.map((searchResult) => ({
+          value: searchResult.url,
+          label: searchResult.displayName,
+          group: 'Adresse',
+        })) ?? []),
+      ]}
       emptyMessage="Ingen resultater fundet."
       isLoading={isLoading}
     />
