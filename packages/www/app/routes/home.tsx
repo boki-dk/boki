@@ -3,7 +3,7 @@ import type { Route } from './+types/home'
 import HeroVideo from '~/components/HeroVideo'
 import { SearchInput } from '~/components/SearchInput'
 import { Button } from '~/components/ui/button'
-import { Map } from '~/components/MapArbitraryCenter.client'
+import { Map } from '~/components/MapArbitrary.client'
 import { useEffect, useState } from 'react'
 
 export function meta({}: Route.MetaArgs) {
@@ -59,7 +59,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-20">{mounted && <Map></Map>}</div>
+      <div className="">{mounted && <Map></Map>}</div>
     </div>
   )
 }
