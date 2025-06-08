@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { LatLngBounds } from 'leaflet'
 import type { ExtractSchema } from 'hono/types'
@@ -7,6 +7,18 @@ import { useQuery } from '@tanstack/react-query'
 import { ofetch } from 'ofetch'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
+import L from 'leaflet'
+
+import icon from 'leaflet/dist/images/marker-icon.png'
+import iconShadow from 'leaflet/dist/images/marker-shadow.png'
+
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+})
+L.Marker.prototype.options.icon = DefaultIcon
 
 type MapListings = ExtractSchema<AppType>['/listings/map']['$get']['output']
 
@@ -47,8 +59,7 @@ function ListingMarkers({ listings }: { listings: MapListings }) {
   )
 }
 
-export function MapListings({ onBoundsChange }: { onBoundsChange?: (bounds: LatLngBounds) => void }) {
-  // const pos: [number, number] = [55.67512, 12.57058] // Copenhagen coordinates
+export function MapListings() {
   const [bounds, setBounds] = useState<LatLngBounds>(new LatLngBounds([55.5, 12.4], [55.8, 12.7]))
   const [debouncedBounds, setDebouncedBounds] = useState<LatLngBounds>(new LatLngBounds([55.5, 12.4], [55.8, 12.7]))
 
