@@ -33,7 +33,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor'
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
   const postalCode = url.searchParams.get('postal-code') ?? undefined
-  const status = url.searchParams.get('status') 
+  const status = url.searchParams.get('status')
 
   // fetch the real API on the server
   const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', {
@@ -52,7 +52,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       'sort-order': sortOrder,
       'postal-code': postalCode,
       status: status ? status.split(',').map((s) => s.trim()) : undefined,
-
     },
   })
 
@@ -73,12 +72,12 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   const { count, listings, hasMore, page, pageSize, typesResponse } = loaderData
 
   return (
-    <div className="flex flex-col min-h-screen py-8 px-12 max-w-8xl mx-auto">
+    <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-4 md:px-8 lg:px-12 max-w-8xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
       <div className="mb-3">
-       <SearchMenu typesResponse={typesResponse} />
+        <SearchMenu typesResponse={typesResponse} />
       </div>
 
       <div className="flex items-center justify-between mb-3">
@@ -88,7 +87,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
         <SortDropdown />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {listings.map((listing) => (
           <ListingTeaser key={listing.id} listing={listing} />
         ))}

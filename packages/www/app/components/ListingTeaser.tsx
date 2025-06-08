@@ -2,6 +2,7 @@ import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { NavLink } from 'react-router'
 import { currencyFormatter } from '~/lib/utils'
+import { Image } from './Image'
 
 type Listing = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]
 
@@ -17,10 +18,12 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
               {listing.status == 'unlisted' && 'Ikke til salg'}
             </span>
           )}
-          <img
+          <Image
             src={listing.mainImgUrl ?? 'https://placehold.co/600x400/EEE/31343C'}
             alt={listing.mainImgAlt ?? undefined}
-            className="block rounded-t-xl aspect-video object-cover w-full"
+            width={640}
+            height={390}
+            className="block rounded-t-xl aspect-[5/3] object-cover w-full"
           />
         </div>
 

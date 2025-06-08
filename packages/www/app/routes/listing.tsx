@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { Map } from '~/components/Map.client'
+import { Image } from '~/components/Image'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
 
@@ -53,7 +54,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate()
 
   return (
-    <div className="px-12 max-w-8xl mx-auto">
+    <div className="px-4 md:px-8 lg:px-12 max-w-8xl mx-auto">
       {mounted && history.length > 1 && (
         <button className="mb-4 mr-auto flex items-center gap-2 cursor-pointer" onClick={() => navigate(-1)}>
           <Icon icon="mdi:arrow-left" />
@@ -70,7 +71,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                     <div className="embla__container flex">
                       {listing.images.map((image) => (
                         <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
-                          <img className="object-contain aspect-video" src={image.url} alt={image.alt ?? undefined} />
+                          <Image className="object-contain aspect-video" src={image.url} alt={image.alt ?? undefined} />
                         </div>
                       ))}
                     </div>
