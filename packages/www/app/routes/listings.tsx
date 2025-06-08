@@ -30,7 +30,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const roomsMax = url.searchParams.get('rooms-max')
   const type = url.searchParams.get('type')
   const types = type?.split(',').map((t) => t.trim())
-  const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price'
+  const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor'
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
 
   // fetch the real API on the server
