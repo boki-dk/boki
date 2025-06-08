@@ -61,7 +61,7 @@ const app = new Hono()
 
     console.log('Listing statuses:', statusList)
 
-    const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor' 
+    const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor'
     const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
 
     const where = and(
@@ -90,11 +90,9 @@ const app = new Hono()
       orderBy: (listing, { desc, asc }) => {
         if (sortBy === 'price') {
           return sortOrder === 'desc' ? [desc(listing.price)] : [asc(listing.price)]
-        } 
-        else if (sortBy === 'area-floor') {
+        } else if (sortBy === 'area-floor') {
           return sortOrder === 'desc' ? [desc(listing.areaFloor)] : [asc(listing.areaFloor)]
-        }
-        else {
+        } else {
           return sortOrder === 'desc' ? [desc(listing.createdAt)] : [asc(listing.createdAt)]
         }
       },
@@ -318,14 +316,14 @@ const app = new Hono()
           energyClass: updatedListing.energyClass ?? listingJson.energyClassification,
           rooms: updatedListing.rooms ?? listingJson.totalNumberOfRooms,
           bedroomCount: updatedListing.bedrooms,
-          mainImgUrl: updatedListing.images?.[0].src ?? listingJson.imageUrl,
-          mainImgAlt: updatedListing.images?.[0].alt ?? listingJson.imageAlt,
+          mainImgUrl: updatedListing.images?.[0]?.src ?? listingJson.imageUrl,
+          mainImgAlt: updatedListing.images?.[0]?.alt ?? listingJson.imageAlt,
           floors: updatedListing.floors,
           yearBuilt: updatedListing.yearBuilt,
           yearRenovated: updatedListing.yearRenovated,
         })
         .returning()
-      if (updatedListing.status !== 'unlisted') {
+      if (updatedListing.status !== 'unlisted' && (updatedListing.images.length > 0 || updatedListing.floorplanImages.length > 0)) {
         await tx.insert(listingImagesTable).values([
           ...updatedListing.images.map((img, i) => ({
             listingId: listingRows[0].id,

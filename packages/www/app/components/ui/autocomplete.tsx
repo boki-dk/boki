@@ -24,6 +24,7 @@ export function AutoComplete<T extends string>({
   emptyMessage = 'No items.',
   placeholder = 'Search...',
   className = '',
+
 }: Props<T>) {
   const [open, setOpen] = useState(false)
 
