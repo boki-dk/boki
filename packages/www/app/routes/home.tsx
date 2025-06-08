@@ -13,7 +13,6 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
-  const [bounds, setBounds] = useState<LatLngBounds | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -64,16 +63,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="">{mounted && <MapListings onBoundsChange={setBounds}></MapListings>}</div>
-      {bounds && (
-        <div className="max-w-7xl mx-auto px-4 py-4 text-s">
-          <strong>Current map bounds:</strong>
-          <br />
-          SW: {bounds.getSouthWest().lat.toFixed(5)}, {bounds.getSouthWest().lng.toFixed(5)}
-          <br />
-          NE: {bounds.getNorthEast().lat.toFixed(5)}, {bounds.getNorthEast().lng.toFixed(5)}
-        </div>
-      )}
+      <div className="">{mounted && <MapListings />}</div>
     </div>
   )
 }

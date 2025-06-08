@@ -1,12 +1,12 @@
 import { MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import type { LatLngBounds } from 'leaflet'
+import { LatLngBounds } from 'leaflet'
 import type { ExtractSchema } from 'hono/types'
 import type { AppType } from 'api/src/index'
-import { PMTiles, leafletRasterLayer } from 'pmtiles'
 import { useQuery } from '@tanstack/react-query'
 import { ofetch } from 'ofetch'
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router'
 
 type MapListings = ExtractSchema<AppType>['/listings/map']['$get']['output']
 
@@ -22,12 +22,35 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: LatLngBou
   return null
 }
 
-const COPENHAGEN: [number, number] = [55.67512, 12.57058]
+function ListingMarker({ position, displayName, url }: { position: [number, number]; displayName: string; url: string }) {
+  return (
+    <Marker position={position}>
+      <Popup>
+        <Link to={url}>{displayName}</Link>
+      </Popup>
+    </Marker>
+  )
+}
+
+function ListingMarkers({ listings }: { listings: MapListings }) {
+  return (
+    <>
+      {listings.map((listing) => (
+        <ListingMarker
+          key={listing.id}
+          position={[listing.location.lat, listing.location.long]}
+          displayName={listing.displayName}
+          url={listing.url}
+        />
+      ))}
+    </>
+  )
+}
 
 export function MapListings({ onBoundsChange }: { onBoundsChange?: (bounds: LatLngBounds) => void }) {
   // const pos: [number, number] = [55.67512, 12.57058] // Copenhagen coordinates
-  const [bounds, setBounds] = useState<LatLngBounds | null>(null)
-  const [debouncedBounds, setDebouncedBounds] = useState<LatLngBounds | null>(null)
+  const [bounds, setBounds] = useState<LatLngBounds>(new LatLngBounds([55.5, 12.4], [55.8, 12.7]))
+  const [debouncedBounds, setDebouncedBounds] = useState<LatLngBounds>(new LatLngBounds([55.5, 12.4], [55.8, 12.7]))
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -52,23 +75,14 @@ export function MapListings({ onBoundsChange }: { onBoundsChange?: (bounds: LatL
     },
   })
 
-  if (!mapListings) {
-    return <div>Error loading map listings</div>
-  }
-
   return (
-    <MapContainer className="w-full h-[700px]" center={COPENHAGEN} zoom={15} scrollWheelZoom={false}>
-      {mapListings.length > 0 &&
-        mapListings.map((address) => (
-          <Marker key={address.id} position={[address.location.lat, address.location.long]}>
-            <Popup>{address.displayName}</Popup>
-          </Marker>
-        ))}
-
+    <MapContainer className="w-full h-[700px]" bounds={bounds} zoom={15} scrollWheelZoom={false}>
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; OpenStreetMap contributors'
       />
+
+      {mapListings && <ListingMarkers listings={mapListings} />}
 
       <BoundsTracker onBoundsChange={setBounds} />
     </MapContainer>
