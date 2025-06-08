@@ -16,8 +16,6 @@ import { and, eq, ilike, isNull, or, sql, gte, lte, inArray } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeListing } from './nyboligHtmlScraper.js'
 
-
-
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 
 const app = new Hono()
@@ -44,16 +42,18 @@ const app = new Hono()
     const roomsMax = c.req.query('rooms-max')
     const type = c.req.query('type')
     const types = type?.split(',').map((t) => t.trim())
-    
-   type ListingStatus = typeof listingsTable['status']['enumValues'][number] //hmmm
+
+    type ListingStatus = (typeof listingsTable)['status']['enumValues'][number] //hmmm
 
     const status = c.req.query('status')
-    const statusList: ListingStatus[] 
-    = status
-    ? status.split(',')
-    .map((s) => s.trim())
-    .filter((s): s is ListingStatus => s in listingsTable.status.enumValues) as ListingStatus[]
-    : ['active', 'reserved'] //default statuses
+    const statusList: ListingStatus[] = status
+      ? (status
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s): s is ListingStatus => listingsTable.status.enumValues.includes(s as ListingStatus)) as ListingStatus[])
+      : ['active', 'reserved'] //default statuses
+
+    console.log('Listing statuses:', statusList)
 
     const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price'
     const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
