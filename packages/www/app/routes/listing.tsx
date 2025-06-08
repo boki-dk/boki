@@ -83,7 +83,8 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                   </button>
                   {listing.images.some((image) => image.type === 'floorplan') && (
                     <Button
-                      className="bottom-6 left-6 absolute text-white bg-gradient-to-r from-pink-500 to-red-500 rounded-2xl cursor-pointer"
+                      variant="outline"
+                      className="bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white"
                       onClick={scrollToFloorPlan}
                     >
                       Hop til plantegning
@@ -159,11 +160,13 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                   <span className="ml-auto">{new Date(listing.createdAt).toLocaleDateString()}</span>
                 </li>
                 <li className="flex justify-center py-5">
-                  <Link
-                    className="font-bold text-white text-2xl bg-gradient-to-r from-pink-500 to-red-500  px-4 py-2 rounded-2xl outline-3 outline-blue-500 hover:outline-6 transition-all duration-300"
-                    to={listing.sourceUrl}
-                  >
-                    Gå til mægler
+                  <Link to={listing.sourceUrl}>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white"
+                    >
+                      Gå til mægler
+                    </Button>
                   </Link>
                 </li>
               </ul>
