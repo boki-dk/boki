@@ -40,6 +40,12 @@ const app = new Hono()
     const areaFloorMax = c.req.query('area-floor-max')
     const roomsMin = c.req.query('rooms-min')
     const roomsMax = c.req.query('rooms-max')
+    const bathroomCountMin = c.req.query('bathroom-count-min')
+    const bathroomCountMax = c.req.query('bathroom-count-max')
+    const floorsMin = c.req.query('floors-min')
+    const floorsMax = c.req.query('floors-max')
+    const yearBuiltMin = c.req.query('year-built-min')
+    const yearBuiltMax = c.req.query('year-built-max')
     const type = c.req.query('type')
     const types = type?.split(',').map((t) => t.trim())
 
@@ -55,7 +61,7 @@ const app = new Hono()
 
     console.log('Listing statuses:', statusList)
 
-    const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price'
+    const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor' 
     const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
 
     const where = and(
@@ -69,6 +75,12 @@ const app = new Hono()
       areaFloorMax ? lte(listingsTable.areaFloor, Number(areaFloorMax)) : undefined,
       roomsMin ? gte(listingsTable.rooms, Number(roomsMin)) : undefined,
       roomsMax ? lte(listingsTable.rooms, Number(roomsMax)) : undefined,
+      bathroomCountMin ? gte(listingsTable.bathroomCount, Number(bathroomCountMin)) : undefined,
+      bathroomCountMax ? lte(listingsTable.bathroomCount, Number(bathroomCountMax)) : undefined,
+      floorsMin ? gte(listingsTable.floors, Number(floorsMin)) : undefined,
+      floorsMax ? lte(listingsTable.floors, Number(floorsMax)) : undefined,
+      yearBuiltMin ? gte(listingsTable.yearBuilt, Number(yearBuiltMin)) : undefined,
+      yearBuiltMax ? lte(listingsTable.yearBuilt, Number(yearBuiltMax)) : undefined,
     )
 
     const listings = await db.query.listingsTable.findMany({
@@ -78,7 +90,11 @@ const app = new Hono()
       orderBy: (listing, { desc, asc }) => {
         if (sortBy === 'price') {
           return sortOrder === 'desc' ? [desc(listing.price)] : [asc(listing.price)]
-        } else {
+        } 
+        else if (sortBy === 'area-floor') {
+          return sortOrder === 'desc' ? [desc(listing.areaFloor)] : [asc(listing.areaFloor)]
+        }
+        else {
           return sortOrder === 'desc' ? [desc(listing.createdAt)] : [asc(listing.createdAt)]
         }
       },
