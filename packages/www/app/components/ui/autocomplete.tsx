@@ -22,7 +22,7 @@ export function AutoComplete<T extends string>({
   items,
   isLoading,
   emptyMessage = 'No items.',
-  placeholder = 'Search...',
+  placeholder = 'Søg...',
   className = '',
 
 }: Props<T>) {
