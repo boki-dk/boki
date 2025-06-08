@@ -49,6 +49,26 @@ const app = new Hono()
     const type = c.req.query('type')
     const types = type?.split(',').map((t) => t.trim())
 
+    const postalCode = c.req.query('postal-code')
+
+    const municipality = c.req.query('municipality')
+
+    const postalCodes =
+      municipality && !postalCode
+        ? await (async () => {
+            const response = await ofetch<{  nr: string; navn: string  }[]>(
+              'https://api.dataforsyningen.dk/postnumre',
+              {
+                query: { kommunekode: municipality },
+              },
+            )
+            
+            return response.map((pc) => pc.nr)
+          })()
+        : postalCode
+          ? [postalCode]
+          : []
+
     type ListingStatus = (typeof listingsTable)['status']['enumValues'][number] //hmmm
 
     const status = c.req.query('status')
@@ -58,8 +78,6 @@ const app = new Hono()
           .map((s) => s.trim())
           .filter((s): s is ListingStatus => listingsTable.status.enumValues.includes(s as ListingStatus)) as ListingStatus[])
       : ['active', 'reserved'] //default statuses
-
-    console.log('Listing statuses:', statusList)
 
     const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor'
     const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
@@ -81,6 +99,17 @@ const app = new Hono()
       floorsMax ? lte(listingsTable.floors, Number(floorsMax)) : undefined,
       yearBuiltMin ? gte(listingsTable.yearBuilt, Number(yearBuiltMin)) : undefined,
       yearBuiltMax ? lte(listingsTable.yearBuilt, Number(yearBuiltMax)) : undefined,
+
+      postalCodes.length > 0
+        ? inArray(
+            listingsTable.id,
+            db
+              .select({ id: listingsTable.id })
+              .from(listingsTable)
+              .innerJoin(addressesTable, eq(listingsTable.addressId, addressesTable.id))
+              .where(inArray(addressesTable.postalCode, postalCodes)),
+          )
+        : undefined,
     )
 
     const listings = await db.query.listingsTable.findMany({
@@ -110,7 +139,7 @@ const app = new Hono()
   .get('/search', async (c) => {
     const q = c.req.query('q') || ''
     if (q.length < 3) {
-      return c.json([])
+      return c.json({ postalCodes: [], addresses: [] }, 400)
     }
 
     const addresses = (
@@ -131,14 +160,34 @@ const app = new Hono()
       })
     ).filter((address) => address.listings?.length > 0)
 
-    return c.json(
-      addresses.map((address) => ({
-        type: 'address',
+    const postalCodes = await ofetch<{ tekst: string; postnummer: { nr: string; navn: string } }[]>(
+      'https://api.dataforsyningen.dk/postnumre/autocomplete',
+      { query: { q } },
+    )
+
+    const municipalities = await ofetch<{ tekst: string; kommune: { kode: string; navn: string } }[]>(
+      'https://api.dataforsyningen.dk/kommuner/autocomplete',
+      { query: { q } },
+    )
+
+    return c.json({
+      addresses: addresses.map((address) => ({
         id: address.listings[0].id,
         displayName: address.displayName,
         url: `/bolig/${address.listings[0].id}`,
       })),
-    )
+      postalCodes: postalCodes.map((pc) => ({
+        id: pc.postnummer.nr,
+        displayName: pc.tekst,
+        url: `/boliger?postal-code=${pc.postnummer.nr}`,
+      })),
+      municipalities: municipalities.map((m) => ({
+        id: m.kommune.kode,
+        displayName: m.tekst,
+        navn: m.kommune.navn,
+        url: `/boliger?municipality=${m.kommune.kode}`,
+      })),
+    })
   })
 
   .get('/listings/:listingId', async (c) => {
