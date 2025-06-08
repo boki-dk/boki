@@ -27,6 +27,7 @@ const HOME_TYPE_MAP = {
   TerracedHouse: 'Rækkehus',
   Villa: 'Villa',
   VillaApartment: 'Villalejlighed',
+  VacationHousing: 'Fritidsbolig',
 } as const
 
 const db = drizzle(process.env.DATABASE_URL!, { schema })
