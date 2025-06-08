@@ -3,8 +3,9 @@ import type { Route } from './+types/home'
 import HeroVideo from '~/components/HeroVideo'
 import { SearchInput } from '~/components/SearchInput'
 import { Button } from '~/components/ui/button'
-import { Map } from '~/components/MapArbitrary.client'
+import { Map } from '~/components/MapBoundsAware.client'
 import { useEffect, useState } from 'react'
+import type { LatLngBounds } from 'leaflet'
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
@@ -12,6 +13,8 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
+  const [bounds, setBounds] = useState<LatLngBounds | null>(null)
+
   useEffect(() => {
     setMounted(true)
   })
@@ -61,7 +64,16 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="">{mounted && <Map></Map>}</div>
+      <div className="">{mounted && <Map onBoundsChange={setBounds}></Map>}</div>
+      {bounds && (
+        <div className="max-w-7xl mx-auto px-4 py-4 text-s">
+          <strong>Current map bounds:</strong>
+          <br />
+          SW: {bounds.getSouthWest().lat.toFixed(5)}, {bounds.getSouthWest().lng.toFixed(5)}
+          <br />
+          NE: {bounds.getNorthEast().lat.toFixed(5)}, {bounds.getNorthEast().lng.toFixed(5)}
+        </div>
+      )}
     </div>
   )
 }
