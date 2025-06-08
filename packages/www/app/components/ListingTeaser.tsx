@@ -21,8 +21,8 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
           <Image
             src={listing.mainImgUrl ?? 'https://placehold.co/600x400/EEE/31343C'}
             alt={listing.mainImgAlt ?? undefined}
-            width={640}
-            height={390}
+            width={580}
+            height={348}
             className="block rounded-t-xl aspect-[5/3] object-cover w-full"
           />
         </div>

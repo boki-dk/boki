@@ -72,7 +72,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   const { count, listings, hasMore, page, pageSize, typesResponse } = loaderData
 
   return (
-    <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-4 md:px-8 lg:px-12 max-w-8xl mx-auto">
+    <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 

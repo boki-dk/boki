@@ -54,7 +54,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate()
 
   return (
-    <div className="px-4 md:px-8 lg:px-12 max-w-8xl mx-auto">
+    <div className="px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
       {mounted && history.length > 1 && (
         <button className="mb-4 mr-auto flex items-center gap-2 cursor-pointer" onClick={() => navigate(-1)}>
           <Icon icon="mdi:arrow-left" />
