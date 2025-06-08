@@ -44,7 +44,9 @@ export default function Home() {
       </Card>
 
       <div className="max-w-7xl mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold mb-6">Velkommen til Boki.dk</h2>
+        <h2 className="text-3xl font-bold mb-6">
+          Velkommen til <span className="bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text">Boki.dk</span>
+        </h2>
         <p className="text-lg mb-4">
           Din genvej til at finde din næste bolig i hele Danmark. Vi gør boligjagten nem og overskuelig ved at samle boliger ét sted fra
           nogle af landets største ejendomsmæglere.
