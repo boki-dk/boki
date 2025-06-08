@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
-export function SearchInput() {
+export function SearchInput({ className }: { className?: string }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
@@ -29,6 +29,7 @@ export function SearchInput() {
 
   return (
     <AutoComplete
+      className={className}
       searchValue={searchQuery}
       onSearchValueChange={setSearchQuery}
       items={searchResults?.map((searchResult) => ({ value: searchResult.url, label: searchResult.displayName })) ?? []}

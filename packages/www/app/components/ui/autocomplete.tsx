@@ -1,7 +1,6 @@
 import { cn } from '~/lib/utils'
 import { Command as CommandPrimitive } from 'cmdk'
-import { Check } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from './command'
 import { Input } from './input'
 import { Popover, PopoverAnchor, PopoverContent } from './popover'
@@ -14,6 +13,7 @@ type Props<T extends string> = {
   isLoading?: boolean
   emptyMessage?: string
   placeholder?: string
+  className?: string
 }
 
 export function AutoComplete<T extends string>({
@@ -23,23 +23,12 @@ export function AutoComplete<T extends string>({
   isLoading,
   emptyMessage = 'No items.',
   placeholder = 'Search...',
+  className = '',
 }: Props<T>) {
   const [open, setOpen] = useState(false)
 
-  const labels = useMemo(
-    () =>
-      items.reduce(
-        (acc, item) => {
-          acc[item.value] = item.label
-          return acc
-        },
-        {} as Record<string, string>,
-      ),
-    [items],
-  )
-
   return (
-    <div className="flex items-center">
+    <div className={cn('flex items-center', className)}>
       <Popover open={open && searchValue.length >= 3} onOpenChange={setOpen}>
         <Command shouldFilter={false}>
           <PopoverAnchor asChild>
@@ -51,7 +40,7 @@ export function AutoComplete<T extends string>({
               onMouseDown={() => setOpen((open) => !!searchValue || !open)}
               onFocus={() => setOpen(true)}
             >
-              <Input placeholder={placeholder} />
+              <Input placeholder={placeholder} className="border-2" />
             </CommandPrimitive.Input>
           </PopoverAnchor>
           {!open && <CommandList aria-hidden="true" className="hidden" />}

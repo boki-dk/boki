@@ -6,6 +6,7 @@ import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
 import { NavLink } from 'react-router'
 import { SearchMenu } from '~/components/SearchMenu'
+import { SortDropdown } from '~/components/SortDropdown'
 
 type ListingsResponse = ExtractSchema<AppType>['/listings']['$get']['output']
 type Listings = ListingsResponse['listings']
@@ -32,7 +33,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price'
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
 
-  
   // fetch the real API on the server
   const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', {
     query: {
@@ -72,13 +72,16 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
       <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
-      <div>
-        <SearchMenu typesResponse={typesResponse}/>
+      <div className="mb-3">
+        <SearchMenu typesResponse={typesResponse} />
       </div>
 
-      <p className="text-muted-foreground mb-2">
-        Fandt {count} {count === 1 ? 'bolig' : 'boliger'}
-      </p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-muted-foreground">
+          Fandt {count} {count === 1 ? 'bolig' : 'boliger'}
+        </p>
+        <SortDropdown />
+      </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {listings.map((listing) => (

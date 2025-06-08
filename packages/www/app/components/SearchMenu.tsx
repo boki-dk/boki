@@ -87,10 +87,8 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
   }, [priceRange, areaLandRange, areaRange, roomRange, types, status])
 
   return (
-    <div className="horizontal flex items-center gap-2 bg-card p-2 rounded-lg bg-gray-400">
-      <div className="flex-4">
-        <SearchInput />
-      </div>
+    <div className="flex items-center gap-2">
+      <SearchInput className="flex-4" />
 
       <PrimarySearchFilters
         priceRange={priceRange}
