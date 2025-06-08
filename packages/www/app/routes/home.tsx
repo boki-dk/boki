@@ -47,7 +47,7 @@ export default function Home() {
 
       <div className="max-w-7xl mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold mb-6">
-          Velkommen til <span className="bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text">Boki.dk</span>
+          Velkommen til <span className="bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text">Boki.dk </span> 🏡
         </h2>
         <p className="text-lg mb-4">
           Din genvej til at finde din næste bolig i hele Danmark. Vi gør boligjagten nem og overskuelig ved at samle boliger ét sted fra
@@ -63,7 +63,10 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="">{mounted && <MapListings />}</div>
+      <div>
+        <h2 className="text-3xl font-bold mb-6 text-center">Søg med vores interaktive kort 🗺️</h2>
+        <div className="">{mounted && <MapListings />}</div>
+      </div>
     </div>
   )
 }
