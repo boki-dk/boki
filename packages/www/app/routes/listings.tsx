@@ -31,6 +31,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const types = type?.split(',').map((t) => t.trim())
   const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price'
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
+  const status = url.searchParams.get('status') 
 
   
   // fetch the real API on the server
@@ -48,6 +49,8 @@ export async function loader({ request }: Route.LoaderArgs) {
       type: type ?? undefined,
       'sort-by': sortBy,
       'sort-order': sortOrder,
+      status: status ? status.split(',').map((s) => s.trim()) : undefined,
+
     },
   })
 
