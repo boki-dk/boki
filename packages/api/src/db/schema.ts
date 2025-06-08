@@ -117,6 +117,9 @@ export const listingsTable = pgTable(
     index('listings_area_land_idx').on(table.areaLand),
     index('listings_area_floor_idx').on(table.areaFloor),
     index('listings_rooms_idx').on(table.rooms),
+    index('listings_bathroom_count_idx').on(table.bathroomCount),
+    index('listings_year_built_idx').on(table.yearBuilt),
+    index('listings_floors_idx').on(table.floors),
     index('listings_created_at_idx').on(table.createdAt),
   ],
 )
