@@ -34,6 +34,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
   const postalCode = url.searchParams.get('postal-code') ?? undefined
   const status = url.searchParams.get('status')
+  const municipality = url.searchParams.get('municipality') ?? undefined
 
   // fetch the real API on the server
   const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', {
@@ -52,6 +53,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       'sort-order': sortOrder,
       'postal-code': postalCode,
       status: status ? status.split(',').map((s) => s.trim()) : undefined,
+      municipality: municipality ?? undefined,
     },
   })
 

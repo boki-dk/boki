@@ -37,6 +37,11 @@ export function SearchInput({ className }: { className?: string }) {
       searchValue={searchQuery}
       onSearchValueChange={setSearchQuery}
       items={[
+        ...(searchResults?.municipalities?.map((searchResult) => ({
+          value: searchResult.url,
+          label: searchResult.displayName.split(' ').slice(1).join(' '), // Remove kommunekode prefix
+          group: 'Kommune',
+        })) ?? []),
         ...(searchResults?.postalCodes?.map((searchResult) => ({
           value: searchResult.url,
           label: searchResult.displayName,
