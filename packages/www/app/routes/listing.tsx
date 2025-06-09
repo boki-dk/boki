@@ -71,7 +71,13 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                     <div className="embla__container flex">
                       {listing.images.map((image) => (
                         <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
-                          <Image className="object-contain aspect-video" src={image.url} alt={image.alt ?? undefined} />
+                          <Image
+                            className="object-contain aspect-video"
+                            src={image.url}
+                            alt={image.alt ?? undefined}
+                            width={1600}
+                            height={900}
+                          />
                         </div>
                       ))}
                     </div>
