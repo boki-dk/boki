@@ -5,6 +5,8 @@ import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '.
 import { Input } from './input'
 import { Popover, PopoverAnchor, PopoverContent } from './popover'
 import { Skeleton } from './skeleton'
+import { Check } from 'lucide-react'
+import { useSearchParams } from 'react-router'
 
 type Props<T extends string> = {
   searchValue: string
@@ -29,6 +31,7 @@ export function AutoComplete<T extends string>({
   const [open, setOpen] = useState(false)
 
   const groupedItems = Object.groupBy(items, (item) => item.group)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   return (
     <div className={cn('flex items-center', className)}>
@@ -72,16 +75,19 @@ export function AutoComplete<T extends string>({
                     <CommandGroup key={group} heading={group}>
                       {items &&
                         items.map((option) => (
+                          
                           <CommandItem
                             key={option.value}
                             value={option.value}
                             onMouseDown={(e) => e.preventDefault()}
                             onSelect={() => {
+                              
                               window.location.href = option.value
+                              
                             }}
                           >
                             <span className="flex items-center">
-                              {option.label}
+                              {option.label }
                               {searchValue === option.value && <Check className="ml-2 h-4 w-4" />}
                             </span>
                           </CommandItem>

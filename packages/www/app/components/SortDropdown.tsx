@@ -22,7 +22,7 @@ export function SortDropdown() {
     <Select
       defaultValue="Nyeste"
       onValueChange={(value) => {
-        console.log(searchParams.toString())
+      
         const [sortBy, sortOrder] = value.split('_') as [keyof typeof SORTING_OPTIONS, 'asc' | 'desc']
 
         setSearchParams((searchParams) => {
