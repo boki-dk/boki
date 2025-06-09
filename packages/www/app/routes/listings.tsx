@@ -57,9 +57,23 @@ export async function loader({ request }: Route.LoaderArgs) {
     },
   })
 
+  const municipalityName = municipality ? (await ofetch<{navn: string}>(`https://api.dataforsyningen.dk/kommuner/${municipality}`)).navn : undefined
+  const postalCodeName = 
+  postalCode ?
+   await ofetch<{nr: string, navn: string}>(`https://api.dataforsyningen.dk/postnumre/${postalCode}`) 
+   : undefined
   const typesResponse = await ofetch<ExtractSchema<AppType>['/listing-types']['$get']['output']>('https://api.boki.dk/listing-types')
 
-  return { ...listingsResponse, page, pageSize, typesResponse }
+//   //because url.searchparams can't be serialized to JSON, we need to convert it to a plain object??
+  const searchParamsObj: Record<string, string> = {};
+for (const [key, value] of url.searchParams.entries()) {
+  if (key !== 'page' && key !== 'pageSize') {
+    searchParamsObj[key] = value;
+  }
+}
+  
+
+  return { ...listingsResponse, page, pageSize, typesResponse, municipalityName, postalCodeName: (postalCodeName ? postalCodeName?.nr + ' ' + postalCodeName?.navn : undefined), searchParams: searchParamsObj }
 }
 // export async function clientLoader({
 //   serverLoader,
@@ -71,11 +85,19 @@ export async function loader({ request }: Route.LoaderArgs) {
 // }
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
-  const { count, listings, hasMore, page, pageSize, typesResponse } = loaderData
+  const { count, listings, hasMore, page, pageSize, typesResponse, municipalityName, postalCodeName, searchParams } = loaderData
+  
+  const params = new URLSearchParams(searchParams)
+
 
   return (
     <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
-      <h1 className="text-4xl font-bold mb-2">Søg boliger</h1>
+      <h1 className="text-4xl font-bold mb-2">Søg boliger{municipalityName
+    ? ` i ${municipalityName}`
+    : postalCodeName
+      ? ` i ${postalCodeName}`
+      : ''}
+</h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
       <div className="mb-3">
@@ -97,7 +119,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
       <div className="flex items-center justify-between mt-8">
         <div>
           {page != 1 && (
-            <NavLink to={`/boliger?page=${page - 1}&pageSize=${pageSize}`}>
+            <NavLink to={`/boliger?${params.toString()}&page=${page - 1}&pageSize=${pageSize}`}>
               <Button>Side {page - 1}</Button>
             </NavLink>
           )}
@@ -107,7 +129,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
 
         <div>
           {hasMore && (
-            <NavLink to={`/boliger?page=${page + 1}&pageSize=${pageSize}`}>
+            <NavLink to={`/boliger?${params.toString()}&page=${page + 1}&pageSize=${pageSize}`}>
               <Button>Side {page + 1}</Button>
             </NavLink>
           )}
@@ -116,3 +138,4 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     </div>
   )
 }
+

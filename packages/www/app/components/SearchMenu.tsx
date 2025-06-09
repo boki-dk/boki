@@ -58,6 +58,8 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
   
   const searchParams = useMemo(() => {
     const params = new URLSearchParams(location.search)
+    params.delete('page')
+    params.delete('pageSize')
 
     if (priceRange[0] !== 0) {
       params.set('price-min', priceRange[0].toString())

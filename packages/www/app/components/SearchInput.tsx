@@ -32,25 +32,32 @@ export function SearchInput({ className }: { className?: string }) {
     },
   })
   const [searchParams, setSearchParams] = useSearchParams() //maybe use useLocation instead?
-  
+  searchParams.delete('postal-code')
+  searchParams.delete('municipality')
   return (
     <AutoComplete
       className={className}
       searchValue={searchQuery}
       onSearchValueChange={setSearchQuery}
       items={[
-        ...(searchResults?.municipalities?.map((searchResult) => ({
-          value: searchResult.url + '&' + searchParams.toString(),
-          label: searchResult.displayName.split(' ').slice(1).join(' '), // Remove kommunekode prefix
-          group: 'Kommune',
-        })) ?? []),
-        ...(searchResults?.postalCodes?.map((searchResult) => ({
-          value: searchResult.url + '&' + searchParams.toString(),
-          label: searchResult.displayName,
-          group: 'Postnummer',
-        })) ?? []),
+        ...(searchResults?.municipalities?.map((searchResult) => {
+          
+          return {
+            value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''),
+            label: searchResult.displayName.split(' ').slice(1).join(' '), // Remove kommunekode prefix
+            group: 'Kommune',
+          };
+        }) ?? []),
+        ...(searchResults?.postalCodes?.map((searchResult) => {
+          
+          return {
+            value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''), 
+            label: searchResult.displayName,
+            group: 'Postnummer',
+          };
+        }) ?? []),
         ...(searchResults?.addresses?.map((searchResult) => ({
-          value: searchResult.url + '&' + searchParams.toString(),
+          value: searchResult.url, //single listings
           label: searchResult.displayName,
           group: 'Adresse',
         })) ?? []),
