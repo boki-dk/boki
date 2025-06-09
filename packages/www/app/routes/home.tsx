@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/button'
 import { MapListings } from '~/components/MapListings.client'
 import { useEffect, useState } from 'react'
 import type { LatLngBounds } from 'leaflet'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
@@ -18,6 +18,7 @@ export default function Home() {
   useEffect(() => {
     setMounted(true)
   })
+  const navigate = useNavigate()
   return (
     <div>
       <div className="relative h-[70vh] w-full overflow-hidden">
@@ -37,18 +38,28 @@ export default function Home() {
           <CardContent className="text-center mt-4">
             <SearchInput />
             <div className="mt-5 flex flex-wrap justify-center gap-2">
-              <Link to="/boliger?municipality=0101">
-      <Button >København</Button>
-    </Link>
-    <Link to="/boliger?municipality=0751">
-      <Button >Aarhus</Button>
-    </Link>
-    <Link to="/boliger?municipality=0851">
-      <Button >Aalborg</Button>
-    </Link>
-    <Link to="/boliger?municipality=0461">
-      <Button >Odense</Button>
-    </Link>
+              
+      <Button 
+      onClick={() => {
+        navigate('/boliger?municipality=0101') // København Municipality
+      }}
+      >København</Button>
+  
+    
+      <Button onClick={() => {
+        navigate('/boliger?municipality=0751') // Aarhus Municipality
+      }}>Aarhus</Button>
+   
+    
+      <Button onClick={() => {
+        navigate('/boliger?municipality=0851') // Aalborg Municipality
+      }}>Aalborg</Button>
+   
+   
+      <Button onClick={() => {
+        navigate('/boliger?municipality=0461') // Odense Municipality
+      }}>Odense</Button>
+  
         
             </div>
           </CardContent>
