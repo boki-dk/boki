@@ -38,17 +38,17 @@ export function SearchInput({ className }: { className?: string }) {
       onSearchValueChange={setSearchQuery}
       items={[
         ...(searchResults?.municipalities?.map((searchResult) => ({
-          value: searchResult.url,
+          value: searchResult.id,
           label: searchResult.displayName.split(' ').slice(1).join(' '), // Remove kommunekode prefix
           group: 'Kommune',
         })) ?? []),
         ...(searchResults?.postalCodes?.map((searchResult) => ({
-          value: searchResult.url,
+          value: searchResult.id,
           label: searchResult.displayName,
           group: 'Postnummer',
         })) ?? []),
         ...(searchResults?.addresses?.map((searchResult) => ({
-          value: searchResult.url,
+          value: String(searchResult.id),
           label: searchResult.displayName,
           group: 'Adresse',
         })) ?? []),
