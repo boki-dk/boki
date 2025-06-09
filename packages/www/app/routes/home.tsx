@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/button'
 import { MapListings } from '~/components/MapListings.client'
 import { useEffect, useState } from 'react'
 import type { LatLngBounds } from 'leaflet'
+import { Link } from 'react-router'
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
@@ -36,10 +37,19 @@ export default function Home() {
           <CardContent className="text-center mt-4">
             <SearchInput />
             <div className="mt-5 flex flex-wrap justify-center gap-2">
-              <Button>København</Button>
-              <Button>Aarhus</Button>
-              <Button>Aalborg</Button>
-              <Button>Odense</Button>
+              <Link to="/boliger?municipality=0101">
+      <Button >København</Button>
+    </Link>
+    <Link to="/boliger?municipality=0751">
+      <Button >Aarhus</Button>
+    </Link>
+    <Link to="/boliger?municipality=0851">
+      <Button >Aalborg</Button>
+    </Link>
+    <Link to="/boliger?municipality=0461">
+      <Button >Odense</Button>
+    </Link>
+        
             </div>
           </CardContent>
         </CardHeader>
