@@ -69,7 +69,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                 <div className="embla relative">
                   <div className="embla__viewport overflow-hidden aspect-video" ref={emblaRef}>
                     <div className="embla__container flex">
-                      {listing.images.map((image) => (
+                      {listing.images.map((image, index) => (
                         <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
                           <Image
                             className="object-contain aspect-video"
@@ -77,6 +77,8 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                             alt={image.alt ?? undefined}
                             width={1600}
                             height={900}
+                            loading={index === 0 ? 'eager' : 'lazy'}
+                            fetchPriority={index === 0 ? 'high' : 'low'}
                           />
                         </div>
                       ))}
