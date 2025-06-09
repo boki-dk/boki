@@ -185,7 +185,7 @@ const app = new Hono()
   .get('/search', async (c) => {
     const q = c.req.query('q') || ''
     if (q.length < 3) {
-      return c.json({ postalCodes: [], addresses: [] }, 400)
+      return c.json({ postalCodes: [], addresses: [], municipalities: [] }, 400)
     }
 
     const addresses = (

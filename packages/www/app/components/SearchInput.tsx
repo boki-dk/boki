@@ -22,7 +22,7 @@ export function SearchInput({ className }: { className?: string }) {
     queryKey: ['searchResults', debouncedSearch],
     queryFn: async () => {
       if (!debouncedSearch) {
-        return []
+        return { postalCodes: [], addresses: [], municipalities: [] }
       }
 
       const results = await ofetch<SearchResult>(`https://api.boki.dk/search`, { query: { q: debouncedSearch } })
