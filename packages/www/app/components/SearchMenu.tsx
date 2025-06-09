@@ -17,7 +17,7 @@ import { currencyFormatter } from '~/lib/utils'
 import { Check } from 'lucide-react'
 import { Checkbox } from './ui/checkbox'
 import { Label } from './ui/label'
-import { Link } from 'react-router'
+import { Link, useLocation, useSearchParams } from 'react-router'
 import { PrimarySearchFilters } from './PrimarySearchFilters'
 import { AdvancedSearchFilters } from './AdvancedSearchFilters'
 
@@ -54,8 +54,10 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
   const [sorting, setSorting] = useState<string>('default') // TODO: sorting options
   const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
 
+  const location = useLocation();
+  
   const searchParams = useMemo(() => {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams(location.search)
 
     if (priceRange[0] !== 0) {
       params.set('price-min', priceRange[0].toString())

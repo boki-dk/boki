@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { ofetch } from 'ofetch'
 import { AutoComplete } from './ui/autocomplete'
 import { useQuery } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router'
 
 type SearchResult = ExtractSchema<AppType>['/search']['$get']['output']
 
@@ -30,7 +31,8 @@ export function SearchInput({ className }: { className?: string }) {
       return results
     },
   })
-
+  const [searchParams, setSearchParams] = useSearchParams() //maybe use useLocation instead?
+  
   return (
     <AutoComplete
       className={className}
@@ -38,17 +40,17 @@ export function SearchInput({ className }: { className?: string }) {
       onSearchValueChange={setSearchQuery}
       items={[
         ...(searchResults?.municipalities?.map((searchResult) => ({
-          value: searchResult.id,
+          value: searchResult.url + '&' + searchParams.toString(),
           label: searchResult.displayName.split(' ').slice(1).join(' '), // Remove kommunekode prefix
           group: 'Kommune',
         })) ?? []),
         ...(searchResults?.postalCodes?.map((searchResult) => ({
-          value: searchResult.id,
+          value: searchResult.url + '&' + searchParams.toString(),
           label: searchResult.displayName,
           group: 'Postnummer',
         })) ?? []),
         ...(searchResults?.addresses?.map((searchResult) => ({
-          value: String(searchResult.id),
+          value: searchResult.url + '&' + searchParams.toString(),
           label: searchResult.displayName,
           group: 'Adresse',
         })) ?? []),

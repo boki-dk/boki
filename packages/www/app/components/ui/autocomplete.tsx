@@ -81,24 +81,8 @@ export function AutoComplete<T extends string>({
                             value={option.value}
                             onMouseDown={(e) => e.preventDefault()}
                             onSelect={() => {
-                              //searchParams.set('municipality', option.value)
-                              setSearchParams((prev) => {
-                                if (option.group === 'Kommune') {
-                                  prev.set('municipality', option.value)
-                                } else if (option.group === 'Postnummer') {
-                                  prev.set('postal-code', option.value)
-                                }
-                                else if (option.group === 'Adresse') {
-                                  prev.set('address', option.value)
-                                }
-
-                                return prev
-                              })
                               
-                              // const optionParams = new URLSearchParams(option.value)
-                              // searchParams.append(optionParams.keys().next().value ?? '', optionParams.values().next().value ?? '')
-
-                              //window.location.href = 'boliger?' + searchParams.toString()
+                              window.location.href = option.value
                               
                             }}
                           >
