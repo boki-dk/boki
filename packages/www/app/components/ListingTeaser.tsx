@@ -41,7 +41,7 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
   <span className='flex flex-row items-center'>
     {listingIsPlot ? listing.areaLand : listing.areaFloor} m²
   </span>
-  {listing.rooms && <span>
+  {listing.rooms != 0 && <span>
     {listing.rooms} {listing.rooms == 1 ? 'værelse' : 'værelser'}
   </span>}
  {/* {(listing.yearBuilt || listing.yearRenovated) && <span>
