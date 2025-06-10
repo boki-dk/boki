@@ -1,7 +1,7 @@
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { shortCurrencyFormatter } from '~/lib/utils'
+import { cn, shortCurrencyFormatter } from '~/lib/utils'
 import { Button } from './ui/button'
 import { DualRangeSlider } from './ui/dualrangeslider'
 import type { Dispatch, SetStateAction } from 'react'
@@ -22,6 +22,7 @@ type PrimarySearchFiltersProps = {
   typesResponse: TypesResult[]
   types: number[]
   setTypes: Dispatch<SetStateAction<number[]>>
+  className?: string
 }
 
 export function PrimarySearchFilters({
@@ -34,6 +35,7 @@ export function PrimarySearchFilters({
   typesResponse,
   types,
   setTypes,
+  className = '',
 }: PrimarySearchFiltersProps) {
   // Becaue the we want input in form of ([number, number] => Void) not (number[] => void).
   // From what i can tell, the weird typing comes from react primitive slider?
@@ -46,10 +48,10 @@ export function PrimarySearchFilters({
   }
 
   return (
-    <div className="flex-1 flex justify-center">
+    <div className={cn('flex-1 flex justify-center', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-full bg-gray-200">
+          <Button variant="outline" className="w-full bg-gradient-to-r from-pink-500 to-half-fade hover:bg-gradient-to-r text-white">
             Søgefiltre
           </Button>
         </DropdownMenuTrigger>

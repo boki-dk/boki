@@ -4,7 +4,7 @@ import { SearchInput } from './SearchInput'
 
 import { Button } from './ui/button'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {  NavLink, useLocation, useNavigate } from 'react-router'
 import { PrimarySearchFilters } from './PrimarySearchFilters'
@@ -47,72 +47,90 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
   const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
 
  
-  
   const searchParams = useMemo(() => {
+
+    params.delete('page');
+    params.delete('pageSize');
+
+    // Price
+    if (priceRange[0] !== 0) params.set('price-min', priceRange[0].toString());
+    else params.delete('price-min');
+    if (priceRange[1] !== maxPriceInRange) params.set('price-max', priceRange[1].toString());
+    else params.delete('price-max');
+
+    // Area
+    if (areaRange[0] !== 0) params.set('area-floor-min', areaRange[0].toString());
+    else params.delete('area-floor-min');
+    if (areaRange[1] !== maxAreaInRange) params.set('area-floor-max', areaRange[1].toString());
+    else params.delete('area-floor-max');
+
+    // Area land
+    if (areaLandRange[0] !== 0) params.set('area-land-min', areaLandRange[0].toString());
+    else params.delete('area-land-min');
+    if (areaLandRange[1] !== maxAreaLandRange) params.set('area-land-max', areaLandRange[1].toString());
+    else params.delete('area-land-max');
+
+    // Rooms
+    if (roomRange[0] !== 0) params.set('rooms-min', roomRange[0].toString());
+    else params.delete('rooms-min');
+    if (roomRange[1] !== maxRoomRange) params.set('rooms-max', roomRange[1].toString());
+    else params.delete('rooms-max');
+
+    // Floor
+    if (floorRange[0] !== 0) params.set('floor-min', floorRange[0].toString());
+    else params.delete('floor-min');
+    if (floorRange[1] !== maxFloorRange) params.set('floor-max', floorRange[1].toString());
+    else params.delete('floor-max');
+
+    // Year built
+    if (yearBuiltRange[0] !== minYearBuiltRange) params.set('year-built-min', yearBuiltRange[0].toString());
+    else params.delete('year-built-min');
+    if (yearBuiltRange[1] !== new Date().getFullYear()) params.set('year-built-max', yearBuiltRange[1].toString());
+    else params.delete('year-built-max');
+
+    // Toilets
+    if (toiletRange[0] !== 0) params.set('bathrooms-min', toiletRange[0].toString());
+    else params.delete('bathrooms-min');
+    if (toiletRange[1] !== maxToiletRange) params.set('bathrooms-max', toiletRange[1].toString());
+    else params.delete('bathrooms-max');
+
+    // Types
+    if (types.length > 0) params.set('type', types.join(','));
+    else params.delete('type');
+
+    // Status
+    if (status.length > 0 && JSON.stringify(status) !== JSON.stringify(['active', 'reserved'])) {
+      params.set('status', status.join(','));
+    } else {
+      params.delete('status');
+    }
+
+    return params;
+  }, [
+    location.search,
+    priceRange, maxPriceInRange,
+    areaRange, maxAreaInRange,
+    areaLandRange, maxAreaLandRange,
+    roomRange, maxRoomRange,
+    floorRange, maxFloorRange,
+    yearBuiltRange, minYearBuiltRange,
+    toiletRange, maxToiletRange,
+    types, status
+  ]);
+
+   useEffect(() => {
+    const newSearch = searchParams.toString();
     
-    params.delete('page')
-    params.delete('pageSize')
-    params.delete('type')
-
-    if (priceRange[0] !== 0) {
-      params.set('price-min', priceRange[0].toString())
-    }
-    if (priceRange[1] != maxPriceInRange) {
-      params.set('price-max', priceRange[1].toString())
-    }
-
-    if (areaRange[0] !== 0) {
-      params.set('area-floor-min', areaRange[0].toString())
-    }
-    if (areaRange[1] != maxAreaInRange) {
-      params.set('area-floor-max', areaRange[1].toString())
-    }
-
-    if (areaLandRange[0] !== 0) {
-      params.set('area-land-min', areaLandRange[0].toString())
-    }
-    if (areaLandRange[1] != maxAreaLandRange) {
-      params.set('area-land-max', areaLandRange[1].toString())
-    }
-
-    if (roomRange[0] !== 0) {
-      params.set('rooms-min', roomRange[0].toString())
-    }
-    if (roomRange[1] != maxRoomRange) {
-      params.set('rooms-max', roomRange[1].toString())
-    }
-    if (floorRange[0] !== 0) {
-      params.set('floor-min', floorRange[0].toString())
-    }
-    if (floorRange[1] != maxFloorRange) {
-      params.set('floor-max', floorRange[1].toString())
-    }
-    if (yearBuiltRange[0] !== minYearBuiltRange) {
-      params.set('year-built-min', yearBuiltRange[0].toString())
-    }
-    if (yearBuiltRange[1] != new Date().getFullYear()) {
-      params.set('year-built-max', yearBuiltRange[1].toString())
-    }
-    if (toiletRange[0] !== 0) {
-      params.set('bathrooms-min', toiletRange[0].toString())
-    }
-    if (toiletRange[1] != maxToiletRange) {
-      params.set('bathrooms-max', toiletRange[1].toString())
-    }
-
-  
-    if (types.length > 0) params.set('type', types.join(','))
-
-    if (status.length > 0 && JSON.stringify(status) != JSON.stringify(['active', 'reserved'])) params.set('status', status.join(','))
-    navigate(`/boliger?${params.toString()}`, { replace: true })
-    return params.toString()
-  }, [priceRange, areaLandRange, areaRange, roomRange, floorRange, types, status, yearBuiltRange, toiletRange, location.search])
+      navigate(`/boliger?${newSearch}`, { replace: true });
+    
+    // eslint-disable-next-line
+  }, [searchParams]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 ">
       <SearchInput className="flex-4" />
 
-      <PrimarySearchFilters
+      <PrimarySearchFilters 
         priceRange={priceRange}
         setPriceRange={setPriceRange}
         maxPriceInRange={maxPriceInRange}
@@ -124,7 +142,7 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
         setTypes={setTypes}
       />
 
-      <AdvancedSearchFilters
+      <AdvancedSearchFilters className=''
         areaLandRange={areaLandRange} //area land
         setAreaLandRange={setAreaLandRange}
         maxAreaLandRange={maxAreaLandRange}
@@ -144,16 +162,6 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
         setStatus={setStatus}
       />
 
-      <div className="flex-2 flex justify-center">
-        <NavLink to={`/boliger?${searchParams}`} className="w-full">
-          <Button
-            variant="outline"
-            className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white"
-          >
-            Søg
-          </Button>
-        </NavLink>
-      </div>
     </div>
   )
 }

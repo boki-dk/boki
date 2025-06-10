@@ -1,7 +1,7 @@
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { shortCurrencyFormatter } from '~/lib/utils'
+import { cn, shortCurrencyFormatter } from '~/lib/utils'
 import { Button } from './ui/button'
 import { DualRangeSlider } from './ui/dualrangeslider'
 import type { Dispatch, SetStateAction } from 'react'
@@ -37,6 +37,8 @@ type AdvancedSearchFiltersProps = {
 
   status: ListingStatus[]
   setStatus: Dispatch<SetStateAction<ListingStatus[]>>
+
+  className?: string
 }
 
 export function AdvancedSearchFilters({
@@ -57,6 +59,7 @@ export function AdvancedSearchFilters({
   maxToiletRange = 5,
   status,
   setStatus,
+  className = '',
 }: AdvancedSearchFiltersProps) {
   function handleAreaLandRangeChange(value: [number, number]) {
     setAreaLandRange(value)
@@ -84,10 +87,10 @@ export function AdvancedSearchFilters({
   } as const
 
   return (
-    <div className="flex-1 flex justify-center">
+    <div className={cn(className, "flex-1 flex justify-center")}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-full bg-gray-200">
+          <Button variant="outline" className="w-full bg-gradient-to-r from-half-fade to-red-500 hover:bg-gradient-to-r text-white">
             Advancerede filtre
           </Button>
         </DropdownMenuTrigger>
