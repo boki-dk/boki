@@ -31,23 +31,21 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
 
         <div className="flex flex-col px-6">
   <div className="flex flex-row justify-between items-start gap-4">
-    <div>
+    <div >
       <p>{listing.address.displayName}</p>
       <p className='text-muted-foreground text-s py-1'>{listing.type.name}</p>
       {listing.price != 0 && <p className='text-lg'>{currencyFormatter.format(listing.price)}</p>}
     </div>
-    
-      <Card className="flex flex-col items-end justify-center px-3 py-2 gap-1 bg-gradient-to-r from-pink-500 to-red-500 text-white whitespace-nowrap">
-  <span className='flex flex-row items-center'>
+
+      <div className="flex flex-col items-end justify-center px-3 py-2 gap-1 whitespace-nowrap border-l border-gray-300 pr-4 mr-4">
+  <span >
     {listingIsPlot ? listing.areaLand : listing.areaFloor} m²
   </span>
   {listing.rooms != 0 && <span>
     {listing.rooms} {listing.rooms == 1 ? 'værelse' : 'værelser'}
   </span>}
- {/* {(listing.yearBuilt || listing.yearRenovated) && <span>
-    {listing.yearBuilt ? listing.yearBuilt : ''} {listing.yearRenovated ? `(${listing.yearRenovated})` : ''}
-  </span>} */}
-</Card>
+
+</div>
   </div>
 </div>
       </div>
