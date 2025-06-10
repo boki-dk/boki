@@ -1,23 +1,12 @@
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { SearchInput } from './SearchInput'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu'
+
 import { Button } from './ui/button'
-import { DualRangeSlider } from './ui/dualrangeslider'
+
 import { useMemo, useState } from 'react'
-import { currencyFormatter } from '~/lib/utils'
-import { Check } from 'lucide-react'
-import { Checkbox } from './ui/checkbox'
-import { Label } from './ui/label'
-import { Link, useLocation, useSearchParams } from 'react-router'
+
+import {  NavLink, useLocation, useNavigate } from 'react-router'
 import { PrimarySearchFilters } from './PrimarySearchFilters'
 import { AdvancedSearchFilters } from './AdvancedSearchFilters'
 
@@ -27,6 +16,10 @@ type TypesResult = ExtractSchema<AppType>['/listing-types']['$get']['output'][nu
 type ListingStatus = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]['status']
 
 export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) {
+   const location = useLocation();
+  const params = new URLSearchParams(location.search)
+  const navigate = useNavigate()
+  
   //primary search filters
   const maxPriceInRange = 10000000
   const [priceRange, setPriceRange] = useState<[number, number]>([0, maxPriceInRange])
@@ -53,12 +46,13 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
 
   const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
 
-  const location = useLocation();
+ 
   
   const searchParams = useMemo(() => {
-    const params = new URLSearchParams(location.search)
+    
     params.delete('page')
     params.delete('pageSize')
+    params.delete('type')
 
     if (priceRange[0] !== 0) {
       params.set('price-min', priceRange[0].toString())
@@ -110,7 +104,7 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
     if (types.length > 0) params.set('type', types.join(','))
 
     if (status.length > 0 && JSON.stringify(status) != JSON.stringify(['active', 'reserved'])) params.set('status', status.join(','))
-
+    navigate(`/boliger?${params.toString()}`, { replace: true })
     return params.toString()
   }, [priceRange, areaLandRange, areaRange, roomRange, floorRange, types, status, yearBuiltRange, toiletRange, location.search])
 
@@ -151,14 +145,14 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
       />
 
       <div className="flex-2 flex justify-center">
-        <Link to={`/boliger?${searchParams}`} className="w-full">
+        <NavLink to={`/boliger?${searchParams}`} className="w-full">
           <Button
             variant="outline"
             className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white"
           >
             Søg
           </Button>
-        </Link>
+        </NavLink>
       </div>
     </div>
   )
