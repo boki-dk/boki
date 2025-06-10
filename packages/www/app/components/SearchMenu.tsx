@@ -3,6 +3,7 @@ import type { ExtractSchema } from 'hono/types'
 import { SearchInput } from './SearchInput'
 
 import { Button } from './ui/button'
+import { Icon } from '@iconify/react'
 
 import { useEffect, useMemo, useState } from 'react'
 
@@ -46,12 +47,12 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
 
   const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
 
- 
+  // not really necessary, but reduces length of URL
   const searchParams = useMemo(() => {
     
     params.delete('page'); 
     params.delete('pageSize'); 
-    
+
     // Price
     if (priceRange[0] !== 0) params.set('price-min', priceRange[0].toString());
     else params.delete('price-min');
@@ -160,6 +161,33 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
         status={status} //status
         setStatus={setStatus}
       />
+
+      <Button
+      className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+        variant="outline"
+        onClick={() => {
+            setPriceRange([0, maxPriceInRange]);
+            setAreaRange([0, maxAreaInRange]);
+            setTypes([]);
+            setAreaLandRange([0, maxAreaLandRange]);
+            setRoomRange([0, maxRoomRange]);
+            setFloorRange([0, maxFloorRange]);
+            setYearBuiltRange([minYearBuiltRange, new Date().getFullYear()]);
+            setToiletRange([0, maxToiletRange]);
+            setStatus(['active' as ListingStatus, 'reserved' as ListingStatus]);
+
+            const newParams = new URLSearchParams();
+            const municipality = params.get('municipality');
+            const postal = params.get('postal-codes');
+            if (municipality) newParams.set('municipality', municipality);
+            if (postal) newParams.set('postal-codes', postal);
+            navigate(`/boliger?${newParams.toString()}`);
+   
+        }}
+        title="Nulstil filtre"
+      >
+        <Icon icon="mdi:autorenew" className="w-4 h-4" />
+        </Button>
 
     </div>
   )

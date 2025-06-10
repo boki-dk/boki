@@ -42,8 +42,8 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
   <span >
     {listingIsPlot ? listing.areaLand : listing.areaFloor} m²
   </span>
-  {listing.rooms != 0 && <span>
-    {listing.rooms} {listing.rooms == 1 ? 'værelse' : 'værelser'}
+  {listing.rooms != 0 && listing.rooms && <span>
+    {listing.rooms} {(listing.rooms == 1 ? 'værelse' : 'værelser')}
   </span>}
 
 </div>
