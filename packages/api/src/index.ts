@@ -99,6 +99,7 @@ const app = new Hono()
     const types = type?.split(',').map((t) => t.trim())
 
     const postalCode = c.req.query('postal-code')
+    const street = c.req.query('street')
 
     const municipality = c.req.query('municipality')
 
@@ -154,6 +155,16 @@ const app = new Hono()
               .from(listingsTable)
               .innerJoin(addressesTable, eq(listingsTable.addressId, addressesTable.id))
               .where(inArray(addressesTable.postalCode, postalCodes)),
+          )
+        : undefined,
+      street
+        ? inArray(
+            listingsTable.id,
+            db
+              .select({ id: listingsTable.id })
+              .from(listingsTable)
+              .innerJoin(addressesTable, eq(listingsTable.addressId, addressesTable.id))
+              .where(eq(addressesTable.street, street)),
           )
         : undefined,
     )
@@ -216,6 +227,10 @@ const app = new Hono()
       { query: { q } },
     )
 
+    const streetsAndPostalCodes = await ofetch <{tekst: string, vejnavnpostnummerrelation: {vejnavn: string, postnr: string, postnrnavn: string}}[]>
+    ('https://api.dataforsyningen.dk/vejnavne/autocomplete', { query: { q } }) //MAYBE instead {q, fuzzy: true} for fuzzy search - GREAT, but takes 10x as long
+
+
     return c.json({
       addresses: addresses.map((address) => ({
         id: address.listings[0].id,
@@ -232,6 +247,11 @@ const app = new Hono()
         displayName: m.tekst,
         navn: m.kommune.navn,
         url: `/boliger?municipality=${m.kommune.kode}`,
+      })),
+      streetsAndPostalCodes: streetsAndPostalCodes.map((s) => ({
+        id: s.vejnavnpostnummerrelation.vejnavn,
+        displayName: s.tekst,
+        url: `/boliger?postal-code=${s.vejnavnpostnummerrelation.postnr}&street=${s.vejnavnpostnummerrelation.vejnavn}`,
       })),
     })
   })

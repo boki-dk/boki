@@ -62,6 +62,7 @@ export const addressesTable = pgTable(
     index('addresses_slug_idx').on(table.slug),
     index('addresses_display_name_idx').on(table.displayName),
     index('addresses_postal_code_idx').on(table.postalCode),
+    index('addresses_street_idx').on(table.street),
   ],
 )
 
