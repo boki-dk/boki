@@ -3,10 +3,12 @@ import type { ExtractSchema } from 'hono/types'
 import { NavLink } from 'react-router'
 import { currencyFormatter } from '~/lib/utils'
 import { Image } from './Image'
+import { Card } from './ui/card'
 
 type Listing = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]
 
 export function ListingTeaser({ listing }: { listing: Listing }) {
+  const listingIsPlot = listing.typeId === 3 || listing.typeId === 12 || listing.typeId === 14
   return (
     <NavLink to={`/bolig/${listing.id}`}>
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border pb-6 shadow-sm">
@@ -28,15 +30,26 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
         </div>
 
         <div className="flex flex-col px-6">
-          <div className="">
-            <p>{listing.address.displayName}</p>
-            <p>{listing.type.name}</p>
-            {listing.price != 0 && <p>{currencyFormatter.format(listing.price)}</p>}
-            <p>
-              {listing.areaFloor} m² {listing.rooms ? `- ${listing.rooms} værelser` : ''}
-            </p>
-          </div>
-        </div>
+  <div className="flex flex-row justify-between items-start gap-4">
+    <div>
+      <p>{listing.address.displayName}</p>
+      <p className='text-muted-foreground text-s py-1'>{listing.type.name}</p>
+      {listing.price != 0 && <p className='text-lg'>{currencyFormatter.format(listing.price)}</p>}
+    </div>
+    
+      <Card className="flex flex-col items-end justify-center px-3 py-2 gap-1 bg-gradient-to-r from-pink-500 to-red-500 text-white whitespace-nowrap">
+  <span className='flex flex-row items-center'>
+    {listingIsPlot ? listing.areaLand : listing.areaFloor} m²
+  </span>
+  {listing.rooms && <span>
+    {listing.rooms} {listing.rooms == 1 ? 'værelse' : 'værelser'}
+  </span>}
+ {/* {(listing.yearBuilt || listing.yearRenovated) && <span>
+    {listing.yearBuilt ? listing.yearBuilt : ''} {listing.yearRenovated ? `(${listing.yearRenovated})` : ''}
+  </span>} */}
+</Card>
+  </div>
+</div>
       </div>
     </NavLink>
   )
