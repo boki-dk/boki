@@ -84,6 +84,7 @@ export function AutoComplete<T extends string>({
                             value={option.value}
                             onMouseDown={(e) => e.preventDefault()}
                             onSelect={() => {
+                              setOpen(false)
                               navigate(option.value)
                               //window.location.href = option.value
                               
