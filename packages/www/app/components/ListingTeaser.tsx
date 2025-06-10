@@ -3,7 +3,7 @@ import type { ExtractSchema } from 'hono/types'
 import { NavLink } from 'react-router'
 import { currencyFormatter } from '~/lib/utils'
 import { Image } from './Image'
-import { Card } from './ui/card'
+import { Icon } from '@iconify/react'
 
 type Listing = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]
 
@@ -42,8 +42,9 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
   <span >
     {listingIsPlot ? listing.areaLand : listing.areaFloor} m²
   </span>
-  {listing.rooms != 0 && listing.rooms && <span>
-    {listing.rooms} {(listing.rooms == 1 ? 'værelse' : 'værelser')}
+  {listing.rooms != 0 && listing.rooms && <span >
+    {listing.rooms} vær. 
+    {/* <Icon icon="mdi:bed-king-outline" className='mt-1'/> */}
   </span>}
 
 </div>
