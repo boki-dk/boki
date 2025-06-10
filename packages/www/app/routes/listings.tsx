@@ -23,7 +23,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const municipality = url.searchParams.get('municipality') ?? undefined
   const street = url.searchParams.get('street') ?? undefined
   const params = new URLSearchParams(url.search)
-  
+  params.delete('page')
+  params.delete('pageSize')
+  params.set('offset' , ((page -1 ) * pageSize).toString()) // i think this offset makes sense
 
   // fetch the real API on the server
   const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings?' + params.toString()
