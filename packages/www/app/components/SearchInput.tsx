@@ -58,7 +58,7 @@ export function SearchInput({ className }: { className?: string }) {
           };
         }) ?? []),
         ...(searchResults?.streetsAndPostalCodes?.map((searchResult) => ({
-          value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''), //single listings
+          value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''), 
           label: searchResult.displayName,
           group: 'Gade',
         })) ?? []),

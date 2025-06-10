@@ -19,43 +19,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url)
   const page = Number(url.searchParams.get('page') ?? '1')
   const pageSize = Number(url.searchParams.get('pageSize') ?? '15')
-  const offset = (page - 1) * pageSize
-  const priceMin = url.searchParams.get('price-min')
-  const priceMax = url.searchParams.get('price-max')
-  const areaLandMin = url.searchParams.get('area-land-min')
-  const areaLandMax = url.searchParams.get('area-land-max')
-  const areaFloorMin = url.searchParams.get('area-floor-min')
-  const areaFloorMax = url.searchParams.get('area-floor-max')
-  const roomsMin = url.searchParams.get('rooms-min')
-  const roomsMax = url.searchParams.get('rooms-max')
-  const type = url.searchParams.get('type')
-  const types = type?.split(',').map((t) => t.trim())
-  const sortBy = (url.searchParams.get('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor'
-  const sortOrder = (url.searchParams.get('sort-order') || 'desc') as 'asc' | 'desc'
   const postalCode = url.searchParams.get('postal-code') ?? undefined
-  const status = url.searchParams.get('status')
   const municipality = url.searchParams.get('municipality') ?? undefined
+  const street = url.searchParams.get('street') ?? undefined
+  const params = new URLSearchParams(url.search)
+  
 
   // fetch the real API on the server
-  const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings', {
-    query: {
-      offset,
-      'price-min': priceMin ?? undefined,
-      'price-max': priceMax ?? undefined,
-      'area-land-min': areaLandMin ?? undefined,
-      'area-land-max': areaLandMax ?? undefined,
-      'area-floor-min': areaFloorMin ?? undefined,
-      'area-floor-max': areaFloorMax ?? undefined,
-      'rooms-min': roomsMin ?? undefined,
-      'rooms-max': roomsMax ?? undefined,
-      type: type ?? undefined,
-      'sort-by': sortBy ?? undefined,
-      'sort-order': sortOrder ?? undefined,
-      'postal-code': postalCode ?? undefined,
-      status: status ? status.split(',').map((s) => s.trim()) : undefined,
-      municipality: municipality ?? undefined,
-    },
-  })
+  const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings?' + params.toString()
+  )
 
   const municipalityName = municipality ? (await ofetch<{navn: string}>(`https://api.dataforsyningen.dk/kommuner/${municipality}`)).navn : undefined
   const postalCodeName = 
@@ -73,7 +45,7 @@ for (const [key, value] of url.searchParams.entries()) {
 }
   
 
-  return { ...listingsResponse, page, pageSize, typesResponse, municipalityName, postalCodeName: (postalCodeName ? postalCodeName?.nr + ' ' + postalCodeName?.navn : undefined), searchParams: searchParamsObj }
+  return { ...listingsResponse, page, pageSize, typesResponse, municipalityName, street, postalCodeName: (postalCodeName ? postalCodeName?.nr + ' ' + postalCodeName?.navn : undefined), searchParams: searchParamsObj }
 }
 // export async function clientLoader({
 //   serverLoader,
@@ -85,14 +57,17 @@ for (const [key, value] of url.searchParams.entries()) {
 // }
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
-  const { count, listings, hasMore, page, pageSize, typesResponse, municipalityName, postalCodeName, searchParams } = loaderData
+  const { count, listings, hasMore, page, pageSize, typesResponse, municipalityName, street, postalCodeName, searchParams } = loaderData
   
   const params = new URLSearchParams(searchParams)
 
 
   return (
     <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
-      <h1 className="text-4xl font-bold mb-2">Søg boliger{municipalityName
+      <h1 className="text-4xl font-bold mb-2">Søg boliger{
+      street ? ` på ${street} ${municipalityName || postalCodeName}` 
+      : 
+      municipalityName
     ? ` i ${municipalityName}`
     : postalCodeName
       ? ` i ${postalCodeName}`
