@@ -99,6 +99,7 @@ const app = new Hono()
     const types = type?.split(',').map((t) => t.trim())
 
     const postalCode = c.req.query('postal-code')
+    const street = c.req.query('street')
 
     const municipality = c.req.query('municipality')
 
@@ -156,6 +157,16 @@ const app = new Hono()
               .where(inArray(addressesTable.postalCode, postalCodes)),
           )
         : undefined,
+      street
+        ? inArray(
+            listingsTable.id,
+            db
+              .select({ id: listingsTable.id })
+              .from(listingsTable)
+              .innerJoin(addressesTable, eq(listingsTable.addressId, addressesTable.id))
+              .where(eq(addressesTable.street, street)),
+          )
+        : undefined,
     )
 
     const listings = await db.query.listingsTable.findMany({
@@ -185,7 +196,7 @@ const app = new Hono()
   .get('/search', async (c) => {
     const q = c.req.query('q') || ''
     if (q.length < 3) {
-      return c.json({ postalCodes: [], addresses: [], municipalities: [] }, 400)
+      return c.json({ postalCodes: [], addresses: [], municipalities: [], streetsAndPostalCodes: [] }, 400)
     }
 
     const addresses = (
@@ -216,6 +227,10 @@ const app = new Hono()
       { query: { q } },
     )
 
+    const streetsAndPostalCodes = await ofetch <{tekst: string, vejnavnpostnummerrelation: {vejnavn: string, postnr: string, postnrnavn: string}}[]>
+    ('https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete', { query: { q } }) //MAYBE instead {q, fuzzy: true} for fuzzy search - GREAT, but takes 10x as long
+
+
     return c.json({
       addresses: addresses.map((address) => ({
         id: address.listings[0].id,
@@ -232,6 +247,11 @@ const app = new Hono()
         displayName: m.tekst,
         navn: m.kommune.navn,
         url: `/boliger?municipality=${m.kommune.kode}`,
+      })),
+      streetsAndPostalCodes: streetsAndPostalCodes.map((s) => ({
+        id: s.vejnavnpostnummerrelation.vejnavn,
+        displayName: s.tekst,
+        url: `/boliger?postal-code=${s.vejnavnpostnummerrelation.postnr}&street=${s.vejnavnpostnummerrelation.vejnavn}`,
       })),
     })
   })
@@ -689,7 +709,7 @@ const app = new Hono()
 serve(
   {
     fetch: app.fetch,
-    port: 3000,
+    port: 3001,
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`)

@@ -23,7 +23,7 @@ export function SearchInput({ className }: { className?: string }) {
     queryKey: ['searchResults', debouncedSearch],
     queryFn: async () => {
       if (!debouncedSearch) {
-        return { postalCodes: [], addresses: [], municipalities: [] }
+        return { postalCodes: [], addresses: [], municipalities: [], streetsAndPostalCodes: [] } as SearchResult
       }
 
       const results = await ofetch<SearchResult>(`https://api.boki.dk/search`, { query: { q: debouncedSearch } })
@@ -34,6 +34,7 @@ export function SearchInput({ className }: { className?: string }) {
   const [searchParams, setSearchParams] = useSearchParams() //maybe use useLocation instead?
   searchParams.delete('postal-code')
   searchParams.delete('municipality')
+  searchParams.delete('street')
   return (
     <AutoComplete
       className={className}
@@ -56,6 +57,11 @@ export function SearchInput({ className }: { className?: string }) {
             group: 'Postnummer',
           };
         }) ?? []),
+        ...(searchResults?.streetsAndPostalCodes?.map((searchResult) => ({
+          value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''), //single listings
+          label: searchResult.displayName,
+          group: 'Gade',
+        })) ?? []),
         ...(searchResults?.addresses?.map((searchResult) => ({
           value: searchResult.url, //single listings
           label: searchResult.displayName,
