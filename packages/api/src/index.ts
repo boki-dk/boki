@@ -196,7 +196,7 @@ const app = new Hono()
   .get('/search', async (c) => {
     const q = c.req.query('q') || ''
     if (q.length < 3) {
-      return c.json({ postalCodes: [], addresses: [], municipalities: [] }, 400)
+      return c.json({ postalCodes: [], addresses: [], municipalities: [], streetsAndPostalCodes: [] }, 400)
     }
 
     const addresses = (
@@ -228,7 +228,7 @@ const app = new Hono()
     )
 
     const streetsAndPostalCodes = await ofetch <{tekst: string, vejnavnpostnummerrelation: {vejnavn: string, postnr: string, postnrnavn: string}}[]>
-    ('https://api.dataforsyningen.dk/vejnavne/autocomplete', { query: { q } }) //MAYBE instead {q, fuzzy: true} for fuzzy search - GREAT, but takes 10x as long
+    ('https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete', { query: { q } }) //MAYBE instead {q, fuzzy: true} for fuzzy search - GREAT, but takes 10x as long
 
 
     return c.json({
@@ -709,7 +709,7 @@ const app = new Hono()
 serve(
   {
     fetch: app.fetch,
-    port: 3000,
+    port: 3001,
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`)
