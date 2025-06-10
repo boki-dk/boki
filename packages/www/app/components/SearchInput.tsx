@@ -34,6 +34,7 @@ export function SearchInput({ className }: { className?: string }) {
   const [searchParams, setSearchParams] = useSearchParams() //maybe use useLocation instead?
   searchParams.delete('postal-code')
   searchParams.delete('municipality')
+  searchParams.delete('street')
   return (
     <AutoComplete
       className={className}
