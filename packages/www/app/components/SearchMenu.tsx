@@ -51,7 +51,6 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
   const maxToiletRange = 5
   const [toiletRange, setToiletRange] = useState<[number, number]>([0, maxToiletRange])
 
-  const [sorting, setSorting] = useState<string>('default') // TODO: sorting options
   const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
 
   const location = useLocation();
@@ -88,13 +87,32 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
     if (roomRange[1] != maxRoomRange) {
       params.set('rooms-max', roomRange[1].toString())
     }
+    if (floorRange[0] !== 0) {
+      params.set('floor-min', floorRange[0].toString())
+    }
+    if (floorRange[1] != maxFloorRange) {
+      params.set('floor-max', floorRange[1].toString())
+    }
+    if (yearBuiltRange[0] !== minYearBuiltRange) {
+      params.set('year-built-min', yearBuiltRange[0].toString())
+    }
+    if (yearBuiltRange[1] != new Date().getFullYear()) {
+      params.set('year-built-max', yearBuiltRange[1].toString())
+    }
+    if (toiletRange[0] !== 0) {
+      params.set('bathrooms-min', toiletRange[0].toString())
+    }
+    if (toiletRange[1] != maxToiletRange) {
+      params.set('bathrooms-max', toiletRange[1].toString())
+    }
+
   
     if (types.length > 0) params.set('type', types.join(','))
 
     if (status.length > 0 && JSON.stringify(status) != JSON.stringify(['active', 'reserved'])) params.set('status', status.join(','))
 
     return params.toString()
-  }, [priceRange, areaLandRange, areaRange, roomRange, types, status])
+  }, [priceRange, areaLandRange, areaRange, roomRange, floorRange, types, status, yearBuiltRange, toiletRange, location.search])
 
   return (
     <div className="flex items-center gap-2">

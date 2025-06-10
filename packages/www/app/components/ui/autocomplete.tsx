@@ -6,7 +6,9 @@ import { Input } from './input'
 import { Popover, PopoverAnchor, PopoverContent } from './popover'
 import { Skeleton } from './skeleton'
 import { Check } from 'lucide-react'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
+
+
 
 type Props<T extends string> = {
   searchValue: string
@@ -29,6 +31,7 @@ export function AutoComplete<T extends string>({
 
 }: Props<T>) {
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate();
 
   const groupedItems = Object.groupBy(items, (item) => item.group)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -81,8 +84,8 @@ export function AutoComplete<T extends string>({
                             value={option.value}
                             onMouseDown={(e) => e.preventDefault()}
                             onSelect={() => {
-                              
-                              window.location.href = option.value
+                              navigate(option.value)
+                              //window.location.href = option.value
                               
                             }}
                           >
