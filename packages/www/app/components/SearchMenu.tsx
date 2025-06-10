@@ -48,10 +48,10 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
 
  
   const searchParams = useMemo(() => {
-
-    params.delete('page');
-    params.delete('pageSize');
-
+    
+    params.delete('page'); 
+    params.delete('pageSize'); 
+    
     // Price
     if (priceRange[0] !== 0) params.set('price-min', priceRange[0].toString());
     else params.delete('price-min');
@@ -107,7 +107,6 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
 
     return params;
   }, [
-    location.search,
     priceRange, maxPriceInRange,
     areaRange, maxAreaInRange,
     areaLandRange, maxAreaLandRange,
