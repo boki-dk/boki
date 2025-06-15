@@ -57,3 +57,4 @@ logs
 # React
 .react-router
 build
+packages/api/schema.dbml
