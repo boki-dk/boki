@@ -11,6 +11,8 @@ export async function scrapeHomeListing(url: string) {
 
   let linkedDataString = ''
 
+  // each of these rewriter.on take a css class selector, and from that, performs a function
+  // here, storing the text content of the script tag with type "application/ld+json"
   rewriter.on('script[type="application/ld+json"]', {
     text: ({ text }) => {
       linkedDataString += text
@@ -50,6 +52,7 @@ export async function scrapeHomeListing(url: string) {
   const id = url.split('/sag-').pop()?.slice(0, -1) ?? ''
   console.log('id', id)
 
+  
   const nuxtData = parse(nuxtDataString, {
     NuxtError: (data) => data,
     EmptyShallowRef: (data) => ({ value: data === '_' ? undefined : data === '0n' ? BigInt(0) : destr(data) }),

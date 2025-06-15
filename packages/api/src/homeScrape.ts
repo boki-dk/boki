@@ -5,6 +5,10 @@ import { scrapedListingsTable } from './db/schema.js'
 import { eq, and } from 'drizzle-orm'
 import { hash } from 'ohash'
 
+// This script scrapes the newest listings from home.dk and stores them in the database.
+// We used this script to figure out how to scrape home.dk listings.
+// This code is reused in homeScrapeAll.ts to scrape all listings from home.dk. See there.
+
 const db = drizzle(process.env.DATABASE_URL!)
 
 type Response = {
@@ -14,6 +18,7 @@ type Response = {
 }
 
 const getListings = async (page: number, count?: number) => {
+  // fetch the listings from the home.dk API
   const response = await ofetch<Response>('https://api.home.dk/search//homedk/cases', {
     method: 'POST',
     body: {
@@ -43,6 +48,7 @@ const getListings = async (page: number, count?: number) => {
   const listings = (
     await Promise.all(
       response.results.map(async (listing: any) => {
+        // Check if the listing already exists in the database
         const existingListing = await db
           .select()
           .from(scrapedListingsTable)
@@ -50,13 +56,15 @@ const getListings = async (page: number, count?: number) => {
         if (existingListing.length == 0) {
           return listing
         }
+        // this hasn't happened yet
         if (existingListing.length > 1) {
           console.error(`Found multiple listings with the same id: ${listing.id}`)
         }
-
+        // If the listing already exists and the hash is the same, skip it
         if (existingListing[0].hash === hash(listing)) {
           return null
         }
+        // If the listing already exists but the hash is different, update it
         await db
           .update(scrapedListingsTable)
           .set({
@@ -73,6 +81,7 @@ const getListings = async (page: number, count?: number) => {
 
   console.log(`Found ${listings.length} new listing(s)`)
 
+  // insert the new listings into the database
   for (const listing of listings) {
     await db.insert(scrapedListingsTable).values({
       externalSource: 'home',
@@ -81,6 +90,7 @@ const getListings = async (page: number, count?: number) => {
       hash: hash(listing),
     })
   }
+  // recursively call getListings if there are more listings to fetch
   if (listings.length > 8 && page <= 5 && response.hasNextPage) {
     console.log('Checking next page...')
     await new Promise((resolve) => setTimeout(resolve, 5000))

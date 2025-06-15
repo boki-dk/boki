@@ -5,6 +5,13 @@ import { scrapedListingsTable } from './db/schema.js'
 import { eq, and } from 'drizzle-orm'
 import { hash } from 'ohash'
 
+// This script scrapes all listings from home.dk and stores them in the database.
+// It iterates through all postal codes in Denmark and fetches listings for each postal code.
+// Testing in Yaak revealed the API won't return more than 999 listings per search,
+// so we check the top 999 listings for each postal code.
+// Obviously, this fails if there are more than 999 listings for a postal code,
+// but manual checking shows even the most dense postal codes (like 8000 Aarhus C) have much less than 999 listings.
+
 const db = drizzle(process.env.DATABASE_URL!)
 
 type Response = {
@@ -14,10 +21,12 @@ type Response = {
 }
 
 const getListings = async (page: number, postalCode: string, count?: number) => {
+  // get listings from the home.dk API for a specific postal code
   const response = await ofetch<Response>('https://api.home.dk/search//homedk/cases', {
     method: 'POST',
     body: {
       filters: {
+        // Filter by postal code
         singleFilters: { 'addressFacetValues.postalCode': { selectedValue: { value: postalCode } } },
         multipleFilters: {},
         bitFilters: {
@@ -57,6 +66,7 @@ const getListings = async (page: number, postalCode: string, count?: number) => 
         if (existingListing[0].hash === hash(listing)) {
           return null
         }
+        // If the listing already exists but the hash is different, update it
         await db
           .update(scrapedListingsTable)
           .set({
@@ -72,7 +82,7 @@ const getListings = async (page: number, postalCode: string, count?: number) => 
   ).filter((x) => x !== null)
 
   console.log(`Found ${listings.length} new listing(s)`)
-
+  // insert each new listing into the database
   for (const listing of listings) {
     await db.insert(scrapedListingsTable).values({
       externalSource: 'home',
@@ -87,7 +97,7 @@ const getListings = async (page: number, postalCode: string, count?: number) => 
     await getListings(page + 1, postalCode, count)
   }
 }
-
+// This function fetches all postal codes from the dataforsyningen API
 const getPostalCodes = async () => {
   const response = await ofetch<{ nr: string; navn: string }[]>('https://api.dataforsyningen.dk/postnumre')
   return response /*.filter((x) => Number(x.nr) > 4800)*/
@@ -98,6 +108,7 @@ console.log('Scraping all home.dk listings...')
 // await getListings(1, 999)
 const postalCodes = await getPostalCodes()
 
+// Iterate through all postal codes and fetch all listings for each
 for (const postalCode of postalCodes) {
   console.log(`Scraping listings for ${postalCode}...`)
   await getListings(1, postalCode, 999)

@@ -1,3 +1,12 @@
+/*
+This is the index for the API server. It uses Hono as the web framework and Drizzle ORM for database interactions.
+It serves endpoints for fetching listings, searching, scraping listings from Nybolig and Home, and processing scraped listings.
+It also includes CORS support and serves the application on port 3000.
+This is the brunt of our API code.
+each .get or .post is an endpoint that can be called from the frontend.
+
+*/
+
 import '@dotenvx/dotenvx/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
@@ -34,16 +43,19 @@ const HOME_TYPE_MAP = {
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 
 const app = new Hono()
+// Otherwise we can't call API when we refresh on our own domain. CORS issue
   .use(
     '/*',
     cors({
       origin: ['http://localhost:3000', 'https://www.boki.dk', 'https://boki.dk'],
     }),
   )
+
   .get('/', (c) => {
     return c.text('Hello Hono!')
   })
 
+  // Endpoint to get listings on a map within a bounding box
   .get('/listings/map', async (c) => {
     const southWestLat = c.req.query('swlat')
     const southWestLong = c.req.query('swlong')
@@ -54,6 +66,7 @@ const app = new Hono()
       return c.json([])
     }
 
+    // Query the database for addresses within the bounding box
     const addresses = (
       await db.query.addressesTable.findMany({
         limit: 100,
@@ -78,6 +91,9 @@ const app = new Hono()
     )
   })
 
+  // Our main endpoint for fetching listings.
+  // Optionally takes query parameters to filter and sort listings.
+  // returns a count of listings, the listings (from the database), and a boolean hasMore
   .get('/listings', async (c) => {
     const limit = Number(c.req.query('limit') || '15')
     const offset = Number(c.req.query('offset') || '0')
@@ -104,6 +120,7 @@ const app = new Hono()
     const municipality = c.req.query('municipality')
 
     const postalCodes =
+    // If municipality and no postal code, fetch all postal codes for that municipality
       municipality && !postalCode
         ? await (async () => {
             const response = await ofetch<{ nr: string; navn: string }[]>('https://api.dataforsyningen.dk/postnumre', {
@@ -112,13 +129,15 @@ const app = new Hono()
 
             return response.map((pc) => pc.nr)
           })()
+        // If postal code is provided, use that
         : postalCode
           ? [postalCode]
           : []
 
-    type ListingStatus = (typeof listingsTable)['status']['enumValues'][number] //hmmm
+    type ListingStatus = (typeof listingsTable)['status']['enumValues'][number] 
 
     const status = c.req.query('status')
+    // status can be a comma-separated list of statuses, e.g. 'active,reserved'
     const statusList: ListingStatus[] = status
       ? (status
           .split(',')
@@ -129,6 +148,7 @@ const app = new Hono()
     const sortBy = (c.req.query('sort-by') || 'created-at') as 'created-at' | 'price' | 'area-floor'
     const sortOrder = (c.req.query('sort-order') || 'desc') as 'asc' | 'desc'
 
+    // each of these lines is a filter condition for the listings
     const where = and(
       inArray(listingsTable.status, statusList),
       types && types.length > 0 ? inArray(listingsTable.typeId, types.map(Number)) : undefined,
@@ -147,6 +167,7 @@ const app = new Hono()
       yearBuiltMin ? gte(listingsTable.yearBuilt, Number(yearBuiltMin)) : undefined,
       yearBuiltMax ? lte(listingsTable.yearBuilt, Number(yearBuiltMax)) : undefined,
 
+      // subquery - we first get all the listingIDs for addresess in the given postal codes
       postalCodes.length > 0
         ? inArray(
             listingsTable.id,
@@ -157,6 +178,7 @@ const app = new Hono()
               .where(inArray(addressesTable.postalCode, postalCodes)),
           )
         : undefined,
+      // subquery approach again
       street
         ? inArray(
             listingsTable.id,
@@ -182,6 +204,9 @@ const app = new Hono()
           return sortOrder === 'desc' ? [desc(listing.createdAt)] : [asc(listing.createdAt)]
         }
       },
+      // this is drizzle shortcut - this joins the listings address table with 
+      // the address table and the type table, so we can get the address and type
+      // this is because of the relations address and type defined in the schema.ts file
       with: {
         address: true,
         type: true,
@@ -193,12 +218,15 @@ const app = new Hono()
     return c.json({ count, listings: listings.slice(0, limit), hasMore: listings.length > limit })
   })
 
+  // This is used for the search bar. Returns valid postal codes, addresses, municipalities, and streets with postal codes.
+  // The search query must be at least 3 characters long.
   .get('/search', async (c) => {
     const q = c.req.query('q') || ''
     if (q.length < 3) {
       return c.json({ postalCodes: [], addresses: [], municipalities: [], streetsAndPostalCodes: [] }, 400)
     }
 
+    // query our database for addresses that match the search query
     const addresses = (
       await db.query.addressesTable.findMany({
         limit: 25,
@@ -217,6 +245,7 @@ const app = new Hono()
       })
     ).filter((address) => address.listings?.length > 0)
 
+    // query the dataforsyningen API for postal codes, municipalities, and streets with postal codes
     const postalCodes = await ofetch<{ tekst: string; postnummer: { nr: string; navn: string } }[]>(
       'https://api.dataforsyningen.dk/postnumre/autocomplete',
       { query: { q } },
@@ -256,8 +285,10 @@ const app = new Hono()
     })
   })
 
+  // Endpoint to get a single listing by its ID
   .get('/listings/:listingId', async (c) => {
     const id = c.req.param('listingId')
+    // look for listings in the database with the given ID
     const listing = await db.query.listingsTable.findFirst({
       where: eq(listingsTable.id, Number(id)),
       with: {
@@ -274,6 +305,7 @@ const app = new Hono()
     return c.json(listing)
   })
 
+  // Endpoint to get all listings types, used for the search menu filter
   .get('/listing-types', async (c) => {
     const types = await db.query.listingTypesTable.findMany({
       orderBy: (type, { asc }) => [asc(type.name)],
@@ -281,8 +313,10 @@ const app = new Hono()
 
     return c.json(types)
   })
-
+  // endpoint to proceess listings from Nybolig
   .post('/nybolig/process-listing', async (c) => {
+    // fetch a listing from the scraped listings table that is from Nybolig, 
+    // has no listingId, and has not been processed yet
     const scrapedListing = (
       await db
         .select()
@@ -322,6 +356,7 @@ const app = new Hono()
 
     const updatedListing = await scrapeNyboligListing(url)
 
+    // get the cleaned address from the Dataforsyningen API
     const cleanedAddressResult = await ofetch<{
       kategori: string
       resultater: {
@@ -336,6 +371,8 @@ const app = new Hono()
 
     const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
 
+    // Issues here where a listing from nybolig didn't have a valid address.
+    // If the address is not valid, we set the listingId to null and processedAt to now
     if (!cleanedAddress || cleanedAddress.status !== 1) {
       await db
         .update(scrapedListingsTable)
@@ -348,6 +385,7 @@ const app = new Hono()
       return c.json({ error: 'No valid address found for the listing' }, 400)
     }
 
+    // Fetch the address details from the Dataforsyningen API
     const address = await ofetch<{
       id: string
       vejnavn: string
@@ -364,6 +402,7 @@ const app = new Hono()
       query: { struktur: 'mini' },
     })
 
+    // If the address is not found, we set the listingId to null and processedAt to now
     const listing = await db.transaction(async (tx) => {
       const existingScrapedListing = (
         await tx

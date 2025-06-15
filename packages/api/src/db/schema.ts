@@ -1,6 +1,11 @@
 import { relations } from 'drizzle-orm'
 import { integer, pgTable, timestamp, jsonb, text, index, pgEnum, point } from 'drizzle-orm/pg-core'
 
+/*
+ * This file defines the database schema for the application using Drizzle ORM.
+ * It includes tables for listings, scraped listings, addresses, listing types, and listing images.
+ * See also 3.2 Database initialization in report
+ */
 export const scrapedListingsTable = pgTable(
   'scraped_listings',
   {
