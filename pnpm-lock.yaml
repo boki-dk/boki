@@ -51,11 +51,14 @@ importers:
       '@types/pg':
         specifier: ^8.11.11
         version: 8.11.11
+      drizzle-dbml-generator:
+        specifier: ^0.10.0
+        version: 0.10.0(drizzle-orm@0.44.2(@types/pg@8.11.11)(gel@2.0.1)(pg@8.14.0))
       drizzle-kit:
         specifier: ^0.31.1
         version: 0.31.1
       tsx:
-        specifier: ^4.7.1
+        specifier: ^4.19.3
         version: 4.19.3
       typescript:
         specifier: ^5.7.2
@@ -2175,6 +2178,11 @@ packages:
   dotenv@16.4.7:
     resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
+
+  drizzle-dbml-generator@0.10.0:
+    resolution: {integrity: sha512-cMZq9E3U3RlmE0uBeXyc6oWJ0royOkC6HiTlc9LDeMe+W87poZTzKoNYUyAxZrs4Q1RQtob+cGKiefV4ZoI8HA==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
 
   drizzle-kit@0.31.1:
     resolution: {integrity: sha512-PUjYKWtzOzPtdtQlTHQG3qfv4Y0XT8+Eas6UbxCmxTj7qgMf+39dDujf1BP1I+qqZtw9uzwTh8jYtkMuCq+B0Q==}
@@ -5318,6 +5326,10 @@ snapshots:
       '@babel/runtime': 7.26.10
 
   dotenv@16.4.7: {}
+
+  drizzle-dbml-generator@0.10.0(drizzle-orm@0.44.2(@types/pg@8.11.11)(gel@2.0.1)(pg@8.14.0)):
+    dependencies:
+      drizzle-orm: 0.44.2(@types/pg@8.11.11)(gel@2.0.1)(pg@8.14.0)
 
   drizzle-kit@0.31.1:
     dependencies:
