@@ -6,7 +6,6 @@ import type { Dispatch, SetStateAction } from 'react'
 import { useSearchParams } from 'react-router'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from '~/components/ui/select'
 
-
 type SortDropdownProps = {
   sorting: string
   setAreaLandRange: Dispatch<SetStateAction<string>>
@@ -24,7 +23,6 @@ export function SortDropdown() {
     <Select
       defaultValue="Nyeste"
       onValueChange={(value) => {
-      
         const [sortBy, sortOrder] = value.split('_') as [keyof typeof SORTING_OPTIONS, 'asc' | 'desc']
 
         setSearchParams((searchParams) => {

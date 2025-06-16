@@ -91,7 +91,7 @@ export function AdvancedSearchFilters({
   } as const
 
   return (
-    <div className={cn(className, "flex-1 flex justify-center")}>
+    <div className={cn(className, 'flex-1 flex justify-center')}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="w-full bg-gradient-to-r from-half-fade to-red-500 hover:bg-gradient-to-r text-white">

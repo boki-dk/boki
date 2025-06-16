@@ -30,10 +30,9 @@ export function AutoComplete<T extends string>({
   emptyMessage = 'No items.',
   placeholder = 'Søg...',
   className = '',
-
 }: Props<T>) {
   const [open, setOpen] = useState(false)
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const groupedItems = Object.groupBy(items, (item) => item.group)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -80,7 +79,6 @@ export function AutoComplete<T extends string>({
                     <CommandGroup key={group} heading={group}>
                       {items &&
                         items.map((option) => (
-                          
                           <CommandItem
                             key={option.value}
                             value={option.value}
@@ -89,11 +87,10 @@ export function AutoComplete<T extends string>({
                               setOpen(false)
                               navigate(option.value)
                               //window.location.href = option.value
-                              
                             }}
                           >
                             <span className="flex items-center">
-                              {option.label }
+                              {option.label}
                               {searchValue === option.value && <Check className="ml-2 h-4 w-4" />}
                             </span>
                           </CommandItem>
@@ -102,7 +99,7 @@ export function AutoComplete<T extends string>({
                   ))}
                 </CommandGroup>
               ) : null}
-              {!isLoading ? <CommandEmpty className='py-3 text-center text-sm mx-3'>{emptyMessage ?? 'No items.'}</CommandEmpty> : null}
+              {!isLoading ? <CommandEmpty className="py-3 text-center text-sm mx-3">{emptyMessage ?? 'No items.'}</CommandEmpty> : null}
             </CommandList>
           </PopoverContent>
         </Command>

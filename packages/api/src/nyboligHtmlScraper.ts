@@ -3,7 +3,6 @@ import { HTMLRewriter } from 'htmlrewriter'
 import { listingStatusEnum } from './db/schema.js'
 
 export async function scrapeNyboligListing(url: string) {
-
   // Use a HTMLREwriter to parse the HTML and extract the relevant data
   const rewriter = new HTMLRewriter()
 

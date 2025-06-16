@@ -49,23 +49,21 @@ export function SearchInput({ className }: { className?: string }) {
       // items is the list of items to display in the dropdown, the searchResults
       items={[
         ...(searchResults?.municipalities?.map((searchResult) => {
-          
           return {
-            value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''),
+            value: searchResult.url + (searchParams.toString() ? '&' + searchParams.toString() : ''),
             label: searchResult.displayName.split(' ').slice(1).join(' '), // Remove kommunekode prefix
             group: 'Kommune',
-          };
+          }
         }) ?? []),
         ...(searchResults?.postalCodes?.map((searchResult) => {
-          
           return {
-            value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''), 
+            value: searchResult.url + (searchParams.toString() ? '&' + searchParams.toString() : ''),
             label: searchResult.displayName,
             group: 'Postnummer',
-          };
+          }
         }) ?? []),
         ...(searchResults?.streetsAndPostalCodes?.map((searchResult) => ({
-          value: searchResult.url + ((searchParams.toString()) ? '&' + searchParams.toString() : ''), 
+          value: searchResult.url + (searchParams.toString() ? '&' + searchParams.toString() : ''),
           label: searchResult.displayName,
           group: 'Gade',
         })) ?? []),

@@ -108,7 +108,7 @@ const getListings = async (count: number, maxRec: number, scrollToken?: string) 
   ).filter((x) => x !== null)
 
   console.log(`Found ${listings.length} new listing(s)`)
-// insert each new listing into the intermediary database
+  // insert each new listing into the intermediary database
   for (const listing of listings) {
     await db.insert(scrapedListingsTable).values({
       externalSource: 'nybolig',

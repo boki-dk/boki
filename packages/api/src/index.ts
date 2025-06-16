@@ -43,7 +43,7 @@ const HOME_TYPE_MAP = {
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 
 const app = new Hono()
-// Otherwise we can't call API when we refresh on our own domain. CORS issue
+  // Otherwise we can't call API when we refresh on our own domain. CORS issue
   .use(
     '/*',
     cors({
@@ -120,7 +120,7 @@ const app = new Hono()
     const municipality = c.req.query('municipality')
 
     const postalCodes =
-    // If municipality and no postal code, fetch all postal codes for that municipality
+      // If municipality and no postal code, fetch all postal codes for that municipality
       municipality && !postalCode
         ? await (async () => {
             const response = await ofetch<{ nr: string; navn: string }[]>('https://api.dataforsyningen.dk/postnumre', {
@@ -129,12 +129,12 @@ const app = new Hono()
 
             return response.map((pc) => pc.nr)
           })()
-        // If postal code is provided, use that
-        : postalCode
+        : // If postal code is provided, use that
+          postalCode
           ? [postalCode]
           : []
 
-    type ListingStatus = (typeof listingsTable)['status']['enumValues'][number] 
+    type ListingStatus = (typeof listingsTable)['status']['enumValues'][number]
 
     const status = c.req.query('status')
     // status can be a comma-separated list of statuses, e.g. 'active,reserved'
@@ -204,7 +204,7 @@ const app = new Hono()
           return sortOrder === 'desc' ? [desc(listing.createdAt)] : [asc(listing.createdAt)]
         }
       },
-      // this is drizzle shortcut - this joins the listings address table with 
+      // this is drizzle shortcut - this joins the listings address table with
       // the address table and the type table, so we can get the address and type
       // this is because of the relations address and type defined in the schema.ts file
       with: {
@@ -256,9 +256,9 @@ const app = new Hono()
       { query: { q } },
     )
 
-    const streetsAndPostalCodes = await ofetch <{tekst: string, vejnavnpostnummerrelation: {vejnavn: string, postnr: string, postnrnavn: string}}[]>
-    ('https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete', { query: { q } }) //MAYBE instead {q, fuzzy: true} for fuzzy search - GREAT, but takes 10x as long
-
+    const streetsAndPostalCodes = await ofetch<
+      { tekst: string; vejnavnpostnummerrelation: { vejnavn: string; postnr: string; postnrnavn: string } }[]
+    >('https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete', { query: { q } }) //MAYBE instead {q, fuzzy: true} for fuzzy search - GREAT, but takes 10x as long
 
     return c.json({
       addresses: addresses.map((address) => ({
@@ -315,7 +315,7 @@ const app = new Hono()
   })
   // endpoint to proceess listings from Nybolig
   .post('/nybolig/process-listing', async (c) => {
-    // fetch a listing from the scraped listings table that is from Nybolig, 
+    // fetch a listing from the scraped listings table that is from Nybolig,
     // has no listingId, and has not been processed yet
     const scrapedListing = (
       await db
@@ -436,8 +436,8 @@ const app = new Hono()
             .replace(/[^\w-]+/g, ''),
         })
         .returning()
-      
-        // get the type of the listing
+
+      // get the type of the listing
       const existingType = (
         await tx
           .select()
@@ -455,7 +455,7 @@ const app = new Hono()
             })
             .returning()
 
-            // insert the listing into the listings table
+      // insert the listing into the listings table
       const listingRows = await tx
         .insert(listingsTable)
         .values({
@@ -480,7 +480,7 @@ const app = new Hono()
           yearRenovated: updatedListing.yearRenovated,
         })
         .returning()
-        // insert images into the listing_images table
+      // insert images into the listing_images table
       if (updatedListing.status !== 'unlisted' && (updatedListing.images.length > 0 || updatedListing.floorplanImages.length > 0)) {
         await tx.insert(listingImagesTable).values([
           ...updatedListing.images.map((img, i) => ({
