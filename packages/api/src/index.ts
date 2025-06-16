@@ -21,7 +21,7 @@ import {
   listingTypesTable,
   scrapedListingsTable,
 } from './db/schema.js'
-import { and, eq, ilike, isNull, or, sql, gte, lte, inArray } from 'drizzle-orm'
+import { and, eq, ilike, isNull, or, sql, gte, lte, inArray, not } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeNyboligListing } from './nyboligHtmlScraper.js'
 import { scrapeHomeListing } from './homeHtmlScraper.js'
@@ -519,6 +519,77 @@ const app = new Hono()
     return c.json(listing)
   })
 
+  .post('/nybolig/update-listing', async (c) => {
+    const oldListing = await db.query.listingsTable.findFirst({
+      where: and(eq(listingsTable.source, 'nybolig'), not(eq(listingsTable.status, 'unlisted'))),
+      orderBy: (listing, { asc }) => [asc(listing.updatedAt)],
+    })
+
+    if (!oldListing) {
+      return c.json({ error: 'No listings found' }, 404)
+    }
+
+    console.log(`Updating listing: ${oldListing.id} from Nybolig`)
+
+    const updatedListing = await scrapeNyboligListing(oldListing.sourceUrl)
+
+    // we start a transaction to ensure atomicity
+    const listing = await db.transaction(async (tx) => {
+      const tempOldListing = await db.query.listingsTable.findFirst({
+        where: eq(listingsTable.id, oldListing.id),
+      })
+
+      // Return if the listing has been updated since we fetched it
+      if (tempOldListing?.updatedAt.getTime() !== oldListing.updatedAt.getTime()) return
+
+      if (updatedListing.status === 'unlisted') {
+        // If the listing is unlisted, we just update the listing and mark it as processed
+        const listingRows = await tx
+          .update(listingsTable)
+          .set({
+            updatedAt: new Date(),
+            status: updatedListing.status,
+          })
+          .where(eq(listingsTable.id, oldListing.id))
+          .returning()
+
+        return listingRows[0]
+      }
+
+      // update the listing with the new information
+      const listingRows = await tx
+        .update(listingsTable)
+        .set({
+          updatedAt: new Date(),
+          title: updatedListing.title,
+          description: updatedListing.description,
+          status: updatedListing.status,
+          areaLand: updatedListing.areaLand,
+          areaFloor: updatedListing.areaFloor,
+          areaBasement: updatedListing.areaBasement,
+          price: updatedListing.price,
+          energyClass: updatedListing.energyClass,
+          rooms: updatedListing.rooms,
+          bedroomCount: updatedListing.bedrooms,
+          mainImgUrl: updatedListing.images?.[0]?.src,
+          mainImgAlt: updatedListing.images?.[0]?.alt,
+          floors: updatedListing.floors,
+          yearBuilt: updatedListing.yearBuilt,
+          yearRenovated: updatedListing.yearRenovated,
+        })
+        .where(eq(listingsTable.id, oldListing.id))
+        .returning()
+
+      return listingRows[0]
+    })
+
+    if (!listing) {
+      return c.json({ error: 'Listing was already processed by another request' }, 500)
+    }
+
+    return c.json(listing)
+  })
+
   .get('/nybolig/scrape-listing', async (c) => {
     const url = c.req.query('url')
 
@@ -747,6 +818,78 @@ const app = new Hono()
 
     return c.json(listing)
   })
+
+  .post('/home/update-listing', async (c) => {
+    const oldListing = await db.query.listingsTable.findFirst({
+      where: and(eq(listingsTable.source, 'home'), not(eq(listingsTable.status, 'unlisted'))),
+      orderBy: (listing, { asc }) => [asc(listing.updatedAt)],
+    })
+
+    if (!oldListing) {
+      return c.json({ error: 'No listings found' }, 404)
+    }
+
+    console.log(`Updating listing: ${oldListing.id} from Home`)
+
+    const updatedListing = await scrapeHomeListing(oldListing.sourceUrl)
+
+    // we start a transaction to ensure atomicity
+    const listing = await db.transaction(async (tx) => {
+      const tempOldListing = await db.query.listingsTable.findFirst({
+        where: eq(listingsTable.id, oldListing.id),
+      })
+
+      // Return if the listing has been updated since we fetched it
+      if (tempOldListing?.updatedAt.getTime() !== oldListing.updatedAt.getTime()) return
+
+      if (updatedListing.status === 'unlisted') {
+        // If the listing is unlisted, we just update the listing and mark it as processed
+        const listingRows = await tx
+          .update(listingsTable)
+          .set({
+            updatedAt: new Date(),
+            status: updatedListing.status,
+          })
+          .where(eq(listingsTable.id, oldListing.id))
+          .returning()
+
+        return listingRows[0]
+      }
+
+      // update the listing with the new information
+      const listingRows = await tx
+        .update(listingsTable)
+        .set({
+          updatedAt: new Date(),
+          title: updatedListing.title,
+          description: updatedListing.description,
+          status: updatedListing.status,
+          areaLand: updatedListing.areaLand,
+          areaFloor: updatedListing.areaFloor,
+          areaBasement: updatedListing.areaBasement,
+          price: updatedListing.price,
+          energyClass: updatedListing.energyClass,
+          rooms: updatedListing.rooms,
+          bathroomCount: updatedListing.bathrooms,
+          mainImgUrl: updatedListing.images?.[0]?.url,
+          mainImgAlt: updatedListing.images?.[0]?.description,
+          floors: updatedListing.floors,
+          yearBuilt: updatedListing.yearBuilt,
+          yearRenovated: updatedListing.yearRenovated,
+        })
+        .where(eq(listingsTable.id, oldListing.id))
+        .returning()
+
+      return listingRows[0]
+    })
+
+    if (!listing) {
+      return c.json({ error: 'Listing was already processed by another request' }, 500)
+    }
+
+    return c.json(listing)
+  })
+
   // endpoint to scrape a Home listing by URL
   .get('/home/scrape-listing', async (c) => {
     const url = c.req.query('url')
