@@ -363,6 +363,7 @@ const app = new Hono()
         adresse: {
           id: string
           status: 1 | 2 | 3 | 4
+          virkningslut: string | null
         }
       }[]
     }>('https://api.dataforsyningen.dk/datavask/adresser', {
@@ -373,7 +374,7 @@ const app = new Hono()
 
     // Issues here where a listing from nybolig didn't have a valid address.
     // If the address is not valid, we set the listingId to null and processedAt to now
-    if (!cleanedAddress || cleanedAddress.status !== 1) {
+    if (!cleanedAddress || cleanedAddress.status !== 1 || cleanedAddress.virkningslut !== null) {
       await db
         .update(scrapedListingsTable)
         .set({
@@ -671,6 +672,7 @@ const app = new Hono()
         adresse: {
           id: string
           status: 1 | 2 | 3 | 4
+          virkningslut: string | null
         }
       }[]
     }>('https://api.dataforsyningen.dk/datavask/adresser', {
@@ -679,7 +681,7 @@ const app = new Hono()
 
     const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
     // if no cleaned address or status is not 1, we set the listingId to null and processedAt to now
-    if (!cleanedAddress || cleanedAddress.status !== 1) {
+    if (!cleanedAddress || cleanedAddress.status !== 1 || cleanedAddress.virkningslut !== null) {
       await db
         .update(scrapedListingsTable)
         .set({
