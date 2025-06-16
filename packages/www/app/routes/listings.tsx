@@ -10,6 +10,7 @@ import { ListingTeaser } from '~/components/ListingTeaser'
 import { NavLink } from 'react-router'
 import { SearchMenu } from '~/components/SearchMenu'
 import { SortDropdown } from '~/components/SortDropdown'
+import { Icon } from '@iconify/react'
 
 type ListingsResponse = ExtractSchema<AppType>['/listings']['$get']['output']
 type Listings = ListingsResponse['listings']
@@ -78,30 +79,27 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">
         Søg boliger
-        {street
-          ? ` på ${street} ${municipalityName || postalCodeName}`
-          : municipalityName &&
-              !(
-                municipalityName === 'Frederiksberg' ||
-                municipalityName === 'Bornholm' ||
-                municipalityName === 'Fanø' ||
-                municipalityName === 'Lolland' ||
-                municipalityName === 'Langeland' ||
-                municipalityName === 'Samsø' ||
-                municipalityName === 'Morsø'
-              )
-            ? ` i ${municipalityName}`
-            : municipalityName === 'Frederiksberg' ||
-                municipalityName === 'Bornholm' ||
-                municipalityName === 'Fanø' ||
-                municipalityName === 'Lolland' ||
-                municipalityName === 'Langeland' ||
-                municipalityName === 'Samsø' ||
-                municipalityName === 'Morsø'
-              ? ` på ${municipalityName}`
+        {(street || municipalityName || postalCodeName) ? (
+            <NavLink
+            to={`/boliger?${(() => {
+              const newParams = new URLSearchParams(params)
+              newParams.delete('municipality')
+              newParams.delete('postal-code')
+              newParams.delete('street')
+              return newParams.toString()
+            })()}`}
+            className="ml-2 inline-flex items-center gap-1 bg-gray-200 px-2 py-2 rounded-xl"
+            >
+            {street
+              ? `på ${street} ${municipalityName || postalCodeName}`
+              : municipalityName
+              ? `i ${municipalityName} Kommune`
               : postalCodeName
-                ? ` i ${postalCodeName}`
-                : ''}
+              ? `i ${postalCodeName}`
+              : ''}
+            <Icon icon="mdi:window-close" className="ml-1" />
+            </NavLink>
+        ) : ' i Danmark'}
       </h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
