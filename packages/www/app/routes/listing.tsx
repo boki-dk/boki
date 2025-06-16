@@ -17,8 +17,43 @@ import { Image } from '~/components/Image'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Boliger | Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
+const TITLE_POSTFIX = ' | Boki'
+
+export function meta({ data }: Route.MetaArgs) {
+  const listing = data?.listing
+  if (!listing || 'error' in listing) {
+    return [{ title: 'Boliger | Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
+  }
+
+  const statusPrefix =
+    listing.status === 'sold'
+      ? 'Solgt'
+      : listing.status === 'reserved'
+        ? 'Reserveret'
+        : listing.status === 'active'
+          ? 'Til salg'
+          : 'Inaktiv'
+
+  const title = `${statusPrefix} - ${listing.address.displayName} ${TITLE_POSTFIX}`
+
+  const description = listing.description
+    ? listing.description.replace(/<[^>]+>/g, '').substring(0, 160) + '...'
+    : 'Find dit næste hjem med Boki'
+
+  const image = listing.mainImgUrl
+
+  return [
+    { title },
+    { name: 'description', content: description },
+    { name: 'og:title', content: title },
+    { name: 'og:description', content: description },
+    ...(image ? [{ name: 'og:image', content: image }] : []),
+    { name: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+    ...(image ? [{ name: 'twitter:image', content: image }] : []),
+  ]
 }
 
 export async function loader({ params }: Route.LoaderArgs) {

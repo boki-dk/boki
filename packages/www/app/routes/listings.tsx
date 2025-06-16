@@ -15,7 +15,7 @@ type ListingsResponse = ExtractSchema<AppType>['/listings']['$get']['output']
 type Listings = ListingsResponse['listings']
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'Boliger | Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
+  return [{ title: 'Søg boliger | Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
