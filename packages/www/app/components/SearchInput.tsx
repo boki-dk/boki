@@ -1,3 +1,7 @@
+/*
+A for our use case react component for searching listings.
+Mostly an autocomplete input that fetches search results from the API.
+*/
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { useEffect, useState } from 'react'
@@ -12,6 +16,7 @@ export function SearchInput({ className }: { className?: string }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
+  //debounce the search query to avoid too many requests to the API
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedSearch(searchQuery)
@@ -19,6 +24,7 @@ export function SearchInput({ className }: { className?: string }) {
     return () => clearTimeout(timeoutId)
   }, [searchQuery, 500])
 
+  //use the debounced search query to fetch the search results
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ['searchResults', debouncedSearch],
     queryFn: async () => {
@@ -40,6 +46,7 @@ export function SearchInput({ className }: { className?: string }) {
       className={className}
       searchValue={searchQuery}
       onSearchValueChange={setSearchQuery}
+      // items is the list of items to display in the dropdown, the searchResults
       items={[
         ...(searchResults?.municipalities?.map((searchResult) => {
           

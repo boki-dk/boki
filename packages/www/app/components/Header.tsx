@@ -1,3 +1,4 @@
+// generalized header component for the Boki website
 import { NavLink } from 'react-router'
 import { Icon } from '@iconify/react'
 

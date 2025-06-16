@@ -1,3 +1,6 @@
+/*
+react component that places markers in the bounding box. Bounds-aware.
+*/
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { LatLngBounds } from 'leaflet'

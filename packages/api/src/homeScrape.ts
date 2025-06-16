@@ -6,8 +6,8 @@ import { eq, and } from 'drizzle-orm'
 import { hash } from 'ohash'
 
 // This script scrapes the newest listings from home.dk and stores them in the database.
-// We used this script to figure out how to scrape home.dk listings.
-// This code is reused in homeScrapeAll.ts to scrape all listings from home.dk. See there.
+// This script i periodically run to keep the database up to date with the newest listings.
+// and recursively calls itself to keep fetching listings until there are no more new listings or the page limit is reached.
 
 const db = drizzle(process.env.DATABASE_URL!)
 

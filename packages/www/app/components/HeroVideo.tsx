@@ -1,3 +1,4 @@
+// React component for a full-screen video background in a hero section (front page video)
 import { cn } from '~/lib/utils'
 
 export default function HeroVideo({ className = '', style }: { className?: string; style?: React.CSSProperties }) {

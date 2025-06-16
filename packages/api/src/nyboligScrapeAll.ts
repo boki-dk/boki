@@ -7,6 +7,8 @@ import { hash } from 'ohash'
 
 const db = drizzle(process.env.DATABASE_URL!)
 
+// similar to nyboligScrape.ts, but without the maxRec limit
+
 const getListings = async (count: number, scrollToken?: string) => {
   const response = await ofetch('https://www.nybolig.dk/api/search/cases/find', {
     method: 'POST',

@@ -7,7 +7,12 @@ import { hash } from 'ohash'
 
 const db = drizzle(process.env.DATABASE_URL!)
 
+// This script scrapes the newest listings from nybolig.dk and stores them in the database.
+// It recursively calls itself to keep fetching listings until there are no more new listings or the page limit is reached.
+// It is intended to be run periodically to keep the database up to date with the newest listings.
+
 const getListings = async (count: number, maxRec: number, scrollToken?: string) => {
+  // fetch the listings from the nybolig.dk API
   const response = await ofetch('https://www.nybolig.dk/api/search/cases/find', {
     method: 'POST',
     body: {
@@ -72,6 +77,7 @@ const getListings = async (count: number, maxRec: number, scrollToken?: string) 
   const listings = (
     await Promise.all(
       response.cases.map(async (listing: any) => {
+        // check if the listing already exists in the database
         const existingListing = await db
           .select()
           .from(scrapedListingsTable)
@@ -86,6 +92,7 @@ const getListings = async (count: number, maxRec: number, scrollToken?: string) 
         if (existingListing[0].hash === hash(listing)) {
           return null
         }
+        // If the listing already exists but the hash is different, update it
         await db
           .update(scrapedListingsTable)
           .set({
@@ -101,7 +108,7 @@ const getListings = async (count: number, maxRec: number, scrollToken?: string) 
   ).filter((x) => x !== null)
 
   console.log(`Found ${listings.length} new listing(s)`)
-
+// insert each new listing into the intermediary database
   for (const listing of listings) {
     await db.insert(scrapedListingsTable).values({
       externalSource: 'nybolig',

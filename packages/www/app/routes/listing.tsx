@@ -1,3 +1,6 @@
+/*
+Individual listing page
+*/
 import type { Route } from './+types/listing'
 import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
@@ -29,6 +32,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     return <div>Listing not found</div>
   }
 
+  // image carousel setup
   const [emblaRef, emblaApi] = useEmblaCarousel({}, [WheelGesturesPlugin()])
 
   const scrollPrev = useCallback(() => {

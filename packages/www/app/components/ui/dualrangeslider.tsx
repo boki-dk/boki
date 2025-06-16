@@ -1,3 +1,7 @@
+/*
+taken from https://shadcnui-expansions.typeart.cc/docs/dual-range-slider
+a default UI component for a dual range slider using Radix UI
+ */
 import * as React from 'react'
 import * as SliderPrimitive from '@radix-ui/react-slider'
 

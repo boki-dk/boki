@@ -1,3 +1,7 @@
+/*
+A react component for advanced search filters in a real estate application.
+Not a generalized component, but tailored for our specific use case.
+ */
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'

@@ -1,3 +1,4 @@
+// generalized react component for displaying a "card" or "teaser" for a listing
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { NavLink } from 'react-router'

@@ -1,3 +1,6 @@
+/*
+listings page (/boliger)
+*/
 import { Button } from '~/components/ui/button'
 import type { Route } from './+types/listings'
 import { ofetch } from 'ofetch'

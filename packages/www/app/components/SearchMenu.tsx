@@ -1,3 +1,8 @@
+/*
+  React component for the search menu, which includes primary and advanced search filters defined in their files
+  and a search input field.
+  Overall, takes the inputs from the user and navigates to the corresponding page
+*/
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { SearchInput } from './SearchInput'

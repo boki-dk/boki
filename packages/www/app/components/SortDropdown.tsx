@@ -1,9 +1,11 @@
-import { listingsRelations } from 'api/src/db/schema'
-import type { AppType } from 'api/src/index'
-import type { ExtractSchema } from 'hono/types'
+/*
+Specific implementation of a select component for sorting listings.
+This component uses the `useSearchParams` hook to manage the sorting state in the URL.
+*/
 import type { Dispatch, SetStateAction } from 'react'
 import { useSearchParams } from 'react-router'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from '~/components/ui/select'
+
 
 type SortDropdownProps = {
   sorting: string

@@ -1,3 +1,7 @@
+/*
+Responsive image component that delivers appropriate image sizes and formats
+for optimal performance and the users screen size.
+*/
 export function Image({ src, alt, className, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { src: string; alt?: string }) {
   const transformedSrc = new URL('https://images.boki.dk')
   transformedSrc.searchParams.set('url', src)

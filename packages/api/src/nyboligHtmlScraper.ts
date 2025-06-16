@@ -3,12 +3,16 @@ import { HTMLRewriter } from 'htmlrewriter'
 import { listingStatusEnum } from './db/schema.js'
 
 export async function scrapeNyboligListing(url: string) {
+
+  // Use a HTMLREwriter to parse the HTML and extract the relevant data
   const rewriter = new HTMLRewriter()
 
   const response = await fetch(url)
 
   const images: { src: string; alt: string | null }[] = []
 
+  // each of these rewriter.on take a css class selector, and from that, performs a function
+  //here, getting the source and alt text of the images in the hero slider
   rewriter.on('#hero-slider-photo img', {
     element: (el) => {
       const src = el.getAttribute('src')
@@ -128,6 +132,7 @@ export async function scrapeNyboligListing(url: string) {
     return { status: listingStatusEnum.enumValues[3] }
   }
 
+  // in case of missing values, we set them to null or default values.
   const areaFloor = caseFacts?.['Boligareal: '] ?? null
   const areaBasement = caseFacts?.['K&#230;lderst&#248;rrelse: '] ?? null
   const bedrooms = Number(caseFacts?.['Stue/V&#230;relser: ']?.split('/')[1] ?? 0)

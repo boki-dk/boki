@@ -8,7 +8,9 @@ import { Skeleton } from './skeleton'
 import { Check } from 'lucide-react'
 import { useNavigate, useSearchParams } from 'react-router'
 
-
+// This component was taken from https://leonardomontini.dev/shadcn-autocomplete/
+// https://github.com/Balastrong/shadcn-autocomplete-demo/blob/main/src/components/autocomplete.tsx
+// and then heavily modified it to fit our needs.
 
 type Props<T extends string> = {
   searchValue: string

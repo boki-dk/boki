@@ -1,3 +1,4 @@
+// generalized footer component for the Boki website
 export function Footer() {
   return (
     <footer className="bg-gray-100 py-8 mt-10">

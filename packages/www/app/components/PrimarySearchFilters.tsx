@@ -1,3 +1,6 @@
+/*
+Similar to advanced search filters. A specific component for Boki's primary search filters.
+*/
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu'

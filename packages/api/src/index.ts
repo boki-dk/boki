@@ -403,6 +403,7 @@ const app = new Hono()
     })
 
     // If the address is not found, we set the listingId to null and processedAt to now
+    // we start a transaction to ensure atomicity
     const listing = await db.transaction(async (tx) => {
       const existingScrapedListing = (
         await tx
@@ -413,7 +414,7 @@ const app = new Hono()
       )[0]
 
       if (!existingScrapedListing || existingScrapedListing.listingId !== null) return
-
+      //insert the address into the addresses table
       const addressRows = await tx
         .insert(addressesTable)
         .values({
@@ -435,7 +436,8 @@ const app = new Hono()
             .replace(/[^\w-]+/g, ''),
         })
         .returning()
-
+      
+        // get the type of the listing
       const existingType = (
         await tx
           .select()
@@ -453,6 +455,7 @@ const app = new Hono()
             })
             .returning()
 
+            // insert the listing into the listings table
       const listingRows = await tx
         .insert(listingsTable)
         .values({
@@ -477,6 +480,7 @@ const app = new Hono()
           yearRenovated: updatedListing.yearRenovated,
         })
         .returning()
+        // insert images into the listing_images table
       if (updatedListing.status !== 'unlisted' && (updatedListing.images.length > 0 || updatedListing.floorplanImages.length > 0)) {
         await tx.insert(listingImagesTable).values([
           ...updatedListing.images.map((img, i) => ({
@@ -496,6 +500,7 @@ const app = new Hono()
         ])
       }
 
+      // mark listing as processed by updating the scrapedListings table
       await tx
         .update(scrapedListingsTable)
         .set({
@@ -524,7 +529,10 @@ const app = new Hono()
     return c.json(await scrapeNyboligListing(url))
   })
 
+  // processes a listing from scraped listings table that is from Home
+  // formats the information properly into our database
   .post('/home/process-listing', async (c) => {
+    // get scraped listing
     const scrapedListing = (
       await db
         .select()
@@ -546,7 +554,7 @@ const app = new Hono()
     }
 
     console.log(`Processing listing: ${scrapedListing.id} from Home`)
-
+    // the scrapedListing.json is a JSON object that contains the listing information
     const listingJson = scrapedListing.json as {
       url: string
       type: keyof typeof HOME_TYPE_MAP
@@ -583,9 +591,9 @@ const app = new Hono()
       // totalNumberOfRooms: number
     }
     const url = `https://home.dk/${listingJson.url}`
-
+    // get newer information from scraping Home HTML
     const updatedListing = await scrapeHomeListing(url)
-
+    // check address at Dataforsyningen API
     const cleanedAddressResult = await ofetch<{
       kategori: string
       resultater: {
@@ -599,7 +607,7 @@ const app = new Hono()
     })
 
     const cleanedAddress = cleanedAddressResult?.resultater?.[0].adresse
-
+    // if no cleaned address or status is not 1, we set the listingId to null and processedAt to now
     if (!cleanedAddress || cleanedAddress.status !== 1) {
       await db
         .update(scrapedListingsTable)
@@ -612,6 +620,7 @@ const app = new Hono()
       return c.json({ error: 'No valid address found for the listing' }, 400)
     }
 
+    // Fetch the address details from the Dataforsyningen API
     const address = await ofetch<{
       id: string
       vejnavn: string
@@ -630,7 +639,9 @@ const app = new Hono()
 
     const type = HOME_TYPE_MAP[(updatedListing.type ?? listingJson.type) as keyof typeof HOME_TYPE_MAP]
 
+    // start transaction to add into the database
     const listing = await db.transaction(async (tx) => {
+      // check if the scraped listing already has a listingId
       const existingScrapedListing = (
         await tx
           .select()
@@ -640,7 +651,7 @@ const app = new Hono()
       )[0]
 
       if (!existingScrapedListing || existingScrapedListing.listingId !== null) return
-
+      // insert the address into the addresses table
       const addressRows = await tx
         .insert(addressesTable)
         .values({
@@ -662,7 +673,7 @@ const app = new Hono()
             .replace(/[^\w-]+/g, ''),
         })
         .returning()
-
+      // get the type of the listing, if it exists, otherwise insert it
       const existingType = (await tx.select().from(listingTypesTable).where(eq(listingTypesTable.name, type)).limit(1))[0]
 
       const typeRows = existingType
@@ -674,6 +685,7 @@ const app = new Hono()
             })
             .returning()
 
+      // insert the listing into the listings table
       const listingRows = await tx
         .insert(listingsTable)
         .values({
@@ -717,6 +729,7 @@ const app = new Hono()
         ])
       }
 
+      // mark listing as processed by updating the scrapedListings table
       await tx
         .update(scrapedListingsTable)
         .set({
@@ -734,7 +747,7 @@ const app = new Hono()
 
     return c.json(listing)
   })
-
+  // endpoint to scrape a Home listing by URL
   .get('/home/scrape-listing', async (c) => {
     const url = c.req.query('url')
 

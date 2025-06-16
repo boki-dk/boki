@@ -1,3 +1,6 @@
+/*
+Front page (boki.dk)
+*/
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import type { Route } from './+types/home'
 import HeroVideo from '~/components/HeroVideo'
@@ -25,8 +28,10 @@ export default function Home() {
         <HeroVideo className="absolute inset-0" style={{ objectPosition: '50% 30%' }} />
 
         <div className="relative z-10 flex flex-col items-center justify-center h-full -top-15 text-center select-none cursor-default">
-          <h1 className="text-9xl font-bold bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text ">Boki</h1>
-          <p className="text-xl font-semibold italic bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text -mt-4">
+          <h1 className="text-9xl font-bold bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text drop-shadow-lg">
+            Boki
+          </h1>
+          <p className="text-xl font-semibold italic bg-gradient-to-r from-pink-500 to-red-500 text-transparent bg-clip-text -mt-4 drop-shadow-lg">
             Find dit næste hjem her
           </p>
         </div>
@@ -38,29 +43,37 @@ export default function Home() {
           <CardContent className="text-center mt-4">
             <SearchInput />
             <div className="mt-5 flex flex-wrap justify-center gap-2">
-              
-      <Button 
-      onClick={() => {
-        navigate('/boliger?municipality=0101') // København Municipality
-      }}
-      >København</Button>
-  
-    
-      <Button onClick={() => {
-        navigate('/boliger?municipality=0751') // Aarhus Municipality
-      }}>Aarhus</Button>
-   
-    
-      <Button onClick={() => {
-        navigate('/boliger?municipality=0851') // Aalborg Municipality
-      }}>Aalborg</Button>
-   
-   
-      <Button onClick={() => {
-        navigate('/boliger?municipality=0461') // Odense Municipality
-      }}>Odense</Button>
-  
-        
+              <Button
+                onClick={() => {
+                  navigate('/boliger?municipality=0101') // København Municipality
+                }}
+              >
+                København
+              </Button>
+
+              <Button
+                onClick={() => {
+                  navigate('/boliger?municipality=0751') // Aarhus Municipality
+                }}
+              >
+                Aarhus
+              </Button>
+
+              <Button
+                onClick={() => {
+                  navigate('/boliger?municipality=0851') // Aalborg Municipality
+                }}
+              >
+                Aalborg
+              </Button>
+
+              <Button
+                onClick={() => {
+                  navigate('/boliger?municipality=0461') // Odense Municipality
+                }}
+              >
+                Odense
+              </Button>
             </div>
           </CardContent>
         </CardHeader>

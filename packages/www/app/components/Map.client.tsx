@@ -1,3 +1,6 @@
+/*
+Leaflet map component for displaying listings on a map. Generic.
+*/
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { ExtractSchema } from 'hono/types'
