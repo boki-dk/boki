@@ -66,8 +66,8 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
         </button>
       )}
       <div className="flex flex-col gap-10">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 bg-gray-100 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2 bg-gray-100 rounded-lg">
             <Card>
               <CardContent>
                 <div className="embla relative">
@@ -185,7 +185,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
               </ul>
             </CardContent>
           </Card>
-          <Card className="col-span-3">
+          <Card className="md:col-span-3">
             <CardContent>
               {/* trust me bro it's fine */}
               {listing.description && <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: listing.description }} />}
