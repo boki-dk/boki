@@ -39,7 +39,7 @@ export default function Home() {
 
       <Card className="relative mx-auto max-w-2xl -mt-40">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">Søg efter bolig i hele Danmark 🇩🇰</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Søg efter bolig i hele Danmark</CardTitle>
           <CardContent className="text-center mt-4">
             <SearchInput />
             <div className="mt-5 flex flex-wrap justify-center gap-2">
