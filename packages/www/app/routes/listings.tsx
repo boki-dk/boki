@@ -25,29 +25,37 @@ export async function loader({ request }: Route.LoaderArgs) {
   const params = new URLSearchParams(url.search)
   params.delete('page')
   params.delete('pageSize')
-  params.set('offset' , ((page -1 ) * pageSize).toString()) // i think this offset makes sense
+  params.set('offset', ((page - 1) * pageSize).toString()) // i think this offset makes sense
 
   // fetch the real API on the server
-  const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings?' + params.toString()
-  )
+  const listingsResponse = await ofetch<ListingsResponse>('https://api.boki.dk/listings?' + params.toString())
 
-  const municipalityName = municipality ? (await ofetch<{navn: string}>(`https://api.dataforsyningen.dk/kommuner/${municipality}`)).navn : undefined
-  const postalCodeName = 
-  postalCode ?
-   await ofetch<{nr: string, navn: string}>(`https://api.dataforsyningen.dk/postnumre/${postalCode}`) 
-   : undefined
+  const municipalityName = municipality
+    ? (await ofetch<{ navn: string }>(`https://api.dataforsyningen.dk/kommuner/${municipality}`)).navn
+    : undefined
+  const postalCodeName = postalCode
+    ? await ofetch<{ nr: string; navn: string }>(`https://api.dataforsyningen.dk/postnumre/${postalCode}`)
+    : undefined
   const typesResponse = await ofetch<ExtractSchema<AppType>['/listing-types']['$get']['output']>('https://api.boki.dk/listing-types')
 
-//   //because url.searchparams can't be serialized to JSON, we need to convert it to a plain object??
-  const searchParamsObj: Record<string, string> = {};
-for (const [key, value] of url.searchParams.entries()) {
-  if (key !== 'page' && key !== 'pageSize') {
-    searchParamsObj[key] = value;
+  //   //because url.searchparams can't be serialized to JSON, we need to convert it to a plain object??
+  const searchParamsObj: Record<string, string> = {}
+  for (const [key, value] of url.searchParams.entries()) {
+    if (key !== 'page' && key !== 'pageSize') {
+      searchParamsObj[key] = value
+    }
   }
-}
-  
 
-  return { ...listingsResponse, page, pageSize, typesResponse, municipalityName, street, postalCodeName: (postalCodeName ? postalCodeName?.nr + ' ' + postalCodeName?.navn : undefined), searchParams: searchParamsObj }
+  return {
+    ...listingsResponse,
+    page,
+    pageSize,
+    typesResponse,
+    municipalityName,
+    street,
+    postalCodeName: postalCodeName ? postalCodeName?.nr + ' ' + postalCodeName?.navn : undefined,
+    searchParams: searchParamsObj,
+  }
 }
 // export async function clientLoader({
 //   serverLoader,
@@ -60,21 +68,38 @@ for (const [key, value] of url.searchParams.entries()) {
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
   const { count, listings, hasMore, page, pageSize, typesResponse, municipalityName, street, postalCodeName, searchParams } = loaderData
-  
-  const params = new URLSearchParams(searchParams)
 
+  const params = new URLSearchParams(searchParams)
 
   return (
     <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
-      <h1 className="text-4xl font-bold mb-2">Søg boliger{
-      street ? ` på ${street} ${municipalityName || postalCodeName}` 
-      : 
-      municipalityName
-    ? ` i ${municipalityName}`
-    : postalCodeName
-      ? ` i ${postalCodeName}`
-      : ''}
-</h1>
+      <h1 className="text-4xl font-bold mb-2">
+        Søg boliger
+        {street
+          ? ` på ${street} ${municipalityName || postalCodeName}`
+          : municipalityName &&
+              !(
+                municipalityName === 'Frederiksberg' ||
+                municipalityName === 'Bornholm' ||
+                municipalityName === 'Fanø' ||
+                municipalityName === 'Lolland' ||
+                municipalityName === 'Langeland' ||
+                municipalityName === 'Samsø' ||
+                municipalityName === 'Morsø'
+              )
+            ? ` i ${municipalityName}`
+            : municipalityName === 'Frederiksberg' ||
+                municipalityName === 'Bornholm' ||
+                municipalityName === 'Fanø' ||
+                municipalityName === 'Lolland' ||
+                municipalityName === 'Langeland' ||
+                municipalityName === 'Samsø' ||
+                municipalityName === 'Morsø'
+              ? ` på ${municipalityName}`
+              : postalCodeName
+                ? ` i ${postalCodeName}`
+                : ''}
+      </h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
       <div className="mb-3">
@@ -115,4 +140,3 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     </div>
   )
 }
-
