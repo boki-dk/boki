@@ -7,7 +7,13 @@ import { destr } from 'destr'
 export async function scrapeHomeListing(url: string) {
   const rewriter = new HTMLRewriter()
 
-  const response = await fetch(url)
+  const _response = await fetch(url)
+  // Clone response to avoid error when mutating headers
+  const response = new Response(_response.body, {
+    headers: _response.headers,
+    status: _response.status,
+    statusText: _response.statusText,
+  })
 
   let linkedDataString = ''
 
