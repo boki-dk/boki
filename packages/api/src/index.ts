@@ -45,7 +45,7 @@ const HOME_TYPE_MAP = {
 
 const db = drizzle(process.env.DATABASE_URL!, { schema })
 
-const token = 'secret_token'
+const token = process.env.API_TOKEN!
 
 const app = new Hono()
   // Otherwise we can't call API when we refresh on our own domain. CORS issue
@@ -525,7 +525,7 @@ const app = new Hono()
     return c.json(listing)
   })
 
-  .post('/nybolig/update-listing', async (c) => {
+  .post('/nybolig/update-listing', bearerAuth({ token }), async (c) => {
     const oldListing = await db.query.listingsTable.findFirst({
       where: and(eq(listingsTable.source, 'nybolig'), not(eq(listingsTable.status, 'unlisted'))),
       orderBy: (listing, { asc }) => [asc(listing.updatedAt)],
@@ -608,7 +608,7 @@ const app = new Hono()
 
   // processes a listing from scraped listings table that is from Home
   // formats the information properly into our database
-  .post('/home/process-listing', async (c) => {
+  .post('/home/process-listing', bearerAuth({ token }), async (c) => {
     // get scraped listing
     const scrapedListing = (
       await db
@@ -825,7 +825,7 @@ const app = new Hono()
     return c.json(listing)
   })
 
-  .post('/home/update-listing', async (c) => {
+  .post('/home/update-listing', bearerAuth({ token }), async (c) => {
     const oldListing = await db.query.listingsTable.findFirst({
       where: and(eq(listingsTable.source, 'home'), not(eq(listingsTable.status, 'unlisted'))),
       orderBy: (listing, { asc }) => [asc(listing.updatedAt)],
