@@ -73,16 +73,20 @@ export const addressesTable = pgTable(
 
 export const listingImageTypeEnum = pgEnum('listing_image_type', ['image', 'floorplan'])
 
-export const listingImagesTable = pgTable('listing_images', {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  createdAt: timestamp().notNull().defaultNow(),
-  updatedAt: timestamp().notNull().defaultNow(),
-  listingId: integer().notNull(),
-  url: text().notNull(),
-  order: integer(),
-  alt: text(),
-  type: listingImageTypeEnum(),
-})
+export const listingImagesTable = pgTable(
+  'listing_images',
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow(),
+    listingId: integer().notNull(),
+    url: text().notNull(),
+    order: integer(),
+    alt: text(),
+    type: listingImageTypeEnum(),
+  },
+  (table) => [index('listing_images_listing_id_idx').on(table.listingId)],
+)
 
 export const listingImagesRelations = relations(listingImagesTable, ({ one }) => ({
   listing: one(listingsTable, { fields: [listingImagesTable.listingId], references: [listingsTable.id] }),
