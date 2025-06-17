@@ -53,6 +53,10 @@ export function SearchMenu({ typesResponse }: { typesResponse: TypesResult[] }) 
   const [status, setStatus] = useState<ListingStatus[]>(['active' as ListingStatus, 'reserved' as ListingStatus])
 
   // not really necessary, but reduces length of URL
+  // TODO: if you go on page 2 and refresh, it will reset the page to 1. This happens here
+  // here, we update the searchParams whenever a slider value changes. When you refresh the page, it resets all slider values to their default values, so resets everything
+  // in the search.
+  // and resets the page to 1.
   const searchParams = useMemo(() => {
     params.delete('page')
     params.delete('pageSize')

@@ -7,7 +7,7 @@ import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
-import { NavLink } from 'react-router'
+import { NavLink, useLocation } from 'react-router'
 import { SearchMenu } from '~/components/SearchMenu'
 import { SortDropdown } from '~/components/SortDropdown'
 import { Icon } from '@iconify/react'
@@ -43,12 +43,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   const typesResponse = await ofetch<ExtractSchema<AppType>['/listing-types']['$get']['output']>('https://api.boki.dk/listing-types')
 
   //   //because url.searchparams can't be serialized to JSON, we need to convert it to a plain object??
-  const searchParamsObj: Record<string, string> = {}
-  for (const [key, value] of url.searchParams.entries()) {
-    if (key !== 'page' && key !== 'pageSize') {
-      searchParamsObj[key] = value
-    }
-  }
+  // const searchParamsObj: Record<string, string> = {}
+  // for (const [key, value] of url.searchParams.entries()) {
+  //   if (key !== 'page' && key !== 'pageSize') {
+  //     searchParamsObj[key] = value
+  //   }
+  // }
 
   return {
     ...listingsResponse,
@@ -58,7 +58,6 @@ export async function loader({ request }: Route.LoaderArgs) {
     municipalityName,
     street,
     postalCodeName: postalCodeName ? postalCodeName?.nr + ' ' + postalCodeName?.navn : undefined,
-    searchParams: searchParamsObj,
   }
 }
 // export async function clientLoader({
@@ -71,9 +70,14 @@ export async function loader({ request }: Route.LoaderArgs) {
 // }
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
-  const { count, listings, hasMore, page, pageSize, typesResponse, municipalityName, street, postalCodeName, searchParams } = loaderData
+  const { count, listings, hasMore, page, pageSize, typesResponse, municipalityName, street, postalCodeName } = loaderData
+  const location = useLocation()
 
-  const params = new URLSearchParams(searchParams)
+  const params = new URLSearchParams(location.search)
+  params.delete('page')
+  params.delete('pageSize')
+  //console.log('Search params:', params.toString())
+  //console.log('previous location:', location.pathname, location.search)
 
   return (
     <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
