@@ -11,6 +11,7 @@ import '@dotenvx/dotenvx/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { bearerAuth } from 'hono/bearer-auth'
 import { ofetch } from 'ofetch'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import {
@@ -39,9 +40,12 @@ const HOME_TYPE_MAP = {
   VacationHousing: 'Fritidsbolig',
   VacationPlot: 'Fritidsgrund',
   FarmHouse: 'Landejendom',
+  HobbyAgriculture: 'Landejendom',
 } as const
 
 const db = drizzle(process.env.DATABASE_URL!, { schema })
+
+const token = 'secret_token'
 
 const app = new Hono()
   // Otherwise we can't call API when we refresh on our own domain. CORS issue
@@ -315,7 +319,7 @@ const app = new Hono()
     return c.json(types)
   })
   // endpoint to proceess listings from Nybolig
-  .post('/nybolig/process-listing', async (c) => {
+  .post('/nybolig/process-listing', bearerAuth({ token }), async (c) => {
     // fetch a listing from the scraped listings table that is from Nybolig,
     // has no listingId, and has not been processed yet
     const scrapedListing = (
@@ -749,7 +753,6 @@ const app = new Hono()
         .returning()
       // get the type of the listing, if it exists, otherwise insert it
       const existingType = (await tx.select().from(listingTypesTable).where(eq(listingTypesTable.name, type)).limit(1))[0]
-
       const typeRows = existingType
         ? [existingType]
         : await tx
