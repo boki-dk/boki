@@ -12,8 +12,8 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
   const listingIsPlot = listing.typeId === 3 || listing.typeId === 12 || listing.typeId === 14
   return (
     <NavLink to={`/bolig/${listing.id}`}>
-      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border pb-6 shadow-sm">
-        <div className="relative">
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border pb-6 shadow-sm h-full">
+        <div className="relative flex-none">
           {listing.status != 'active' && (
             <span className="absolute bottom-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
               {listing.status == 'sold' && 'Solgt'}
@@ -30,16 +30,16 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
           />
         </div>
 
-        <div className="flex flex-col px-6">
-          <div className="flex flex-row justify-between items-start gap-4">
-            <div>
+        <div className="flex flex-col px-6 grow">
+          <div className="flex flex-row justify-between items-start gap-4 h-full">
+            <div className="flex flex-col h-full">
               <p>
                 {listing.address.displayName.replaceAll(`, ${listing.address.postalCode} ${listing.address.postalCodeName}`, '').trim()}
               </p>
-              <p>
+              <p className="">
                 {listing.address.postalCode} {listing.address.postalCodeName}
               </p>
-              <p className="text-muted-foreground text-s py-1">{listing.type.name}</p>
+              <p className="text-muted-foreground text-s py-1 grow">{listing.type.name}</p>
               {listing.price != 0 && <p className="text-lg">{currencyFormatter.format(listing.price)}</p>}
             </div>
 

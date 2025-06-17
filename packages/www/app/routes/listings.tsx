@@ -79,8 +79,8 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col min-h-screen py-2 md:py-4 lg:py-8 px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
       <h1 className="text-4xl font-bold mb-2">
         Søg boliger
-        {(street || municipalityName || postalCodeName) ? (
-            <NavLink
+        {street || municipalityName || postalCodeName ? (
+          <NavLink
             to={`/boliger?${(() => {
               const newParams = new URLSearchParams(params)
               newParams.delete('municipality')
@@ -89,17 +89,19 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
               return newParams.toString()
             })()}`}
             className="ml-2 inline-flex items-center gap-1 bg-gray-200 px-2 py-2 rounded-xl"
-            >
+          >
             {street
               ? `på ${street} ${municipalityName || postalCodeName}`
               : municipalityName
-              ? `i ${municipalityName} Kommune`
-              : postalCodeName
-              ? `i ${postalCodeName}`
-              : ''}
+                ? `i ${municipalityName} Kommune`
+                : postalCodeName
+                  ? `i ${postalCodeName}`
+                  : ''}
             <Icon icon="mdi:window-close" className="ml-1" />
-            </NavLink>
-        ) : ' i Danmark'}
+          </NavLink>
+        ) : (
+          ' i Danmark'
+        )}
       </h1>
       <p className="mb-8 text-xl">Find dit næste hjem med Boki</p>
 
@@ -114,7 +116,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
         <SortDropdown />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-max">
         {listings.map((listing) => (
           <ListingTeaser key={listing.id} listing={listing} />
         ))}
