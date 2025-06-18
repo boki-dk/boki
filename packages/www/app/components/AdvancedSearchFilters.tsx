@@ -95,7 +95,7 @@ export function AdvancedSearchFilters({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="w-full bg-gradient-to-r from-half-fade to-red-500 hover:bg-gradient-to-r text-white">
-            Advancerede filtre
+            Avanceret filtre
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-90 pb-1" align="center">
