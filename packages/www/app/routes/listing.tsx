@@ -107,7 +107,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
             <Card>
               <CardContent>
                 <div className="embla relative">
-                  <div className="embla__viewport overflow-hidden aspect-video" ref={emblaRef}>
+                  <div className="embla__viewport overflow-visible aspect-video" ref={emblaRef}>
                     <div className="embla__container flex">
                       {listing.images.map((image, index) => (
                         <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
@@ -121,11 +121,12 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                             fetchPriority={index === 0 ? 'high' : 'low'}
                           /> */}
                           <ImageEnlargable
-                            className="absolute top-0 left-0 w-full h-full cursor-pointer"
                             lgSrc={image.url}
                             alt={image.alt ?? undefined}
                             width={1600}
                             height={900}
+                            loading="eager"
+                            fetchPriority="high"
                           />
                         </div>
                       ))}

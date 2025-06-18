@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { Image } from '~/components/Image'
+import { cn } from '~/lib/utils'
+
+// i'm not sure of the rendering order of the modal. like will the modal be rendered before the image is clicked?
 
 export function ImageEnlargable({
   src,
@@ -32,16 +35,16 @@ export function ImageEnlargable({
   }
 
   return (
-    <div className="overflow-visible">
-      <div onClick={openModal}>
-        <Image src={src} />
-      </div>
+    <>
+      <Image src={src} alt={alt} className={cn(className, 'cursor-pointer')} onClick={openModal} {...props} />
+
       {showModal && (
         <div onClick={closeModal}>
-          <Image src="https://placehold.co/600x400/orange/white" alt={alt} onClick={closeModal} />
-          <button className="absolute top-2 right-2 text-white">X</button>
+          <div className="relative" onClick={closeModal}>
+            <Image src={lgSrc} alt={alt} className="max-h-250 max-w-250" />
+          </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
