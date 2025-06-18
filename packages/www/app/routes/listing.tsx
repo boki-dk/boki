@@ -14,6 +14,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { Map } from '~/components/Map.client'
 import { Image } from '~/components/Image'
+import { ImageEnlargable } from '~/components/ui/image-enlargable'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
 
@@ -110,7 +111,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                     <div className="embla__container flex">
                       {listing.images.map((image, index) => (
                         <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
-                          <Image
+                          {/* <Image
                             className="object-contain aspect-video"
                             src={image.url}
                             alt={image.alt ?? undefined}
@@ -118,6 +119,13 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                             height={900}
                             loading={index === 0 ? 'eager' : 'lazy'}
                             fetchPriority={index === 0 ? 'high' : 'low'}
+                          /> */}
+                          <ImageEnlargable
+                            className="absolute top-0 left-0 w-full h-full cursor-pointer"
+                            lgSrc={image.url}
+                            alt={image.alt ?? undefined}
+                            width={1600}
+                            height={900}
                           />
                         </div>
                       ))}
