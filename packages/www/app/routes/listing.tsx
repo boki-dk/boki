@@ -8,7 +8,7 @@ import type { ExtractSchema } from 'hono/types'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, type HeadersArgs } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
@@ -18,6 +18,11 @@ import { Image } from '~/components/Image'
 type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
 
 const TITLE_POSTFIX = ' | Boki'
+
+export function headers({ parentHeaders }: HeadersArgs) {
+  parentHeaders.set('Cache-Control', 'public, s-maxage=3600')
+  return parentHeaders
+}
 
 export function meta({ data }: Route.MetaArgs) {
   const listing = data?.listing

@@ -9,10 +9,14 @@ import { Button } from '~/components/ui/button'
 import { MapListings } from '~/components/MapListings.client'
 import { useEffect, useState } from 'react'
 import type { LatLngBounds } from 'leaflet'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, type HeadersArgs } from 'react-router'
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'Boki' }, { name: 'description', content: 'Find dit næste hjem med Boki' }]
+}
+export function headers({ parentHeaders }: HeadersArgs) {
+  parentHeaders.set('Cache-Control', 'public, s-maxage=86400')
+  return parentHeaders
 }
 
 export default function Home() {

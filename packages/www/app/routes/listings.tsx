@@ -7,7 +7,7 @@ import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import { ListingTeaser } from '~/components/ListingTeaser'
-import { NavLink, useLocation } from 'react-router'
+import { NavLink, useLocation, type HeadersArgs } from 'react-router'
 import { SearchMenu } from '~/components/SearchMenu'
 import { SortDropdown } from '~/components/SortDropdown'
 import { Icon } from '@iconify/react'
@@ -68,6 +68,10 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 //   if (serverData)
 // }
+export function headers({ parentHeaders }: HeadersArgs) {
+  parentHeaders.set('Cache-Control', 'public, s-maxage=120')
+  return parentHeaders
+}
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
   const { count, listings, hasMore, page, pageSize, typesResponse, municipalityName, street, postalCodeName } = loaderData
