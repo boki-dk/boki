@@ -83,12 +83,13 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     if (emblaApi) emblaApi.scrollNext()
   }, [emblaApi])
 
+  const floorPlanIndex = listing.images.findIndex((image) => image.type !== null && image.type === 'floorplan')
+
   const scrollToFloorPlan = useCallback(() => {
-    const floorPlanIndex = listing.images.findIndex((image) => image.type !== null && image.type === 'floorplan')
     if (floorPlanIndex !== -1 && emblaApi) {
       emblaApi.scrollTo(floorPlanIndex)
     }
-  }, [emblaApi, listing.images])
+  }, [emblaApi, floorPlanIndex])
 
   const scrollFirst = useCallback(() => {
     if (emblaApi) emblaApi.scrollTo(0)
@@ -123,17 +124,17 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                         alt={image.alt ?? undefined}
                         width={1600}
                         height={900}
-                        loading={index === 0 ? 'eager' : 'lazy'}
-                        fetchPriority={index === 0 ? 'high' : 'low'}
+                        loading={index === 0 || index === floorPlanIndex ? 'eager' : 'lazy'}
+                        fetchPriority={index === 0 || index === floorPlanIndex ? 'high' : 'low'}
                       />
                     </div>
                   ))}
                 </div>
               </div>
-              <button className="embla__prev absolute left-0 top-1/2 cursor-pointer" onClick={scrollPrev}>
+              <button className="embla__prev absolute left-0 top-[calc(50%-1.25rem)] cursor-pointer" onClick={scrollPrev}>
                 <Icon icon="ic:round-arrow-back-ios" className="w-10 h-10 text-gray-100 drop-shadow-sm" />
               </button>
-              <button className="embla__next absolute right-0 top-1/2 cursor-pointer" onClick={scrollNext}>
+              <button className="embla__next absolute right-0 top-[calc(50%-1.25rem)] cursor-pointer" onClick={scrollNext}>
                 <Icon icon="ic:round-arrow-forward-ios" className="w-10 h-10 text-gray-100 drop-shadow-sm" />
               </button>
               {listing.images.some((image) => image.type === 'floorplan') && (
