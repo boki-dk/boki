@@ -22,7 +22,7 @@ import {
   listingTypesTable,
   scrapedListingsTable,
 } from './db/schema.js'
-import { and, eq, ilike, isNull, or, sql, gte, lte, inArray, not } from 'drizzle-orm'
+import { and, eq, ilike, isNull, or, sql, gte, lte, inArray, not, ne } from 'drizzle-orm'
 import * as schema from './db/schema.js'
 import { scrapeNyboligListing } from './nyboligHtmlScraper.js'
 import { scrapeHomeListing } from './homeHtmlScraper.js'
@@ -290,12 +290,38 @@ const app = new Hono()
     })
   })
 
-  // Endpoint to get a single listing by its ID
-  .get('/listings/:listingId', async (c) => {
-    const id = c.req.param('listingId')
+  // Endpoint to get a single listing by its ID or slug
+  .get('/listings/:listingUrlKey', async (c) => {
+    const urlKey = c.req.param('listingUrlKey')
+
+    if (!urlKey) {
+      return c.json({ error: 'Listing id or slug is required' }, 400)
+    }
+
+    let id = Number(urlKey)
+
+    if (isNaN(id)) {
+      const address = await db.query.addressesTable.findFirst({
+        where: eq(addressesTable.slug, urlKey),
+        with: {
+          listings: {
+            where: ne(listingsTable.status, 'unlisted'),
+            orderBy: (listing, { desc }) => [desc(listing.createdAt)],
+            limit: 1,
+          },
+        },
+      })
+
+      if (!address || !address.listings || address.listings.length === 0) {
+        return c.json({ error: 'Listing not found' }, 404)
+      }
+
+      id = address.listings[0].id
+    }
+
     // look for listings in the database with the given ID
     const listing = await db.query.listingsTable.findFirst({
-      where: eq(listingsTable.id, Number(id)),
+      where: eq(listingsTable.id, id),
       with: {
         address: true,
         type: true,

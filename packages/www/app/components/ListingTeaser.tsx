@@ -4,14 +4,13 @@ import type { ExtractSchema } from 'hono/types'
 import { NavLink } from 'react-router'
 import { currencyFormatter } from '~/lib/utils'
 import { Image } from './Image'
-import { Icon } from '@iconify/react'
 
 type Listing = ExtractSchema<AppType>['/listings']['$get']['output']['listings'][number]
 
 export function ListingTeaser({ listing }: { listing: Listing }) {
   const listingIsPlot = listing.typeId === 3 || listing.typeId === 12 || listing.typeId === 14
   return (
-    <NavLink to={`/bolig/${listing.id}`}>
+    <NavLink to={`/bolig/${listing.address.slug}`}>
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border pb-6 shadow-sm h-full">
         <div className="relative flex-none">
           {listing.status != 'active' && (
@@ -45,12 +44,7 @@ export function ListingTeaser({ listing }: { listing: Listing }) {
 
             <div className="flex flex-col items-end justify-center px-3 py-2 gap-1 whitespace-nowrap border-l border-gray-300 pr-4 mr-4">
               <span>{listingIsPlot ? listing.areaLand : listing.areaFloor} m²</span>
-              {listing.rooms != 0 && listing.rooms && (
-                <span>
-                  {listing.rooms} vær.
-                  {/* <Icon icon="mdi:bed-king-outline" className='mt-1'/> */}
-                </span>
-              )}
+              {listing.rooms != 0 && listing.rooms && <span>{listing.rooms} vær.</span>}
             </div>
           </div>
         </div>

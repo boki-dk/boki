@@ -15,7 +15,7 @@ import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { Map } from '~/components/Map.client'
 import { Image } from '~/components/Image'
 
-type Listing = ExtractSchema<AppType>['/listings/:listingId']['$get']['output']
+type Listing = ExtractSchema<AppType>['/listings/:listingUrlKey']['$get']['output']
 
 const TITLE_POSTFIX = ' | Boki'
 
