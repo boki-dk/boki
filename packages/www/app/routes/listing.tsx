@@ -85,6 +85,10 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
     }
   }, [emblaApi, listing.images])
 
+  const scrollFirst = useCallback(() => {
+    if (emblaApi) emblaApi.scrollTo(0)
+  }, [emblaApi])
+
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
@@ -102,61 +106,68 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
       )}
       <div className="flex flex-col gap-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2 bg-gray-100 rounded-lg">
-            <Card>
-              <CardContent>
-                <div className="embla relative">
-                  <div className="embla__viewport overflow-hidden aspect-video" ref={emblaRef}>
-                    <div className="embla__container flex">
-                      {listing.images.map((image, index) => (
-                        <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
-                          <Image
-                            className="object-contain aspect-video"
-                            src={image.url}
-                            alt={image.alt ?? undefined}
-                            width={1600}
-                            height={900}
-                            loading={index === 0 ? 'eager' : 'lazy'}
-                            fetchPriority={index === 0 ? 'high' : 'low'}
-                          />
-                        </div>
-                      ))}
+          <div className="md:col-span-2">
+            <div className="embla relative">
+              <div className="embla__viewport overflow-hidden aspect-video rounded-lg shadow-sm select-none" ref={emblaRef}>
+                <div className="embla__container flex">
+                  {listing.images.map((image, index) => (
+                    <div className="embla__slide min-w-0 flex-none basis-full" key={image.id}>
+                      <Image
+                        className="object-contain aspect-video"
+                        src={image.url}
+                        alt={image.alt ?? undefined}
+                        width={1600}
+                        height={900}
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                        fetchPriority={index === 0 ? 'high' : 'low'}
+                      />
                     </div>
-                  </div>
-                  <button className="embla__prev absolute bottom-2 left-[calc(50%-2rem)] cursor-pointer" onClick={scrollPrev}>
-                    <Icon icon="material-symbols:arrow-circle-left-outline" className="w-8 h-8" />
-                  </button>
-                  <button className="embla__next absolute bottom-2 left-[calc(50%+2rem)] cursor-pointer" onClick={scrollNext}>
-                    <Icon icon="material-symbols:arrow-circle-right-outline" className="w-8 h-8" />
-                  </button>
-                  {listing.images.some((image) => image.type === 'floorplan') && (
-                    <Button
-                      variant="outline"
-                      className="bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white"
-                      onClick={scrollToFloorPlan}
-                    >
-                      Hop til plantegning
-                    </Button>
-                  )}
-                  {listing.status !== 'active' &&
-                    (listing.status === 'sold' ? (
-                      <span className="absolute bottom-6 right-6 bg-red-500 text-white font-bold text-3xl px-3 py-2 rounded">SOLGT</span>
-                    ) : (
-                      <span className="absolute bottom-6 right-6 bg-yellow-500 text-white font-bold text-3xl px-3 py-2 rounded">
-                        RESERVERET
-                      </span>
-                    ))}
+                  ))}
                 </div>
-              </CardContent>
-              <CardFooter className="font-bold text-4xl py-2">{listing.address.displayName}</CardFooter>
-            </Card>
+              </div>
+              <button className="embla__prev absolute left-0 top-1/2 cursor-pointer" onClick={scrollPrev}>
+                <Icon icon="ic:round-arrow-back-ios" className="w-10 h-10 text-gray-100 drop-shadow-sm" />
+              </button>
+              <button className="embla__next absolute right-0 top-1/2 cursor-pointer" onClick={scrollNext}>
+                <Icon icon="ic:round-arrow-forward-ios" className="w-10 h-10 text-gray-100 drop-shadow-sm" />
+              </button>
+              {listing.images.some((image) => image.type === 'floorplan') && (
+                <div className="flex gap-2 absolute bottom-2 left-2">
+                  <button className="cursor-pointer bg-gray-100 rounded p-1 shadow-sm" onClick={scrollFirst}>
+                    <Icon icon="carbon:image" className="w-7 h-7 text-gray-600" />
+                  </button>
+                  <button className="cursor-pointer bg-gray-100 rounded p-1.5 shadow-sm" onClick={scrollToFloorPlan}>
+                    <Icon icon="carbon:floorplan" className="w-6 h-6 text-gray-600" />
+                  </button>
+                </div>
+                // <Button
+                //   variant="outline"
+                //   className="bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white absolute bottom-2 left-2"
+                //   onClick={scrollToFloorPlan}
+                // >
+                //   Hop til plantegning
+                // </Button>
+              )}
+              {listing.status !== 'active' &&
+                (listing.status === 'sold' ? (
+                  <span className="absolute bottom-2 right-2 bg-red-500 text-gray-100 font-bold text-xl px-2.5 py-1 rounded-md shadow-sm select-none">
+                    SOLGT
+                  </span>
+                ) : (
+                  <span className="absolute bottom-2 right-2 bg-yellow-500 text-gray-100 font-bold text-xl px-2.5 py-1 rounded-md shadow-sm select-none">
+                    RESERVERET
+                  </span>
+                ))}
+            </div>
+
+            <div className="font-bold text-4xl pb-2 pt-6">{listing.address.displayName}</div>
           </div>
           <Card>
             <CardHeader>
               <CardTitle className="font-extrabold text-4xl">Detaljer</CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 <li className="flex">
                   <span className="font-extrabold mr-2 shrink-0">Adresse:</span>{' '}
                   <span className="ml-auto flex-1 text-right break-words">{listing.address.displayName}</span>
@@ -207,7 +218,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                   <span className="font-extrabold">Oprettet:</span>
                   <span className="ml-auto">{new Date(listing.createdAt).toLocaleDateString()}</span>
                 </li>
-                <li className="flex justify-center py-5">
+                <li className="flex justify-center pt-4">
                   <Link to={listing.sourceUrl}>
                     <Button
                       variant="outline"
@@ -220,14 +231,14 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
               </ul>
             </CardContent>
           </Card>
-          <Card className="md:col-span-3">
-            <CardContent>
-              {/* trust me bro it's fine */}
-              {listing.description && <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: listing.description }} />}
-              {/* really bro trust me it's fine, don't even worry about it */}
-            </CardContent>
-          </Card>
         </div>
+        <Card>
+          <CardContent>
+            {/* trust me bro it's fine */}
+            {listing.description && <div className="text-gray-700" dangerouslySetInnerHTML={{ __html: listing.description }} />}
+            {/* really bro trust me it's fine, don't even worry about it */}
+          </CardContent>
+        </Card>
         <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm">
           {mounted && <Map listing={listing} />}
         </div>
