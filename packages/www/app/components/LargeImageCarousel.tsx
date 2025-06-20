@@ -37,8 +37,8 @@ export function LargeImageCarousel({ images }: { images: Images }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="cursor-pointer bg-gray-100 rounded p-1.5 shadow-sm" onClick={scrollToFloorPlan}>
-          <Icon icon="carbon:fit-to-screen" className="w-6 h-6 text-gray-600" />
+        <button className="cursor-pointer bg-gray-100 rounded p-1 shadow-sm" onClick={scrollToFloorPlan}>
+          <Icon icon="carbon:fit-to-screen" className="w-7 h-7 text-gray-600" />
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-5xl sm:max-w-5xl w-full h-min">

@@ -10,15 +10,24 @@ import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { Link, useNavigate, type HeadersArgs } from 'react-router'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { Map } from '~/components/Map.client'
 import { Image } from '~/components/Image'
 import { LargeImageCarousel } from '~/components/LargeImageCarousel'
+import { cn } from '~/lib/utils'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingUrlKey']['$get']['output']
 
 const TITLE_POSTFIX = ' | Boki'
+
+const ENERGY_CLASS_COLOR_MAP = {
+  A: 'bg-green-600 shadow-green-600',
+  B: 'bg-green-500 shadow-green-500',
+  C: 'bg-yellow-500 shadow-yellow-500',
+  D: 'bg-yellow-400 shadow-yellow-400',
+  E: 'bg-orange-300 shadow-orange-300',
+} as const
 
 export function headers({ parentHeaders }: HeadersArgs) {
   parentHeaders.set('Cache-Control', 'public, s-maxage=3600')
@@ -104,7 +113,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate()
 
   return (
-    <div className="px-6 md:px-8 lg:px-12 max-w-8xl mx-auto">
+    <div className="px-6 md:px-8 lg:px-12 max-w-8xl mx-auto shadow-">
       {mounted && history.length > 1 && (
         <button className="mb-4 mr-auto flex items-center gap-2 cursor-pointer" onClick={() => navigate(-1)}>
           <Icon icon="mdi:arrow-left" />
@@ -162,8 +171,21 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                   </span>
                 ))}
             </div>
-
-            <div className="font-bold text-4xl pb-2 pt-6">{listing.address.displayName}</div>
+            <div className="flex items-center gap-3 pt-5 pb-2">
+              {listing.energyClass && (
+                <span
+                  className={cn(
+                    'text-xs text-white w-6 h-6 flex flex-col items-center justify-center rounded-sm leading-none shadow-xs',
+                    ENERGY_CLASS_COLOR_MAP?.[listing.energyClass.slice(0, 1) as keyof typeof ENERGY_CLASS_COLOR_MAP],
+                  )}
+                >
+                  <span className="font-semibold">{listing.energyClass.slice(0, 1)}</span>
+                  {listing.energyClass.slice(1) && <span className="text-[0.5rem]">{listing.energyClass.slice(1)}</span>}
+                </span>
+              )}
+              <span className="text-lg">{listing.type.name}</span>
+            </div>
+            <div className="font-bold text-4xl pb-2">{listing.address.displayName}</div>
           </div>
           <Card>
             <CardHeader>
