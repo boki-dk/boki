@@ -6,7 +6,7 @@ import { ofetch } from 'ofetch'
 import type { AppType } from 'api/src/index'
 import type { ExtractSchema } from 'hono/types'
 import useEmblaCarousel from 'embla-carousel-react'
-import { useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { Link, useNavigate, type HeadersArgs } from 'react-router'
 import { Button } from '~/components/ui/button'
@@ -14,6 +14,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { Map } from '~/components/Map.client'
 import { Image } from '~/components/Image'
+import { LargeImageCarousel } from '~/components/LargeImageCarousel'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingUrlKey']['$get']['output']
 
@@ -137,23 +138,19 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
               <button className="embla__next absolute right-0 top-[calc(50%-1.25rem)] cursor-pointer" onClick={scrollNext}>
                 <Icon icon="ic:round-arrow-forward-ios" className="w-10 h-10 text-gray-100 drop-shadow-sm" />
               </button>
-              {listing.images.some((image) => image.type === 'floorplan') && (
-                <div className="flex gap-2 absolute bottom-2 left-2">
-                  <button className="cursor-pointer bg-gray-100 rounded p-1 shadow-sm" onClick={scrollFirst}>
-                    <Icon icon="carbon:image" className="w-7 h-7 text-gray-600" />
-                  </button>
-                  <button className="cursor-pointer bg-gray-100 rounded p-1.5 shadow-sm" onClick={scrollToFloorPlan}>
-                    <Icon icon="carbon:floorplan" className="w-6 h-6 text-gray-600" />
-                  </button>
-                </div>
-                // <Button
-                //   variant="outline"
-                //   className="bg-gradient-to-r from-pink-500 to-red-500 hover:bg-gradient-to-r hover:from-pink-600 hover:to-red-600 text-white absolute bottom-2 left-2"
-                //   onClick={scrollToFloorPlan}
-                // >
-                //   Hop til plantegning
-                // </Button>
-              )}
+              <div className="flex gap-2 absolute bottom-2 left-2">
+                <LargeImageCarousel images={listing.images} />
+                {listing.images.some((image) => image.type === 'floorplan') && (
+                  <Fragment>
+                    <button className="cursor-pointer bg-gray-100 rounded p-1 shadow-sm" onClick={scrollFirst}>
+                      <Icon icon="carbon:image" className="w-7 h-7 text-gray-600" />
+                    </button>
+                    <button className="cursor-pointer bg-gray-100 rounded p-1.5 shadow-sm" onClick={scrollToFloorPlan}>
+                      <Icon icon="carbon:floorplan" className="w-6 h-6 text-gray-600" />
+                    </button>
+                  </Fragment>
+                )}
+              </div>
               {listing.status !== 'active' &&
                 (listing.status === 'sold' ? (
                   <span className="absolute bottom-2 right-2 bg-red-500 text-gray-100 font-bold text-xl px-2.5 py-1 rounded-md shadow-sm select-none">
