@@ -364,7 +364,7 @@ const app = new Hono()
     )[0]
 
     if (!scrapedListing) {
-      return c.json({ error: 'No listings found' }, 404)
+      return c.json({ error: 'No listings found' }, 200)
     }
 
     console.log(`Processing listing: ${scrapedListing.id} from Nybolig`)
@@ -558,7 +558,7 @@ const app = new Hono()
     })
 
     if (!oldListing) {
-      return c.json({ error: 'No listings found' }, 404)
+      return c.json({ error: 'No listings found' }, 200)
     }
 
     console.log(`Updating listing: ${oldListing.id} from Nybolig`)
@@ -653,7 +653,7 @@ const app = new Hono()
     )[0]
 
     if (!scrapedListing) {
-      return c.json({ error: 'No listings found' }, 404)
+      return c.json({ error: 'No listings found' }, 200)
     }
 
     console.log(`Processing listing: ${scrapedListing.id} from Home`)
@@ -858,7 +858,7 @@ const app = new Hono()
     })
 
     if (!oldListing) {
-      return c.json({ error: 'No listings found' }, 404)
+      return c.json({ error: 'No listings found' }, 200)
     }
 
     console.log(`Updating listing: ${oldListing.id} from Home`)
