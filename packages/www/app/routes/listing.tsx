@@ -16,6 +16,7 @@ import { Map } from '~/components/Map.client'
 import { Image } from '~/components/Image'
 import { LargeImageCarousel } from '~/components/LargeImageCarousel'
 import { cn } from '~/lib/utils'
+import { currencyFormatter } from '~/lib/utils'
 
 type Listing = ExtractSchema<AppType>['/listings/:listingUrlKey']['$get']['output']
 
@@ -200,7 +201,7 @@ export default function Listings({ loaderData }: Route.ComponentProps) {
                 {listing.status !== 'sold' && (
                   <li className="flex">
                     <span className="font-extrabold">Pris:</span>
-                    <span className="ml-auto">{listing.price} kr.</span>
+                    <span className="ml-auto">{currencyFormatter.format(listing.price)}</span>
                   </li>
                 )}
                 {listing.areaFloor !== 0 && (
