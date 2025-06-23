@@ -29,6 +29,7 @@ const ENERGY_CLASS_COLOR_MAP = {
   D: 'bg-yellow-400 shadow-yellow-400',
   E: 'bg-orange-300 shadow-orange-300',
   F: 'bg-red-300 shadow-red-300',
+  G: 'bg-red-500 shadow-red-500',
 } as const
 
 export function headers({ parentHeaders }: HeadersArgs) {
