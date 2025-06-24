@@ -251,20 +251,23 @@ const app = new Hono()
     ).filter((address) => address.listings?.length > 0)
 
     // query the dataforsyningen API for postal codes, municipalities, and streets with postal codes
-    const postalCodes = await ofetch<{ tekst: string; postnummer: { nr: string; navn: string } }[]>(
-      'https://api.dataforsyningen.dk/postnumre/autocomplete',
-      { query: { q } },
-    )
-
-    const municipalities = await ofetch<{ tekst: string; kommune: { kode: string; navn: string } }[]>(
-      'https://api.dataforsyningen.dk/kommuner/autocomplete',
-      { query: { q } },
-    )
-
-    const streetsAndPostalCodes = await ofetch<
-      { tekst: string; vejnavnpostnummerrelation: { vejnavn: string; postnr: string; postnrnavn: string } }[]
-    >('https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete', { query: { q } }) //MAYBE instead {q, fuzzy: true} for fuzzy search - GREAT, but takes 10x as long
-
+    // these also support fuzzy search, but it makes it much slower.
+    // this operation takes about 1.5 seconds, the primary cause of why our autocomplete is slow.
+    // dawa pls.
+    const [postalCodes, municipalities, streetsAndPostalCodes] = await Promise.all([
+  ofetch<{ tekst: string; postnummer: { nr: string; navn: string } }[]>(
+    'https://api.dataforsyningen.dk/postnumre/autocomplete',
+    { query: { q } },
+  ),
+  ofetch<{ tekst: string; kommune: { kode: string; navn: string } }[]>(
+    'https://api.dataforsyningen.dk/kommuner/autocomplete',
+    { query: { q } },
+  ),
+  ofetch<{ tekst: string; vejnavnpostnummerrelation: { vejnavn: string; postnr: string; postnrnavn: string } }[]>(
+    'https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete',
+    { query: { q } },
+  ),
+]);
     return c.json({
       addresses: addresses.map((address) => ({
         id: address.listings[0].id,
