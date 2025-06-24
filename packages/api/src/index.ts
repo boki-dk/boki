@@ -128,6 +128,9 @@ const app = new Hono()
       // If municipality and no postal code, fetch all postal codes for that municipality
       municipality && !postalCode
         ? await (async () => {
+            // this can take up to 19(!!!!) seconds for larger municipaliteis like copenhagen!!!
+            //  (which is why sometimes front page buttons are slow)
+            // dawa pls
             const response = await ofetch<{ nr: string; navn: string }[]>('https://api.dataforsyningen.dk/postnumre', {
               query: { kommunekode: municipality },
             })
@@ -255,19 +258,17 @@ const app = new Hono()
     // this operation takes about 1.5 seconds, the primary cause of why our autocomplete is slow.
     // dawa pls.
     const [postalCodes, municipalities, streetsAndPostalCodes] = await Promise.all([
-  ofetch<{ tekst: string; postnummer: { nr: string; navn: string } }[]>(
-    'https://api.dataforsyningen.dk/postnumre/autocomplete',
-    { query: { q } },
-  ),
-  ofetch<{ tekst: string; kommune: { kode: string; navn: string } }[]>(
-    'https://api.dataforsyningen.dk/kommuner/autocomplete',
-    { query: { q } },
-  ),
-  ofetch<{ tekst: string; vejnavnpostnummerrelation: { vejnavn: string; postnr: string; postnrnavn: string } }[]>(
-    'https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete',
-    { query: { q } },
-  ),
-]);
+      ofetch<{ tekst: string; postnummer: { nr: string; navn: string } }[]>('https://api.dataforsyningen.dk/postnumre/autocomplete', {
+        query: { q },
+      }),
+      ofetch<{ tekst: string; kommune: { kode: string; navn: string } }[]>('https://api.dataforsyningen.dk/kommuner/autocomplete', {
+        query: { q },
+      }),
+      ofetch<{ tekst: string; vejnavnpostnummerrelation: { vejnavn: string; postnr: string; postnrnavn: string } }[]>(
+        'https://api.dataforsyningen.dk/vejnavnpostnummerrelationer/autocomplete',
+        { query: { q } },
+      ),
+    ])
     return c.json({
       addresses: addresses.map((address) => ({
         id: address.listings[0].id,
