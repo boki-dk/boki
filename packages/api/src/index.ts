@@ -81,19 +81,14 @@ const app = new Hono()
             where: or(eq(listingsTable.status, 'active'), eq(listingsTable.status, 'reserved')),
             orderBy: (listing, { desc }) => [desc(listing.createdAt)],
             limit: 1,
+            with: {
+              type: true, // include the type of the listing
+            },
           },
         },
       })
-    ).filter((address) => address.listings?.length > 0)
-    return c.json(
-      addresses.map((address) => ({
-        type: 'address',
-        id: address.listings[0].id,
-        displayName: address.displayName,
-        url: `/bolig/${address.listings[0].id}`,
-        location: { long: address.location.x, lat: address.location.y },
-      })),
-    )
+    ).filter((address) => address.listings?.length > 0 && address.listings?.length < 2)
+    return c.json(addresses)
   })
 
   // Our main endpoint for fetching listings.
