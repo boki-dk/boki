@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ofetch } from 'ofetch'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
+import { currencyFormatter } from '~/lib/utils'
 import L from 'leaflet'
 
 import icon from 'leaflet/dist/images/marker-icon.png'
@@ -37,23 +38,14 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: LatLngBou
   return null
 }
 // displayname and url
-function ListingMarker({
-  position,
-  address,
-  displayName,
-  url,
-}: {
-  position: [number, number]
-  address: MapListings[number]
-  displayName: string
-  url: string
-}) {
+function ListingMarker({ position, address, url }: { position: [number, number]; address: MapListings[number]; url: string }) {
   const listing = address.listings[0]
   return (
     <Marker position={position}>
       <Popup>
         <Link to={url}>{address.displayName}</Link>
-        <p> Ejerlejlighed</p>
+        <h1 className="text-muted-foreground">{listing.type.name}</h1>
+        <h1>{currencyFormatter.format(listing.price)}</h1>
       </Popup>
     </Marker>
   )
@@ -68,7 +60,6 @@ function ListingMarkers({ listings }: { listings: MapListings }) {
           // latitude is location.y, longitude is location.x
           position={[address.location.y, address.location.x]}
           address={address}
-          displayName={address.displayName}
           url={`/bolig/${address.slug}`}
         />
       ))}
