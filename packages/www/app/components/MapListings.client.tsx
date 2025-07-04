@@ -36,12 +36,24 @@ function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: LatLngBou
   })
   return null
 }
-
-function ListingMarker({ position, displayName, url }: { position: [number, number]; displayName: string; url: string }) {
+// displayname and url
+function ListingMarker({
+  position,
+  address,
+  displayName,
+  url,
+}: {
+  position: [number, number]
+  address: MapListings[number]
+  displayName: string
+  url: string
+}) {
+  const listing = address.listings[0]
   return (
     <Marker position={position}>
       <Popup>
-        <Link to={url}>{displayName}</Link>
+        <Link to={url}>{address.displayName}</Link>
+        <p> Ejerlejlighed</p>
       </Popup>
     </Marker>
   )
@@ -50,12 +62,14 @@ function ListingMarker({ position, displayName, url }: { position: [number, numb
 function ListingMarkers({ listings }: { listings: MapListings }) {
   return (
     <>
-      {listings.map((listing) => (
+      {listings.map((address) => (
         <ListingMarker
-          key={listing.id}
-          position={[listing.location.lat, listing.location.long]}
-          displayName={listing.displayName}
-          url={listing.url}
+          key={address.id}
+          // latitude is location.y, longitude is location.x
+          position={[address.location.y, address.location.x]}
+          address={address}
+          displayName={address.displayName}
+          url={`/bolig/${address.slug}`}
         />
       ))}
     </>
