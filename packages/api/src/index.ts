@@ -158,6 +158,7 @@ const app = new Hono()
 
     // each of these lines is a filter condition for the listings
     const where = and(
+      ne(listingsTable.source, 'home'),
       inArray(listingsTable.status, statusList),
       types && types.length > 0 ? inArray(listingsTable.typeId, types.map(Number)) : undefined,
       priceMin ? gte(listingsTable.price, Number(priceMin)) : undefined,
@@ -325,7 +326,7 @@ const app = new Hono()
 
     // look for listings in the database with the given ID
     const listing = await db.query.listingsTable.findFirst({
-      where: eq(listingsTable.id, id),
+      where: and(eq(listingsTable.id, id), ne(listingsTable.source, 'home')),
       with: {
         address: true,
         type: true,
@@ -636,6 +637,7 @@ const app = new Hono()
     return c.json(await scrapeNyboligListing(url))
   })
 
+/*
   // processes a listing from scraped listings table that is from Home
   // formats the information properly into our database
   .post('/home/process-listing', bearerAuth({ token }), async (c) => {
@@ -935,7 +937,7 @@ const app = new Hono()
     }
 
     return c.json(await scrapeHomeListing(url))
-  })
+  })*/
 
 serve(
   {

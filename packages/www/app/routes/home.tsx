@@ -92,8 +92,8 @@ export default function Home() {
           nogle af landets største ejendomsmæglere.
           <br />
           <br />
-          Hos os får du et samlet overblik over boliger til salg, da vi løbende henter data fra både Nybolig og Home. Det betyder, at du
-          hurtigt kan finde drømmeboligen - uanset om du leder efter lejlighed i København, villa i Aarhus, eller rækkehus i Odense.
+          Hos os får du et samlet overblik over boliger til salg{/* , da vi løbende henter data fra både Nybolig og Home */}. Det betyder,
+          at du hurtigt kan finde drømmeboligen - uanset om du leder efter lejlighed i København, villa i Aarhus, eller rækkehus i Odense.
           <br />
           <br />
           Vi fokuserer på brugervenlighed, hastighed og fuld gennemsigtighed, så du slipper for at hoppe mellem forskellige
