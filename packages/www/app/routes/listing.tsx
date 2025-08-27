@@ -8,7 +8,7 @@ import type { ExtractSchema } from 'hono/types'
 import useEmblaCarousel from 'embla-carousel-react'
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
-import { Link, useNavigate, type HeadersArgs } from 'react-router'
+import { Link, useNavigate, data, type HeadersArgs } from 'react-router'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
@@ -75,7 +75,11 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
-  return { listing: await ofetch<Listing>(`https://api.boki.dk/listings/${params.slug}`) }
+  return {
+    listing: await ofetch<Listing>(`https://api.boki.dk/listings/${params.slug}`).catch(() => {
+      throw data('Listing not found', { status: 404 })
+    }),
+  }
 }
 
 export default function Listings({ loaderData }: Route.ComponentProps) {
